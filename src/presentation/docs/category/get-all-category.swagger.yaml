@@ -1,0 +1,18 @@
+paths:
+  /api/category/:
+    get:
+      summary: Get all categories
+      tags: [Category]
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllCategoriesResponse"
+        "400":
+          description: Bad request or no categories found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"

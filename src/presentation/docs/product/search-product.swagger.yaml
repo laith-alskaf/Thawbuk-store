@@ -1,0 +1,44 @@
+paths:
+  /api/product/search:
+    get:
+      summary:  Search products by title, category, or creator
+      tags: [Product]
+      parameters:
+        - name: title
+          in: query
+          description: Partial or full title to search for
+          schema:
+            type: string
+        - name: categoryId
+          in: query
+          description: Filter by category ID
+          schema:
+            type: string
+        - name: createdId
+          in: query
+          description: Filter by creator ID
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number (default is 1)
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of items per page (default is 10)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeginationProductResponse'
+        '400':
+          description: No matching products found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'

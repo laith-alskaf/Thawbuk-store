@@ -1,0 +1,25 @@
+paths:
+  /api/product/byCategory/{categoryId}:
+    get:
+      summary: Get products by category with pagination
+      tags: [Product]
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of products under this category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeginationProductResponse'
+        '400':
+          description: Category not found or no products exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'

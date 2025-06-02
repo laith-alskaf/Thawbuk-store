@@ -1,0 +1,35 @@
+paths:
+  /api/user/wishlist/product/{productId}:
+    delete:
+      summary: Remove a product from wishlist
+      description: Removes a product from the authenticated user's wishlist using the product ID.
+      tags: [Wishlist]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the product to remove (must be a valid UUID)
+      responses:
+        "200":
+          description: Product removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Bad request (e.g., product not in wishlist or invalid product ID)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "401":
+          description: Unauthorized (invalid or missing token)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"

@@ -1,0 +1,25 @@
+paths:
+  /api/product/{productId}:
+    get:
+      summary: Get product by ID
+      tags: [Product]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateProductDTO"
+        "400":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"

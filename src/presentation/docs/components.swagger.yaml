@@ -1,0 +1,269 @@
+components:
+  schemas:
+    RegisterDTO:
+      type: object
+      required:
+        - email
+        - userName
+        - password
+        - role
+      properties:
+        email:
+          type: string
+          format: email
+        userName:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum:
+            - customer
+            - admin
+            - superAdmin
+
+    LoginDTO:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    ChangePasswordDTO:
+      type: object
+      required:
+        - email
+        - newPassword
+      properties:
+        email:
+          type: string
+          format: email
+        newPassword:
+          type: string
+
+    ForgotPasswordDTO:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+
+    VerifyEmailDTO:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+
+    UserInfoDTO:
+      type: object
+      properties:
+        userName:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+
+    ApiResponse:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        success:
+          type: boolean
+        message:
+          type: string
+        body:
+          type: object
+
+    CreateProductDTO:
+      type: object
+      required:
+        - title
+        - price
+        - categoryId
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        stockQuantity:
+          type: number
+        categoryId:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    ProductInfoDTO:
+      type: object
+      required:
+        - _id
+        - title
+        - price
+        - categoryId
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        stockQuantity:
+          type: number
+        categoryId:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    PeginationProductDTO:
+      type: object
+      properties:
+        limit:
+          type: integer
+          default: 10
+        page:
+          type: integer
+          default: 1
+
+    SearchProductDTO:
+      type: object
+      properties:
+        peginationProduct:
+          $ref: "#/components/schemas/PeginationProductDTO"
+        title:
+          type: string
+        categoryId:
+          type: string
+          nullable: true
+
+    GetProductsByUserIdDTO:
+      type: object
+      properties:
+        peginationProduct:
+          $ref: "#/components/schemas/PeginationProductDTO"
+        filter:
+          type: object
+
+    PeginationProductResponse:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+        totalPages:
+          type: integer
+        totalItems:
+          type: integer
+        body:
+          type: object
+          properties:
+            products:
+              type: array
+              items:
+                $ref: "#/components/schemas/ProductInfoDTO"
+
+    CreateCategoryDTO:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+
+    CategoryInfoDTO:
+      type: object
+      required:
+        - _id
+        - name
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+
+    GetAllCategoriesResponse:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        success:
+          type: boolean
+        message:
+          type: string
+        body:
+          type: object
+          properties:
+            categories:
+              type: array
+              items:
+                $ref: "#/components/schemas/CategoryInfoDTO"
+
+    WishlistDTOResponse:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        success:
+          type: boolean
+        message:
+          type: string
+        body:
+          type: object
+          properties:
+            products:
+              type: array
+              items:
+                $ref: "#/components/schemas/ProductInfoDTO"
+
+    WishlistDTO:
+     type: object
+     required:
+      - products
+     properties:
+       products:
+         type: array
+         description: List of products in the wishlist
+         items:
+           $ref: "#/components/schemas/ProductInfoDTO"
+
+    UserInfoDTOResponse:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        success:
+          type: boolean
+        message:
+          type: string
+        body:
+          type: object
+          properties:
+            userInfo:
+              type: array
+              items:
+                $ref: "#/components/schemas/UserInfoDTO"

@@ -1,0 +1,25 @@
+paths:
+  /api/category/{categoryId}:
+    get:
+      summary: Get category by ID
+      tags: [Category]
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Category details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllCategoriesResponse'
+        '400':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'

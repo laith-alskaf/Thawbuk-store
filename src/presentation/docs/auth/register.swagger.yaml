@@ -1,0 +1,25 @@
+paths:
+  /api/auth/register:
+    post:
+      summary: User registration
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterDTO"
+      responses:
+        200:
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        400:
+          description: Validation error or user exists
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApiResponse"
+        409:
+          description: Conflict - User already exists

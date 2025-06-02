@@ -1,0 +1,35 @@
+paths:
+  /api/user/wishlist/{productId}:
+    post:
+      summary: Add a product to wishlist
+      description: Adds a product to the authenticated user's wishlist using the product ID.
+      tags: [Wishlist]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the product to add (must be a valid UUID)
+      responses:
+        "200":
+          description: Product added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Bad request (e.g., invalid product ID or product already in wishlist)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "401":
+          description: Unauthorized (invalid or missing token)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"

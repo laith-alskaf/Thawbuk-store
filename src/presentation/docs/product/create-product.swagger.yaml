@@ -1,0 +1,26 @@
+paths:
+  /api/user/product/:
+    post:
+      summary: Create a new product
+      tags: [Product]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductDTO"
+      responses:
+        "201":
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Validation error or category not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"

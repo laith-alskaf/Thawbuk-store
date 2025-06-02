@@ -1,0 +1,33 @@
+paths:
+  /api/user/category/{categoryId}:
+    put:
+      summary: Update an existing category
+      tags: [Category]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryDTO"
+      responses:
+        "200":
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Validation error or category not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"

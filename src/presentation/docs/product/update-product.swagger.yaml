@@ -1,0 +1,33 @@
+paths:
+  /api/user/product/{productId}:
+    put:
+      summary: Update an existing product
+      tags: [Product]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductDTO"
+      responses:
+        "200":
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Validation error or product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"

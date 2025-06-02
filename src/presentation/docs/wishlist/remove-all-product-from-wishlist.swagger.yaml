@@ -1,0 +1,27 @@
+paths:
+  /api/user/wishlist/all-product:
+    delete:
+      summary: Clear all products from wishlist
+      description: Removes all products from the authenticated user's wishlist.
+      tags: [Wishlist]
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Wishlist cleared successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Bad request (e.g., missing user ID)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "401":
+          description: Unauthorized (invalid or missing token)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
