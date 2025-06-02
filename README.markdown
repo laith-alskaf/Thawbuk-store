@@ -175,19 +175,13 @@ We welcome contributions to Thawbuk! To contribute:
 
 Please follow the [Code of Conduct](CODE_OF_CONDUCT.md) and check the [Contributing Guidelines](CONTRIBUTING.md).
 
----
-
-## 📜 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 📬 Contact
 
 For questions or feedback, reach out to:
-- **Email**: your-email@example.com
-- **GitHub Issues**: [Create an issue](https://github.com/your-username/Thawbuk/issues)
+- **Email**: Laithalskaf@gmail.com
 
 ---
 
