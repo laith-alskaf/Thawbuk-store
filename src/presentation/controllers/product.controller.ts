@@ -13,8 +13,6 @@ import {
 } from "../../application/use-cases/product";
 import { ApplicationResponse } from '../../application/response/application-resposne';
 import { BadRequestError } from '../../application/errors/application-error';
-
-
 export class ProductController {
 
     constructor(
@@ -35,7 +33,6 @@ export class ProductController {
                 limit: parseInt(req.query.limit as string) || 5
             };
             const { productData, total } = await this.getAllProductsUseCase.execute(peginationProductDTO, {});
-
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
@@ -54,16 +51,14 @@ export class ProductController {
     }
 
     async createProduct(req: Request, res: Response): Promise<void> {
-
         try {
             const body = req.body;
-            const userId = req.user.id
+            const userId = req.user.id;
             const createProductDTO: CreateProductDTO = {
                 ...body,
                 createdBy: userId
             };
-            createProductDTO.createdBy = req.user.id;
-            await this.createProductUseCase.execute(createProductDTO);
+            await this.createProductUseCase.execute(createProductDTO, req);
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.CREATED,
@@ -156,7 +151,7 @@ export class ProductController {
         try {
             const { title = '', categoryId = null, page = 1, limit = 10, createdId = null } = req.query;
             const searchProductDTO: SearchProductDTO = {
-                title: title as string,
+                name: title as string,
                 categoryId: categoryId as string,
                 createdId: createdId as string,
                 peginationProduct: {

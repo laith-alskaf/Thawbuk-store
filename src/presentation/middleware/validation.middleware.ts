@@ -1,7 +1,7 @@
 import { NextFunction } from 'express';
 import Joi from 'joi';
 import { Request, Response } from 'express';
-import { Messages, StatusCodes } from '../config/constant';
+import { StatusCodes } from '../config/constant';
 import { ApplicationResponse } from '../../application/response/application-resposne';
 
 

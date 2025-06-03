@@ -4,7 +4,7 @@ export interface ICategory {
   _id: string;
   name: string;
   description: string | null;
-  image: string ;
+  image: string;
   createdBy: string,
   createdAt?: Date;
   updatedAt?: Date;
@@ -16,7 +16,7 @@ export class CategoryMapper {
       _id: category._id,
       name: category.name,
       description: category.description,
-      // image: category.image
+      image: category.image
     };
   }
 }

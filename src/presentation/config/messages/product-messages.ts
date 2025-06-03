@@ -1,4 +1,4 @@
-export const  PRODUCT = {
+export const PRODUCT = {
     CREATE_SUCCESS: "تم إنشاء المنتج بنجاح.",
     CREATE_SUCCESS_EN: "Product created successfully.",
 
@@ -25,6 +25,7 @@ export const  PRODUCT = {
 
     NO_RESULTS: "لم يتم العثور على نتائج مطابقة.",
     NO_RESULTS_EN: "No matching results found.",
+
     VALIDATION: {
         PRODUCT_VALIDATION: {
             TITLE_REQUIRED: "عنوان المنتج مطلوب",

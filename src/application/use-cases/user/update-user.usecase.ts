@@ -13,7 +13,7 @@ export class UpdateUserInfoUseCase {
         const user = await this.userRepository.update(userId, userData);
 
         const userInfo: UserInfoDTO = {
-            userName: user?.userName!,
+            name: user?.name!,
             email: user?.email!,
             role: user?.role!,
         }

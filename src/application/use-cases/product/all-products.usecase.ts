@@ -14,9 +14,7 @@ export class GetAllProductsUseCase {
             filter
         );
         if (!result) throw new Error(Messages.PRODUCT.NOT_FOUND_PRODUCTS);
-
         const { products, total } = result;
-
         const productData: ProductInfoDTO[] = products.map(ProductMapper.toDTO);
         return { productData, total };
 

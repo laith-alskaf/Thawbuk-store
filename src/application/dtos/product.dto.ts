@@ -1,11 +1,17 @@
+import { IAgeRange } from "../../domain/entity/product";
+
 export interface CreateProductDTO {
-    title: string,
-    stockQuantity: number,
-    description: string,
-    price: number,
-    categoryId: string,
-    createdBy: string,
-    images: [type: string] | null;
+    name: string;
+    description: string;
+    price: number;
+    categoryId: string;
+    createdBy: string;
+    images: string[];
+    sizes: string[];
+    colors: string[];
+    stock: number;
+    brand?: string;
+    ageRange?: IAgeRange;
 }
 
 
@@ -16,12 +22,16 @@ export interface UpdateProductDTO {
 }
 export interface ProductInfoDTO {
     _id: string,
-    title: string,
-    stockQuantity: number,
-    description: string,
-    price: number,
-    categoryId: string,
-    images: [type: string] | null;
+    name: string;
+    description: string;
+    price: number;
+    categoryId: string;
+    images: string[];
+    sizes: string[];
+    colors: string[];
+    stock: number;
+    brand?: string;
+    ageRange?: IAgeRange;
 }
 export interface PeginationProductDTO {
     limit: number | 10,
@@ -30,7 +40,7 @@ export interface PeginationProductDTO {
 
 export interface SearchProductDTO {
     peginationProduct: PeginationProductDTO,
-    title: string,
+    name: string,
     categoryId: string | null,
     createdId: string | null,
 }

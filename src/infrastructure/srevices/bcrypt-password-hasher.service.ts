@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 import { EncryptionService } from "../../domain/services/encryption.service";
 

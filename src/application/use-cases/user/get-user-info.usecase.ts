@@ -19,7 +19,7 @@ export class GetUserInfoUseCase {
             throw new BadRequestError(Messages.USER.USER_NOT_FOUND_EN);
         }
         const userInfo: UserInfoDTO = {
-            userName: user.userName,
+            name: user.name,
             email: user.email,
             role: user.role,
         }

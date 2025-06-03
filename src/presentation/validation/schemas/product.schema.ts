@@ -13,7 +13,7 @@ export const categoryIdSchema = Joi.object({
 });
 
 export const productSchema = Joi.object({
-    title: Joi.string()
+    name: Joi.string()
         .required()
         .messages({
             'string.empty': Messages.PRODUCT.VALIDATION.PRODUCT_VALIDATION.TITLE_REQUIRED_EN,
@@ -32,8 +32,7 @@ export const productSchema = Joi.object({
             'number.base': Messages.PRODUCT.VALIDATION.PRODUCT_VALIDATION.PRICE_INVALID_EN,
             '*': Messages.PRODUCT.VALIDATION.PRODUCT_VALIDATION.PRICE_REQUIRED_EN,
         }),
-    stockQuantity: Joi.number().default(0),
-    images: Joi.array().items(Joi.string().uri()),
+    stock: Joi.number().default(0),
 }).concat(categoryIdSchema);
 
 export const productIdSchema = Joi.object({

@@ -15,7 +15,7 @@ export interface IProduct {
   colors: string[];
   stock: number;
   brand?: string;
-  ageRange?: IAgeRange; 
+  ageRange?: IAgeRange;
   createdAt: Date;
   updatedAt: Date;
 
@@ -26,11 +26,15 @@ export class ProductMapper {
     return {
       _id: product._id,
       name: product.name,
-      stockQuantity: product.stock,
+      stock: product.stock,
       description: product.description,
       price: product.price,
       categoryId: product.categoryId,
-      images: product.images ,
+      images: product.images,
+      sizes: product.sizes,
+      colors: product.colors,
+      brand: product.brand,
+      ageRange: product.ageRange,
     };
   }
 }

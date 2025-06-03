@@ -4,8 +4,6 @@ import authRoutes from './routes/auth.route';
 import { setupDependencies } from './dependencies';
 import { authMiddleware } from './middleware/auth.middleware';
 import cors from 'cors';
-import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from './config/swagger';
 import { corsOptions } from './config/corsOptions';
 import categoryRouters from './routes/category.routes.ts/category.route';
 import productRouters from './routes/product.routes.ts/product.route';
@@ -15,6 +13,7 @@ import publicCategoryRouters from "./routes/category.routes.ts/public-category.r
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.middleware";
 import { logger } from "./middleware/logger.middleware";
 import userRoutes from "./routes/user.routes";
+import bodyParser from "body-parser";
 
 export default class Server {
     private app: Express;
@@ -27,6 +26,8 @@ export default class Server {
     private setupMiddleware() {
         this.app.use(logger);
         this.app.use(express.json());
+        this.app.use(bodyParser.urlencoded({ extended: true }));
+        this.app.use(bodyParser.json());
         this.app.use(authMiddleware(this.container.tokenService, this.container.userRepository))
     }
 
@@ -57,7 +58,7 @@ export default class Server {
     }
 
     public init(): void {
-        this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+        // this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
         this.container = setupDependencies();
         this.setupMiddleware();
         this.setupRoutes();

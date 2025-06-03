@@ -40,9 +40,10 @@ export class CategoryController {
 
     async createCategory(req: Request, res: Response): Promise<void> {
         try {
+            const userId = req.user.id;
             const createCategoryDTO: Partial<CreateCategoryDTO> = req.body;
-            createCategoryDTO.createdBy = req.user.id;
-            await this.createCategoryUseCase.execute(createCategoryDTO);
+            createCategoryDTO.createdBy = userId;
+            await this.createCategoryUseCase.execute(createCategoryDTO, req);
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.CREATED,

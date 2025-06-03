@@ -13,17 +13,20 @@ import {
     SearchProductsUseCase,
 } from "../../application/use-cases/product";
 import { NotificationService } from '../../domain/services/notification.service';
+import { CloudService } from '../../domain/services/cloud.service';
 
 interface ProductDependenciesType {
     productRepository: ProductRepository;
     uuidGeneratorService: UuidGeneratorService
-    newProductNotification: NotificationService
+    newProductNotification: NotificationService,
+    uploudImageService:CloudService
 }
 
 export const ProductDependencies = ({
     productRepository,
     uuidGeneratorService,
-    newProductNotification
+    newProductNotification,
+    uploudImageService
 }: ProductDependenciesType): ProductController => {
 
     // Use Cases
@@ -31,7 +34,7 @@ export const ProductDependencies = ({
     const getProductsByCategoryIdUseCase = new GetProductsByCategoryIdUseCase(productRepository);
     const getProductsByUserIdUseCase = new GetProductsByUserIdUseCase(productRepository);
     const deleteProductUseCase = new DeleteProductUseCase(productRepository);
-    const createProductUseCase = new CreateProductUseCase(productRepository, uuidGeneratorService,newProductNotification);
+    const createProductUseCase = new CreateProductUseCase(productRepository, uuidGeneratorService,newProductNotification,uploudImageService);
     const updatedProductUseCase = new UpdatedProductUseCase(productRepository);
     const getAllProductsUseCase = new GetAllProductsUseCase(productRepository);
     const searchProductsUseCase = new SearchProductsUseCase(productRepository);

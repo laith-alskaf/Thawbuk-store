@@ -2,6 +2,7 @@ export interface CreateCategoryDTO {
     name: string,
     description: string,
     createdBy: string,
+    image?: string
 }
 
 
@@ -13,6 +14,7 @@ export interface UpdateCategoryDTO {
 export interface CategoryInfoDTO {
     _id: string,
     name: string,
+    image: string
     description: string | null,
 }
 

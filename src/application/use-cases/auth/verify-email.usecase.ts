@@ -19,6 +19,6 @@ export class VerifiyEmailUseCase {
         user.otpCode = '';
         user.isEmailVerified = true;
         await this.userRepository.update(user._id, user);
-        await this.emailService.send(user.email, 'Welcome Email', WELCOME_EMAIL_TEMPLATE.replace("{USER_NAME}", user.userName))
+        await this.emailService.send(user.email, 'Welcome Email', WELCOME_EMAIL_TEMPLATE.replace("{USER_NAME}", user.name!))
     }
 }

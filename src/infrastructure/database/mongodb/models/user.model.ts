@@ -20,12 +20,11 @@ const userSchema = new Schema<UserDocument>({
         default: 'customer'
     },
     companyDetails: {
-        required: function () { return this.role === 'admin'; },
         companyName: { type: String, unique: true, required: function () { return this.role === 'admin'; } },
         companyDescription: { type: String },
         companyAddress: {
             street: { type: String },
-            city: { type: String },
+            city: { type: String , required: function () { return this.role === 'admin'; }},
             country: { type: String },
         },
         companyPhone: { type: String },

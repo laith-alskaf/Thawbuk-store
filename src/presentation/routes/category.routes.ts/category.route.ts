@@ -7,13 +7,17 @@ import {
 } from '../../validation/category.validators';
 import { CategoryModel } from '../../../infrastructure/database/mongodb/models/category.model';
 import { checkResourceOwnership } from '../../middleware/resource-ownership.middleware';
+import multer from 'multer';
 
 
 
 const categoryRouters = (categoryController: CategoryController): Router => {
     const router = Router();
     const idKey = 'categoryId';
-    router.post("/",
+    const storage = multer.memoryStorage()
+    const upload = multer({ storage: storage });
+    
+    router.post("/", upload.single('image'),
         validateCategory,
         categoryController.createCategory.bind(categoryController)
     );
