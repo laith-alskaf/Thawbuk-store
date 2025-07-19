@@ -39,6 +39,7 @@ dependencies:
   # Utilities
   intl: ^0.18.1
   uuid: ^4.1.0
+  dartz: ^0.10.1
   
   # Development
   get_it: ^7.6.4
