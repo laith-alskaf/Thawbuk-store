@@ -34,6 +34,8 @@ export const setupDependencies = () => {
     const prodcutRepository = new MongoProductRepository();
     const categoryRepository = new MongoCategoryRepository();
     const wishlistRepository = new MongoWishlistRepository();
+    const cartRepository = new CartRepository();
+    const orderRepository = new OrderRepository();
     // const userRepository = new PostgresUserRepository();
     // const prodcutRepository = new PostgresProductRepository();
     // const categoryRepository = new PostgresCategoryRepository();
