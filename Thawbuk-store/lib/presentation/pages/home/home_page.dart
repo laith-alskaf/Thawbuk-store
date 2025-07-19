@@ -4,13 +4,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/product/product_bloc.dart';
-import '../../bloc/cart/cart_bloc.dart';
-import '../../navigation/app_router.dart';
+import '../../widgets/shared/custom_card.dart';
+import '../../widgets/shared/loading_widget.dart';
+import '../../widgets/shared/error_widget.dart';
+import '../../../domain/entities/user_entity.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -20,462 +22,213 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // تحميل المنتجات والفئات
-    context.read<ProductBloc>().add(LoadProductsEvent());
+    // تحميل المنتجات عند بداية الصفحة
+    context.read<ProductBloc>().add(GetProductsEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
-      drawer: _buildDrawer(),
+      appBar: _buildAppBar(context),
+      drawer: _buildDrawer(context),
       body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        child: CustomScrollView(
-          slivers: [
-            // البانر الرئيسي
-            SliverToBoxAdapter(
-              child: _buildHeroBanner(),
-            ),
-            
-            // الفئات
-            SliverToBoxAdapter(
-              child: _buildCategoriesSection(),
-            ),
-            
-            // المنتجات المميزة
-            SliverToBoxAdapter(
-              child: _buildFeaturedProductsSection(),
-            ),
-          ],
+        onRefresh: () async {
+          context.read<ProductBloc>().add(GetProductsEvent());
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppConstants.defaultPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // رسالة ترحيب
+              _buildWelcomeSection(),
+              
+              const SizedBox(height: 24),
+              
+              // إحصائيات سريعة (للمالك فقط)
+              BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) {
+                  if (state is AuthAuthenticated && state.user.isOwner) {
+                    return _buildOwnerStats();
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+              
+              // الفئات الرئيسية
+              _buildCategoriesSection(),
+              
+              const SizedBox(height: 24),
+              
+              // المنتجات المميزة
+              _buildFeaturedProducts(),
+            ],
+          ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: _buildCartButton(),
+      floatingActionButton: _buildFloatingActionButton(context),
     );
   }
 
-  AppBar _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: const Text('ثوبك'),
-      centerTitle: true,
+      title: Row(
+        children: [
+          const Icon(Icons.storefront),
+          const SizedBox(width: 8),
+          const Text(AppConstants.appName),
+        ],
+      ),
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
           onPressed: () {
-            // فتح صفحة البحث
-            context.goNamed('products');
+            // TODO: تنفيذ البحث
           },
         ),
-        BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthenticatedState) {
-              return IconButton(
-                icon: const Icon(Icons.account_circle),
-                onPressed: () {
-                  context.goNamed('profile');
-                },
-              );
-            }
-            return IconButton(
-              icon: const Icon(Icons.login),
-              onPressed: () {
-                context.goNamed('login');
-              },
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDrawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.checkroom,
-                  size: 60,
-                  color: AppColors.white,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'ثوبك',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('الرئيسية'),
-            onTap: () {
-              Navigator.pop(context);
-              context.goNamed('home');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.shopping_bag),
-            title: const Text('المنتجات'),
-            onTap: () {
-              Navigator.pop(context);
-              context.goNamed('products');
-            },
-          ),
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              if (state is AuthenticatedState) {
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.shopping_cart),
-                      title: const Text('سلة التسوق'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        context.goNamed('cart');
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.person),
-                      title: const Text('الملف الشخصي'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        context.goNamed('profile');
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.logout),
-                      title: const Text('تسجيل خروج'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        context.read<AuthBloc>().add(LogoutEvent());
-                      },
-                    ),
-                  ],
-                );
-              }
-              return ListTile(
-                leading: const Icon(Icons.login),
-                title: const Text('تسجيل الدخول'),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.goNamed('login');
-                },
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeroBanner() {
-    return Container(
-      height: 200,
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: 20,
-            top: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'أحدث التشكيلات',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'اكتشف الأزياء التراثية الأصيلة',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.white.withOpacity(0.9),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    context.goNamed('products');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.white,
-                    foregroundColor: AppColors.primary,
-                  ),
-                  child: const Text('تصفح الآن'),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoriesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'الفئات',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-        ),
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 5, // مؤقتاً
-            itemBuilder: (context, index) {
-              return Container(
-                width: 100,
-                margin: const EdgeInsets.only(left: 12),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        color: AppColors.lightGrey,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.checkroom,
-                        color: AppColors.primary,
-                        size: 30,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'فئة ${index + 1}',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFeaturedProductsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        IconButton(
+          icon: Stack(
             children: [
-              Text(
-                'المنتجات المميزة',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              TextButton(
-                onPressed: () {
-                  context.goNamed('products');
-                },
-                child: const Text('عرض الكل'),
+              const Icon(Icons.shopping_cart),
+              // عدد العناصر في السلة
+              Positioned(
+                right: 0,
+                top: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: const Text(
+                    '0',
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ],
           ),
-        ),
-        BlocBuilder<ProductBloc, ProductState>(
-          builder: (context, state) {
-            if (state is ProductLoadingState) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-            
-            if (state is ProductLoadedState) {
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.75,
-                ),
-                itemCount: state.products.length > 4 ? 4 : state.products.length,
-                itemBuilder: (context, index) {
-                  final product = state.products[index];
-                  return _buildProductCard(product);
-                },
-              );
-            }
-            
-            return const SizedBox();
-          },
+          onPressed: () => context.go('/cart'),
         ),
       ],
     );
   }
 
-  Widget _buildProductCard(dynamic product) {
-    return Card(
-      child: InkWell(
-        onTap: () {
-          context.goNamed(
-            'productDetails',
-            pathParameters: {'id': 'product-1'}, // مؤقتاً
-          );
-        },
-        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.lightGrey,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(AppConstants.borderRadius),
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.image,
-                    size: 50,
-                    color: AppColors.grey,
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'منتج تجريبي',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '150 ريال',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: AppColors.grey,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'الرئيسية',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.shopping_bag),
-          label: 'المنتجات',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.favorite),
-          label: 'المفضلة',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'الحساب',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCartButton() {
-    return BlocBuilder<CartBloc, CartState>(
+  Widget _buildDrawer(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        int itemCount = 0;
-        if (state is CartLoadedState) {
-          itemCount = state.cart.totalItems;
-        }
-
-        return FloatingActionButton(
-          onPressed: () {
-            context.goNamed('cart');
-          },
-          backgroundColor: AppColors.secondary,
-          child: Stack(
+        if (state is! AuthAuthenticated) return const SizedBox.shrink();
+        
+        final user = state.user;
+        
+        return Drawer(
+          child: ListView(
             children: [
-              const Icon(Icons.shopping_cart),
-              if (itemCount > 0)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
+              UserAccountsDrawerHeader(
+                accountName: Text(user.name),
+                accountEmail: Text(user.email),
+                currentAccountPicture: CircleAvatar(
+                  backgroundColor: AppColors.primary,
+                  child: Text(
+                    user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: Text(
-                      '$itemCount',
-                      style: const TextStyle(
-                        color: AppColors.secondary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                ),
+              ),
+              
+              // الصفحة الرئيسية
+              ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text('الصفحة الرئيسية'),
+                onTap: () => context.go('/home'),
+              ),
+              
+              // المنتجات
+              ListTile(
+                leading: const Icon(Icons.shopping_bag),
+                title: const Text('المنتجات'),
+                onTap: () => context.go('/products'),
+              ),
+              
+              // السلة
+              ListTile(
+                leading: const Icon(Icons.shopping_cart),
+                title: const Text('سلة التسوق'),
+                onTap: () => context.go('/cart'),
+              ),
+              
+              // الطلبات
+              ListTile(
+                leading: const Icon(Icons.receipt_long),
+                title: const Text('طلباتي'),
+                onTap: () => context.go('/orders'),
+              ),
+              
+              const Divider(),
+              
+              // خيارات المالك
+              if (user.isOwner) ...[
+                ListTile(
+                  leading: const Icon(Icons.dashboard),
+                  title: const Text('لوحة التحكم'),
+                  onTap: () => context.go('/admin/dashboard'),
+                ),
+                
+                ListTile(
+                  leading: const Icon(Icons.add_business),
+                  title: const Text('إضافة منتج'),
+                  onTap: () => context.go('/admin/add-product'),
+                ),
+                
+                ListTile(
+                  leading: const Icon(Icons.inventory),
+                  title: const Text('إدارة المنتجات'),
+                  onTap: () => context.go('/admin/products'),
+                ),
+                
+                const Divider(),
+              ],
+              
+              // الملف الشخصي
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text('الملف الشخصي'),
+                onTap: () => context.go('/profile'),
+              ),
+              
+              // الإعدادات
+              ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('الإعدادات'),
+                onTap: () => context.go('/settings'),
+              ),
+              
+              // تسجيل الخروج
+              ListTile(
+                leading: const Icon(Icons.logout, color: AppColors.error),
+                title: const Text(
+                  'تسجيل الخروج',
+                  style: TextStyle(color: AppColors.error),
+                ),
+                onTap: () {
+                  context.read<AuthBloc>().add(LogoutEvent());
+                },
+              ),
             ],
           ),
         );
@@ -483,8 +236,289 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _onRefresh() async {
-    context.read<ProductBloc>().add(LoadProductsEvent());
-    // يمكن إضافة المزيد من التحديثات هنا
+  Widget _buildWelcomeSection() {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is! AuthAuthenticated) return const SizedBox.shrink();
+        
+        return CustomCard(
+          backgroundColor: AppColors.primary.withOpacity(0.1),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'مرحباً، ${state.user.name}',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      state.user.isOwner 
+                        ? 'مرحباً بك في لوحة إدارة متجرك'
+                        : 'اكتشف أحدث الألبسة التقليدية والعصرية',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.waving_hand,
+                size: 40,
+                color: AppColors.primary,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildOwnerStats() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: CustomCard(
+                backgroundColor: AppColors.success.withOpacity(0.1),
+                child: Column(
+                  children: [
+                    const Icon(Icons.shopping_bag, size: 32, color: AppColors.success),
+                    const SizedBox(height: 8),
+                    Text(
+                      '0',
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        color: AppColors.success,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text('منتج'),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: CustomCard(
+                backgroundColor: AppColors.info.withOpacity(0.1),
+                child: Column(
+                  children: [
+                    const Icon(Icons.receipt, size: 32, color: AppColors.info),
+                    const SizedBox(height: 8),
+                    Text(
+                      '0',
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        color: AppColors.info,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text('طلب'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildCategoriesSection() {
+    final categories = [
+      {'name': 'الثياب التقليدية', 'icon': Icons.mosque},
+      {'name': 'الثياب العصرية', 'icon': Icons.checkroom},
+      {'name': 'الأحذية', 'icon': Icons.face_retouching_natural},
+      {'name': 'الإكسسوارات', 'icon': Icons.watch},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'الفئات',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return Container(
+                margin: const EdgeInsets.only(left: 16),
+                child: CustomCard(
+                  onTap: () {
+                    // TODO: الانتقال لصفحة الفئة
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        category['icon'] as IconData,
+                        size: 32,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        category['name'] as String,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeaturedProducts() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'المنتجات المميزة',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            TextButton(
+              onPressed: () => context.go('/products'),
+              child: const Text('عرض الكل'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        BlocBuilder<ProductBloc, ProductState>(
+          builder: (context, state) {
+            if (state is ProductLoading) {
+              return const LoadingWidget(message: 'جاري تحميل المنتجات...');
+            }
+            
+            if (state is ProductError) {
+              return CustomErrorWidget(
+                message: state.message,
+                onRetry: () {
+                  context.read<ProductBloc>().add(GetProductsEvent());
+                },
+              );
+            }
+            
+            if (state is ProductsLoaded) {
+              if (state.products.isEmpty) {
+                return const CustomErrorWidget(
+                  message: 'لا توجد منتجات متاحة',
+                  icon: Icons.inventory_2_outlined,
+                );
+              }
+              
+              final featuredProducts = state.products.take(4).toList();
+              
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.75,
+                ),
+                itemCount: featuredProducts.length,
+                itemBuilder: (context, index) {
+                  final product = featuredProducts[index];
+                  return CustomCard(
+                    onTap: () => context.go('/product/${product.id}'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // صورة المنتج
+                        Expanded(
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGrey,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: product.mainImage.isNotEmpty
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    product.mainImage,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(
+                                        Icons.image_not_supported,
+                                        size: 40,
+                                        color: AppColors.grey,
+                                      );
+                                    },
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.checkroom,
+                                  size: 40,
+                                  color: AppColors.grey,
+                                ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 8),
+                        
+                        // اسم المنتج
+                        Text(
+                          product.displayName,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        
+                        const SizedBox(height: 4),
+                        
+                        // السعر
+                        Text(
+                          '${product.price.toStringAsFixed(0)} ل.س',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }
+            
+            return const SizedBox.shrink();
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget? _buildFloatingActionButton(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthAuthenticated && state.user.isOwner) {
+          return FloatingActionButton(
+            onPressed: () => context.go('/admin/add-product'),
+            backgroundColor: AppColors.primary,
+            child: const Icon(Icons.add, color: AppColors.white),
+          );
+        }
+        return null;
+      },
+    );
   }
 }
