@@ -10,6 +10,8 @@ import productRouters from './routes/product.routes.ts/product.route';
 import publicProductRoutes from "./routes/product.routes.ts/public-product.route";
 import wishlistRoutes from "./routes/wishlist.route";
 import publicCategoryRouters from "./routes/category.routes.ts/public-category.route";
+import cartRoutes from "./routes/cart.route";
+import orderRoutes from "./routes/order.route";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.middleware";
 import { logger } from "./middleware/logger.middleware";
 import userRoutes from "./routes/user.routes";
