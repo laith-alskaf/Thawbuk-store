@@ -351,7 +351,7 @@ class _HomePageState extends State<HomePage> {
         onTap: () {
           context.goNamed(
             'productDetails',
-            pathParameters: {'id': product.id},
+            pathParameters: {'id': 'product-1'}, // مؤقتاً
           );
         },
         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
@@ -384,7 +384,7 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'منتج ${Random().nextInt(100)}',
+                      'منتج تجريبي',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -393,7 +393,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${Random().nextInt(500) + 100} ريال',
+                      '150 ريال',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
