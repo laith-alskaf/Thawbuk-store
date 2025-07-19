@@ -42,6 +42,8 @@ export default class Server {
         this.app.use('/api/user/category', categoryRouters(this.container.categoryController));
         this.app.use('/api/category', publicCategoryRouters(this.container.categoryController));
         this.app.use('/api/user/wishlist', wishlistRoutes(this.container.wishlistController));
+        this.app.use('/api/user/cart', cartRoutes(this.container.cartController));
+        this.app.use('/api/user/order', orderRoutes(this.container.orderController));
     }
 
     private setupErrorHandlers() {
