@@ -11,6 +11,8 @@ import { UuidGeneratorService } from '../../infrastructure/srevices/uuid-generat
 import { MongoUserRepository } from '../../infrastructure/repositories/mongo/mongo-user.repository';
 import { MongoProductRepository } from '../../infrastructure/repositories/mongo/mongo-product.repository';
 import { MongoCategoryRepository } from '../../infrastructure/repositories/mongo/mongo-category.repository';
+import { CartRepository } from '../../infrastructure/repositories/cart.repository';
+import { OrderRepository } from '../../infrastructure/repositories/order.repository';
 
 // Controllers Dependencies
 import { AuthDependencies } from './auth.dependencies';
