@@ -1,19 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/entities/user.dart';
+import '../../../domain/entities/user_entity.dart';
 import '../../../domain/usecases/auth/login_usecase.dart';
 import '../../../domain/usecases/auth/register_usecase.dart';
 import '../../../domain/usecases/auth/logout_usecase.dart';
 import '../../../domain/repositories/auth_repository.dart';
-import '../../../core/usecases/usecase.dart';
+import '../../../core/errors/failures.dart';
 
 // Events
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
 
   @override
-  List<Object?> get props => [];
+  List<Object> get props => [];
 }
 
 class CheckAuthStatusEvent extends AuthEvent {}
@@ -22,31 +22,32 @@ class LoginEvent extends AuthEvent {
   final String email;
   final String password;
 
-  const LoginEvent({required this.email, required this.password});
-
-  @override
-  List<Object?> get props => [email, password];
-}
-
-class RegisterEvent extends AuthEvent {
-  final String email;
-  final String password;
-  final String? name;
-  final String role;
-  final int? age;
-  final String? gender;
-
-  const RegisterEvent({
+  const LoginEvent({
     required this.email,
     required this.password,
-    this.name,
-    this.role = 'customer',
-    this.age,
-    this.gender,
   });
 
   @override
-  List<Object?> get props => [email, password, name, role, age, gender];
+  List<Object> get props => [email, password];
+}
+
+class RegisterEvent extends AuthEvent {
+  final String name;
+  final String email;
+  final String phone;
+  final String password;
+  final UserRole role;
+
+  const RegisterEvent({
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.password,
+    required this.role,
+  });
+
+  @override
+  List<Object> get props => [name, email, phone, password, role];
 }
 
 class LogoutEvent extends AuthEvent {}
@@ -59,32 +60,31 @@ abstract class AuthState extends Equatable {
   List<Object?> get props => [];
 }
 
-class AuthInitialState extends AuthState {}
+class AuthInitial extends AuthState {}
 
-class AuthLoadingState extends AuthState {}
+class AuthLoading extends AuthState {}
 
-class AuthenticatedState extends AuthState {
-  final User user;
-  final String token;
+class AuthAuthenticated extends AuthState {
+  final UserEntity user;
 
-  const AuthenticatedState({required this.user, required this.token});
+  const AuthAuthenticated(this.user);
 
   @override
-  List<Object?> get props => [user, token];
+  List<Object?> get props => [user];
 }
 
-class UnauthenticatedState extends AuthState {}
+class AuthUnauthenticated extends AuthState {}
 
-class AuthErrorState extends AuthState {
+class AuthError extends AuthState {
   final String message;
 
-  const AuthErrorState({required this.message});
+  const AuthError(this.message);
 
   @override
   List<Object?> get props => [message];
 }
 
-// Bloc
+// BLoC
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
@@ -96,34 +96,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.registerUseCase,
     required this.logoutUseCase,
     required this.authRepository,
-  }) : super(AuthInitialState()) {
+  }) : super(AuthInitial()) {
+    
     on<CheckAuthStatusEvent>(_onCheckAuthStatus);
     on<LoginEvent>(_onLogin);
     on<RegisterEvent>(_onRegister);
     on<LogoutEvent>(_onLogout);
+
+    // Check auth status on startup
+    add(CheckAuthStatusEvent());
   }
 
   Future<void> _onCheckAuthStatus(
     CheckAuthStatusEvent event,
     Emitter<AuthState> emit,
   ) async {
-    final isLoggedIn = await authRepository.isLoggedIn();
-    
-    if (isLoggedIn) {
-      try {
-        final result = await authRepository.getCurrentUser();
-        result.fold(
-          (failure) => emit(UnauthenticatedState()),
-          (user) {
-            final token = authRepository.getAuthToken();
-            emit(AuthenticatedState(user: user, token: token.toString()));
-          },
-        );
-      } catch (e) {
-        emit(UnauthenticatedState());
-      }
-    } else {
-      emit(UnauthenticatedState());
+    try {
+      final result = await authRepository.getCurrentUser();
+      
+      result.fold(
+        (failure) => emit(AuthUnauthenticated()),
+        (user) => emit(AuthAuthenticated(user)),
+      );
+    } catch (e) {
+      emit(AuthUnauthenticated());
     }
   }
 
@@ -131,36 +127,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LoginEvent event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoadingState());
-    
+    emit(AuthLoading());
+
     final result = await loginUseCase(LoginParams(
       email: event.email,
       password: event.password,
     ));
-    
+
     result.fold(
-      (failure) => emit(AuthErrorState(message: failure.message)),
-      (authData) {
-        // حفظ التوكن والمستخدم
-        final token = authData['token'] as String;
-        final userInfo = authData['userInfo'] as Map<String, dynamic>;
-        
-        authRepository.saveAuthToken(token);
-        
-        // يجب تحويل userInfo إلى User object
-        // مؤقتاً سنستخدم بيانات وهمية
-        const user = User(
-          id: '1',
-          email: 'test@test.com',
-          role: 'customer',
-          isEmailVerified: true,
-          lastLogin: '2024-01-01',
-          createdAt: '2024-01-01',
-          updatedAt: '2024-01-01',
-        );
-        
-        emit(AuthenticatedState(user: user, token: token));
+      (failure) {
+        String message = 'حدث خطأ أثناء تسجيل الدخول';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(AuthError(message));
       },
+      (user) => emit(AuthAuthenticated(user)),
     );
   }
 
@@ -168,23 +152,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     RegisterEvent event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoadingState());
-    
+    emit(AuthLoading());
+
     final result = await registerUseCase(RegisterParams(
-      email: event.email,
-      password: event.password,
       name: event.name,
+      email: event.email,
+      phone: event.phone,
+      password: event.password,
       role: event.role,
-      age: event.age,
-      gender: event.gender,
     ));
-    
+
     result.fold(
-      (failure) => emit(AuthErrorState(message: failure.message)),
-      (_) {
-        emit(UnauthenticatedState());
-        // يمكن إضافة رسالة نجح التسجيل هنا
+      (failure) {
+        String message = 'حدث خطأ أثناء إنشاء الحساب';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(AuthError(message));
       },
+      (user) => emit(AuthAuthenticated(user)),
     );
   }
 
@@ -192,16 +180,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LogoutEvent event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoadingState());
-    
+    emit(AuthLoading());
+
     final result = await logoutUseCase(NoParams());
-    
+
     result.fold(
-      (failure) => emit(AuthErrorState(message: failure.message)),
-      (_) {
-        authRepository.clearAuthData();
-        emit(UnauthenticatedState());
-      },
+      (failure) => emit(AuthError('حدث خطأ أثناء تسجيل الخروج')),
+      (_) => emit(AuthUnauthenticated()),
     );
   }
 }

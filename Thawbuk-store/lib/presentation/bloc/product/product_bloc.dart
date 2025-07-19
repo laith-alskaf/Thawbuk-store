@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/entities/product.dart';
+import '../../../domain/entities/product_entity.dart';
 import '../../../domain/usecases/product/get_products_usecase.dart';
 import '../../../domain/usecases/product/get_product_by_id_usecase.dart';
+import '../../../core/errors/failures.dart';
+import '../../../core/usecases/usecase.dart';
 
 // Events
 abstract class ProductEvent extends Equatable {
@@ -13,20 +16,12 @@ abstract class ProductEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadProductsEvent extends ProductEvent {
-  final int page;
-  final int limit;
+class GetProductsEvent extends ProductEvent {}
 
-  const LoadProductsEvent({this.page = 1, this.limit = 10});
-
-  @override
-  List<Object?> get props => [page, limit];
-}
-
-class LoadProductByIdEvent extends ProductEvent {
+class GetProductByIdEvent extends ProductEvent {
   final String productId;
 
-  const LoadProductByIdEvent({required this.productId});
+  const GetProductByIdEvent(this.productId);
 
   @override
   List<Object?> get props => [productId];
@@ -34,12 +29,103 @@ class LoadProductByIdEvent extends ProductEvent {
 
 class SearchProductsEvent extends ProductEvent {
   final String query;
-  final String? categoryId;
 
-  const SearchProductsEvent({required this.query, this.categoryId});
+  const SearchProductsEvent(this.query);
 
   @override
-  List<Object?> get props => [query, categoryId];
+  List<Object?> get props => [query];
+}
+
+class CreateProductEvent extends ProductEvent {
+  final String name;
+  final String nameAr;
+  final String description;
+  final String descriptionAr;
+  final double price;
+  final String category;
+  final List<String> sizes;
+  final List<String> colors;
+  final int quantity;
+  final List<File> images;
+
+  const CreateProductEvent({
+    required this.name,
+    required this.nameAr,
+    required this.description,
+    required this.descriptionAr,
+    required this.price,
+    required this.category,
+    required this.sizes,
+    required this.colors,
+    required this.quantity,
+    required this.images,
+  });
+
+  @override
+  List<Object?> get props => [
+        name,
+        nameAr,
+        description,
+        descriptionAr,
+        price,
+        category,
+        sizes,
+        colors,
+        quantity,
+        images,
+      ];
+}
+
+class UpdateProductEvent extends ProductEvent {
+  final String productId;
+  final String name;
+  final String nameAr;
+  final String description;
+  final String descriptionAr;
+  final double price;
+  final String category;
+  final List<String> sizes;
+  final List<String> colors;
+  final int quantity;
+  final List<File> images;
+
+  const UpdateProductEvent({
+    required this.productId,
+    required this.name,
+    required this.nameAr,
+    required this.description,
+    required this.descriptionAr,
+    required this.price,
+    required this.category,
+    required this.sizes,
+    required this.colors,
+    required this.quantity,
+    required this.images,
+  });
+
+  @override
+  List<Object?> get props => [
+        productId,
+        name,
+        nameAr,
+        description,
+        descriptionAr,
+        price,
+        category,
+        sizes,
+        colors,
+        quantity,
+        images,
+      ];
+}
+
+class DeleteProductEvent extends ProductEvent {
+  final String productId;
+
+  const DeleteProductEvent(this.productId);
+
+  @override
+  List<Object?> get props => [productId];
 }
 
 // States
@@ -50,52 +136,65 @@ abstract class ProductState extends Equatable {
   List<Object?> get props => [];
 }
 
-class ProductInitialState extends ProductState {}
+class ProductInitial extends ProductState {}
 
-class ProductLoadingState extends ProductState {}
+class ProductLoading extends ProductState {}
 
-class ProductLoadedState extends ProductState {
-  final List<Product> products;
-  final bool hasReachedMax;
+class ProductsLoaded extends ProductState {
+  final List<ProductEntity> products;
 
-  const ProductLoadedState({
-    required this.products,
-    this.hasReachedMax = false,
-  });
+  const ProductsLoaded(this.products);
 
   @override
-  List<Object?> get props => [products, hasReachedMax];
-
-  ProductLoadedState copyWith({
-    List<Product>? products,
-    bool? hasReachedMax,
-  }) {
-    return ProductLoadedState(
-      products: products ?? this.products,
-      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-    );
-  }
+  List<Object?> get props => [products];
 }
 
-class ProductDetailLoadedState extends ProductState {
-  final Product product;
+class ProductLoaded extends ProductState {
+  final ProductEntity product;
 
-  const ProductDetailLoadedState({required this.product});
+  const ProductLoaded(this.product);
 
   @override
   List<Object?> get props => [product];
 }
 
-class ProductErrorState extends ProductState {
+class ProductCreated extends ProductState {
+  final ProductEntity product;
+
+  const ProductCreated(this.product);
+
+  @override
+  List<Object?> get props => [product];
+}
+
+class ProductUpdated extends ProductState {
+  final ProductEntity product;
+
+  const ProductUpdated(this.product);
+
+  @override
+  List<Object?> get props => [product];
+}
+
+class ProductDeleted extends ProductState {
+  final String productId;
+
+  const ProductDeleted(this.productId);
+
+  @override
+  List<Object?> get props => [productId];
+}
+
+class ProductError extends ProductState {
   final String message;
 
-  const ProductErrorState({required this.message});
+  const ProductError(this.message);
 
   @override
   List<Object?> get props => [message];
 }
 
-// Bloc
+// BLoC
 class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final GetProductsUseCase getProductsUseCase;
   final GetProductByIdUseCase getProductByIdUseCase;
@@ -103,58 +202,57 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   ProductBloc({
     required this.getProductsUseCase,
     required this.getProductByIdUseCase,
-  }) : super(ProductInitialState()) {
-    on<LoadProductsEvent>(_onLoadProducts);
-    on<LoadProductByIdEvent>(_onLoadProductById);
+  }) : super(ProductInitial()) {
+    
+    on<GetProductsEvent>(_onGetProducts);
+    on<GetProductByIdEvent>(_onGetProductById);
     on<SearchProductsEvent>(_onSearchProducts);
+    on<CreateProductEvent>(_onCreateProduct);
+    on<UpdateProductEvent>(_onUpdateProduct);
+    on<DeleteProductEvent>(_onDeleteProduct);
   }
 
-  Future<void> _onLoadProducts(
-    LoadProductsEvent event,
+  Future<void> _onGetProducts(
+    GetProductsEvent event,
     Emitter<ProductState> emit,
   ) async {
-    if (state is ProductLoadingState) return;
+    emit(ProductLoading());
 
-    final currentState = state;
-    List<Product> oldProducts = [];
-    
-    if (currentState is ProductLoadedState) {
-      oldProducts = currentState.products;
-    } else {
-      emit(ProductLoadingState());
-    }
-
-    final result = await getProductsUseCase(GetProductsParams(
-      page: event.page,
-      limit: event.limit,
-    ));
+    final result = await getProductsUseCase(NoParams());
 
     result.fold(
-      (failure) => emit(ProductErrorState(message: failure.message)),
-      (newProducts) {
-        final allProducts = event.page == 1 
-          ? newProducts 
-          : List.of(oldProducts)..addAll(newProducts);
-        
-        emit(ProductLoadedState(
-          products: allProducts,
-          hasReachedMax: newProducts.length < event.limit,
-        ));
+      (failure) {
+        String message = 'حدث خطأ أثناء تحميل المنتجات';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(ProductError(message));
       },
+      (products) => emit(ProductsLoaded(products)),
     );
   }
 
-  Future<void> _onLoadProductById(
-    LoadProductByIdEvent event,
+  Future<void> _onGetProductById(
+    GetProductByIdEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoadingState());
+    emit(ProductLoading());
 
-    final result = await getProductByIdUseCase(event.productId);
+    final result = await getProductByIdUseCase(ProductByIdParams(event.productId));
 
     result.fold(
-      (failure) => emit(ProductErrorState(message: failure.message)),
-      (product) => emit(ProductDetailLoadedState(product: product)),
+      (failure) {
+        String message = 'حدث خطأ أثناء تحميل المنتج';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(ProductError(message));
+      },
+      (product) => emit(ProductLoaded(product)),
     );
   }
 
@@ -162,21 +260,105 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     SearchProductsEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoadingState());
+    emit(ProductLoading());
 
-    // مؤقتاً - سيتم تطبيق البحث لاحقاً
-    final result = await getProductsUseCase(GetProductsParams());
+    // TODO: Implement search functionality
+    // For now, get all products and filter locally
+    final result = await getProductsUseCase(NoParams());
 
     result.fold(
-      (failure) => emit(ProductErrorState(message: failure.message)),
+      (failure) {
+        String message = 'حدث خطأ أثناء البحث';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(ProductError(message));
+      },
       (products) {
-        // تصفية المنتجات حسب الاستعلام
-        final filteredProducts = products.where(
-          (product) => product.name.toLowerCase().contains(event.query.toLowerCase())
-        ).toList();
-        
-        emit(ProductLoadedState(products: filteredProducts));
+        final filteredProducts = products
+            .where((product) =>
+                product.displayName.toLowerCase().contains(event.query.toLowerCase()) ||
+                product.displayDescription.toLowerCase().contains(event.query.toLowerCase()))
+            .toList();
+        emit(ProductsLoaded(filteredProducts));
       },
     );
+  }
+
+  Future<void> _onCreateProduct(
+    CreateProductEvent event,
+    Emitter<ProductState> emit,
+  ) async {
+    emit(ProductLoading());
+
+    // TODO: Implement product creation with API
+    // For now, simulate success
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Create mock product
+    final product = ProductEntity(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: event.name,
+      nameAr: event.nameAr,
+      description: event.description,
+      descriptionAr: event.descriptionAr,
+      price: event.price,
+      category: event.category,
+      images: [], // Will be populated after upload
+      sizes: event.sizes,
+      colors: event.colors,
+      inStock: true,
+      quantity: event.quantity,
+      createdAt: DateTime.now(),
+    );
+
+    emit(ProductCreated(product));
+  }
+
+  Future<void> _onUpdateProduct(
+    UpdateProductEvent event,
+    Emitter<ProductState> emit,
+  ) async {
+    emit(ProductLoading());
+
+    // TODO: Implement product update with API
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Create mock updated product
+    final product = ProductEntity(
+      id: event.productId,
+      name: event.name,
+      nameAr: event.nameAr,
+      description: event.description,
+      descriptionAr: event.descriptionAr,
+      price: event.price,
+      category: event.category,
+      images: [],
+      sizes: event.sizes,
+      colors: event.colors,
+      inStock: true,
+      quantity: event.quantity,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    emit(ProductUpdated(product));
+  }
+
+  Future<void> _onDeleteProduct(
+    DeleteProductEvent event,
+    Emitter<ProductState> emit,
+  ) async {
+    emit(ProductLoading());
+
+    // TODO: Implement product deletion with API
+    await Future.delayed(const Duration(seconds: 1));
+
+    emit(ProductDeleted(event.productId));
+    
+    // Refresh products list
+    add(GetProductsEvent());
   }
 }
