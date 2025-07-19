@@ -19,6 +19,8 @@ import { AuthDependencies } from './auth.dependencies';
 import { ProductDependencies } from './product.dependencies';
 import { CategoryDependencies } from './category.dependencies';
 import { WishlistDependencies } from './wishlist.dependencies';
+import { CartDependencies } from './cart.dependencies';
+import { OrderDependencies } from './order.dependencies';
 import { MongoWishlistRepository } from '../../infrastructure/repositories/mongo/mongo-wishlist.repository';
 import { UserDependencies } from './user.depednencies';
 import { NewProductNotification } from '../../infrastructure/srevices/notif-new-product';
