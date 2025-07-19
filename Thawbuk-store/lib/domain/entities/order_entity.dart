@@ -54,23 +54,6 @@ class OrderEntity extends Equatable {
     this.deliveredAt,
   });
 
-  String get statusText {
-    switch (status) {
-      case OrderStatus.pending:
-        return 'في الانتظار';
-      case OrderStatus.confirmed:
-        return 'مؤكد';
-      case OrderStatus.processing:
-        return 'جاري التحضير';
-      case OrderStatus.shipped:
-        return 'تم الشحن';
-      case OrderStatus.delivered:
-        return 'تم التسليم';
-      case OrderStatus.cancelled:
-        return 'ملغى';
-    }
-  }
-
   @override
   List<Object?> get props => [
         id,
