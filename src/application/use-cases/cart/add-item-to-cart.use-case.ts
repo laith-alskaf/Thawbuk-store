@@ -1,11 +1,11 @@
 import { ICartRepository } from "../../../domain/repository/cart.repository";
 import { AddItemToCartDTO, CartInfoDTO } from "../../dtos/cart.dto";
-import { IProductRepository } from "../../../domain/repository/product.repository";
+import { ProductRepository } from "../../../domain/repository/product.repository";
 
 export class AddItemToCartUseCase {
   constructor(
     private readonly cartRepository: ICartRepository,
-    private readonly productRepository: IProductRepository
+    private readonly productRepository: ProductRepository
   ) {}
 
   async execute(userId: string, itemData: AddItemToCartDTO): Promise<CartInfoDTO> {
