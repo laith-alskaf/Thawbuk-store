@@ -4,7 +4,7 @@ class AppConstants {
   static const String appVersion = '1.0.0';
   
   // الشبكة
-  static const String baseUrl = 'http://localhost:5000/api';
+  static const String baseUrl = 'http://localhost:8080/api';
   static const int connectTimeoutMs = 30000;
   static const int receiveTimeoutMs = 30000;
   
