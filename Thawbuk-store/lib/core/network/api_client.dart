@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:json_annotation/json_annotation.dart';
 
-import '../constants/app_constants.dart';
 import '../../data/models/user_model.dart';
 import '../../data/models/product_model.dart';
 import '../../data/models/category_model.dart';
@@ -11,174 +9,109 @@ import '../../data/models/order_model.dart';
 
 part 'api_client.g.dart';
 
-@RestApi(baseUrl: AppConstants.baseUrl)
+@RestApi()
 abstract class ApiClient {
   factory ApiClient(Dio dio, {String baseUrl}) = _ApiClient;
 
-  // Auth
-  @POST(ApiEndpoints.login)
-  Future<ApiResponse<Map<String, dynamic>>> login(
-    @Body() Map<String, dynamic> loginData,
+  // Auth endpoints
+  @POST('/auth/register')
+  Future<UserModel> register(@Body() Map<String, dynamic> userData);
+
+  @POST('/auth/login')
+  Future<UserModel> login(@Body() Map<String, dynamic> credentials);
+
+  @POST('/auth/logout')
+  Future<void> logout();
+
+  @GET('/user/me')
+  Future<UserModel> getCurrentUser();
+
+  // Product endpoints
+  @GET('/product')
+  Future<List<ProductModel>> getProducts();
+
+  @GET('/product/{id}')
+  Future<ProductModel> getProductById(@Path() String id);
+
+  @POST('/user/product')
+  Future<ProductModel> createProduct(@Body() Map<String, dynamic> productData);
+
+  @PUT('/user/product/{id}')
+  Future<ProductModel> updateProduct(
+    @Path() String id,
+    @Body() Map<String, dynamic> productData,
   );
 
-  @POST(ApiEndpoints.register)
-  Future<ApiResponse<void>> register(
-    @Body() Map<String, dynamic> registerData,
+  @DELETE('/user/product/{id}')
+  Future<void> deleteProduct(@Path() String id);
+
+  @GET('/product/search')
+  Future<List<ProductModel>> searchProducts(@Query('q') String query);
+
+  @GET('/product/byCategory')
+  Future<List<ProductModel>> getProductsByCategory(@Query('category') String category);
+
+  // Category endpoints
+  @GET('/category')
+  Future<List<CategoryModel>> getCategories();
+
+  @GET('/category/{id}')
+  Future<CategoryModel> getCategoryById(@Path() String id);
+
+  @POST('/user/category')
+  Future<CategoryModel> createCategory(@Body() Map<String, dynamic> categoryData);
+
+  @PUT('/user/category/{id}')
+  Future<CategoryModel> updateCategory(
+    @Path() String id,
+    @Body() Map<String, dynamic> categoryData,
   );
 
-  @POST(ApiEndpoints.logout)
-  Future<ApiResponse<void>> logout();
+  @DELETE('/user/category/{id}')
+  Future<void> deleteCategory(@Path() String id);
 
-  @POST(ApiEndpoints.forgotPassword)
-  Future<ApiResponse<void>> forgotPassword(
-    @Body() Map<String, String> data,
+  // Cart endpoints
+  @GET('/user/cart')
+  Future<CartModel> getCart();
+
+  @POST('/user/cart/add')
+  Future<CartModel> addToCart(@Body() Map<String, dynamic> cartData);
+
+  @PUT('/user/cart/update')
+  Future<CartModel> updateCartItem(@Body() Map<String, dynamic> updateData);
+
+  @DELETE('/user/cart/remove/{productId}')
+  Future<CartModel> removeFromCart(@Path() String productId);
+
+  @DELETE('/user/cart/clear')
+  Future<void> clearCart();
+
+  // Order endpoints
+  @GET('/user/order')
+  Future<List<OrderModel>> getOrders();
+
+  @GET('/user/order/{id}')
+  Future<OrderModel> getOrderById(@Path() String id);
+
+  @POST('/user/order')
+  Future<OrderModel> createOrder(@Body() Map<String, dynamic> orderData);
+
+  @PUT('/user/order/{id}/status')
+  Future<OrderModel> updateOrderStatus(
+    @Path() String id,
+    @Body() Map<String, dynamic> statusData,
   );
 
-  @POST(ApiEndpoints.verifyEmail)
-  Future<ApiResponse<void>> verifyEmail(
-    @Body() Map<String, String> data,
-  );
+  @DELETE('/user/order/{id}')
+  Future<void> cancelOrder(@Path() String id);
 
-  // User
-  @GET(ApiEndpoints.userProfile)
-  Future<ApiResponse<UserModel>> getUserProfile();
+  // Wishlist endpoints
+  @GET('/user/wishlist')
+  Future<List<ProductModel>> getWishlist();
 
-  @PUT(ApiEndpoints.updateProfile)
-  Future<ApiResponse<UserModel>> updateUserProfile(
-    @Body() Map<String, dynamic> updateData,
-  );
+  @POST('/user/wishlist')
+  Future<void> addToWishlist(@Body() Map<String, dynamic> wishlistData);
 
-  // Products
-  @GET(ApiEndpoints.products)
-  Future<ApiResponse<ProductsResponse>> getProducts(
-    @Query('page') int page,
-    @Query('limit') int limit,
-  );
-
-  @GET('${ApiEndpoints.products}/{id}')
-  Future<ApiResponse<ProductModel>> getProductById(
-    @Path('id') String productId,
-  );
-
-  @GET('${ApiEndpoints.productsByCategory}/{categoryId}')
-  Future<ApiResponse<List<ProductModel>>> getProductsByCategory(
-    @Path('categoryId') String categoryId,
-  );
-
-  @GET(ApiEndpoints.searchProducts)
-  Future<ApiResponse<ProductsResponse>> searchProducts(
-    @Query('title') String query,
-    @Query('categoryId') String? categoryId,
-    @Query('page') int page,
-    @Query('limit') int limit,
-  );
-
-  // Categories
-  @GET(ApiEndpoints.categories)
-  Future<ApiResponse<List<CategoryModel>>> getCategories();
-
-  // Cart
-  @GET(ApiEndpoints.cart)
-  Future<ApiResponse<CartModel>> getCart();
-
-  @POST(ApiEndpoints.addToCart)
-  Future<ApiResponse<CartModel>> addToCart(
-    @Body() Map<String, dynamic> cartItem,
-  );
-
-  @PUT(ApiEndpoints.updateCart)
-  Future<ApiResponse<CartModel>> updateCartItem(
-    @Body() Map<String, dynamic> cartItem,
-  );
-
-  @DELETE('${ApiEndpoints.removeFromCart}/{productId}')
-  Future<ApiResponse<CartModel>> removeFromCart(
-    @Path('productId') String productId,
-  );
-
-  @DELETE(ApiEndpoints.clearCart)
-  Future<ApiResponse<void>> clearCart();
-
-  // Orders
-  @GET(ApiEndpoints.orders)
-  Future<ApiResponse<OrdersResponse>> getUserOrders(
-    @Query('page') int page,
-    @Query('limit') int limit,
-  );
-
-  @POST(ApiEndpoints.createOrder)
-  Future<ApiResponse<OrderModel>> createOrder(
-    @Body() Map<String, dynamic> orderData,
-  );
-
-  @GET('${ApiEndpoints.orders}/{orderId}')
-  Future<ApiResponse<OrderModel>> getOrderById(
-    @Path('orderId') String orderId,
-  );
-}
-
-@JsonSerializable(genericArgumentFactories: true)
-class ApiResponse<T> {
-  final bool success;
-  final String message;
-  final T? body;
-
-  ApiResponse({
-    required this.success,
-    required this.message,
-    this.body,
-  });
-
-  factory ApiResponse.fromJson(
-    Map<String, dynamic> json,
-    T Function(Object? json) fromJsonT,
-  ) =>
-      _$ApiResponseFromJson(json, fromJsonT);
-
-  Map<String, dynamic> toJson(Object Function(T value) toJsonT) =>
-      _$ApiResponseToJson(this, toJsonT);
-}
-
-@JsonSerializable()
-class ProductsResponse {
-  final List<ProductModel> products;
-  final int total;
-  final int currentPage;
-  final int totalPages;
-  final int totalItems;
-
-  ProductsResponse({
-    required this.products,
-    required this.total,
-    required this.currentPage,
-    required this.totalPages,
-    required this.totalItems,
-  });
-
-  factory ProductsResponse.fromJson(Map<String, dynamic> json) =>
-      _$ProductsResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ProductsResponseToJson(this);
-}
-
-@JsonSerializable()
-class OrdersResponse {
-  final List<OrderModel> orders;
-  final int total;
-  final int currentPage;
-  final int totalPages;
-  final int totalItems;
-
-  OrdersResponse({
-    required this.orders,
-    required this.total,
-    required this.currentPage,
-    required this.totalPages,
-    required this.totalItems,
-  });
-
-  factory OrdersResponse.fromJson(Map<String, dynamic> json) =>
-      _$OrdersResponseFromJson(json);
-
-  Map<String, dynamic> toJson() => _$OrdersResponseToJson(this);
+  @DELETE('/user/wishlist/{productId}')
+  Future<void> removeFromWishlist(@Path() String productId);
 }
