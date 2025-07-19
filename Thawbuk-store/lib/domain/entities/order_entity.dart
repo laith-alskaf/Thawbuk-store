@@ -10,6 +10,25 @@ enum OrderStatus {
   cancelled
 }
 
+extension OrderStatusExtension on OrderStatus {
+  String get statusText {
+    switch (this) {
+      case OrderStatus.pending:
+        return 'في الانتظار';
+      case OrderStatus.confirmed:
+        return 'مؤكد';
+      case OrderStatus.processing:
+        return 'جاري التحضير';
+      case OrderStatus.shipped:
+        return 'تم الشحن';
+      case OrderStatus.delivered:
+        return 'تم التسليم';
+      case OrderStatus.cancelled:
+        return 'ملغى';
+    }
+  }
+}
+
 class OrderEntity extends Equatable {
   final String id;
   final String userId;
