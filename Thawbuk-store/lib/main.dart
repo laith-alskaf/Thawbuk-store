@@ -25,23 +25,6 @@ class ThawbukApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: AppConstants.appName,
-      debugShowCheckedModeBanner: false,
-      
-      // الخطوط العربية
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      
-      // التنقل
-      routerConfig: getIt<AppRouter>().router,
-      
-      // دعم اللغات
-      locale: const Locale('ar', 'SA'),
-      supportedLocales: const [
-        Locale('ar', 'SA'),
-        Locale('en', 'US'),
-      ],
-    );
+    return const App();
   }
 }
