@@ -1,9 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/entities/cart.dart';
+import '../../../domain/entities/cart_entity.dart';
 import '../../../domain/usecases/cart/add_to_cart_usecase.dart';
 import '../../../domain/usecases/cart/get_cart_usecase.dart';
+import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
 
 // Events
@@ -14,7 +15,7 @@ abstract class CartEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadCartEvent extends CartEvent {}
+class GetCartEvent extends CartEvent {}
 
 class AddToCartEvent extends CartEvent {
   final String productId;
@@ -34,26 +35,22 @@ class AddToCartEvent extends CartEvent {
 }
 
 class UpdateCartItemEvent extends CartEvent {
-  final String productId;
+  final String itemId;
   final int quantity;
-  final String? selectedSize;
-  final String? selectedColor;
 
   const UpdateCartItemEvent({
-    required this.productId,
+    required this.itemId,
     required this.quantity,
-    this.selectedSize,
-    this.selectedColor,
   });
 
   @override
-  List<Object?> get props => [productId, quantity, selectedSize, selectedColor];
+  List<Object?> get props => [itemId, quantity];
 }
 
 class RemoveFromCartEvent extends CartEvent {
   final String productId;
 
-  const RemoveFromCartEvent({required this.productId});
+  const RemoveFromCartEvent(this.productId);
 
   @override
   List<Object?> get props => [productId];
@@ -69,38 +66,58 @@ abstract class CartState extends Equatable {
   List<Object?> get props => [];
 }
 
-class CartInitialState extends CartState {}
+class CartInitial extends CartState {}
 
-class CartLoadingState extends CartState {}
+class CartLoading extends CartState {}
 
-class CartLoadedState extends CartState {
-  final Cart cart;
+class CartLoaded extends CartState {
+  final CartEntity cart;
 
-  const CartLoadedState({required this.cart});
+  const CartLoaded(this.cart);
 
   @override
   List<Object?> get props => [cart];
 }
 
-class CartErrorState extends CartState {
+class CartItemAdded extends CartState {
+  final CartEntity cart;
+
+  const CartItemAdded(this.cart);
+
+  @override
+  List<Object?> get props => [cart];
+}
+
+class CartItemUpdated extends CartState {
+  final CartEntity cart;
+
+  const CartItemUpdated(this.cart);
+
+  @override
+  List<Object?> get props => [cart];
+}
+
+class CartItemRemoved extends CartState {
+  final CartEntity cart;
+
+  const CartItemRemoved(this.cart);
+
+  @override
+  List<Object?> get props => [cart];
+}
+
+class CartCleared extends CartState {}
+
+class CartError extends CartState {
   final String message;
 
-  const CartErrorState({required this.message});
+  const CartError(this.message);
 
   @override
   List<Object?> get props => [message];
 }
 
-class CartUpdatedState extends CartState {
-  final String message;
-
-  const CartUpdatedState({required this.message});
-
-  @override
-  List<Object?> get props => [message];
-}
-
-// Bloc
+// BLoC
 class CartBloc extends Bloc<CartEvent, CartState> {
   final AddToCartUseCase addToCartUseCase;
   final GetCartUseCase getCartUseCase;
@@ -108,25 +125,34 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   CartBloc({
     required this.addToCartUseCase,
     required this.getCartUseCase,
-  }) : super(CartInitialState()) {
-    on<LoadCartEvent>(_onLoadCart);
+  }) : super(CartInitial()) {
+    
+    on<GetCartEvent>(_onGetCart);
     on<AddToCartEvent>(_onAddToCart);
     on<UpdateCartItemEvent>(_onUpdateCartItem);
     on<RemoveFromCartEvent>(_onRemoveFromCart);
     on<ClearCartEvent>(_onClearCart);
   }
 
-  Future<void> _onLoadCart(
-    LoadCartEvent event,
+  Future<void> _onGetCart(
+    GetCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    emit(CartLoadingState());
+    emit(CartLoading());
 
     final result = await getCartUseCase(NoParams());
 
     result.fold(
-      (failure) => emit(CartErrorState(message: failure.message)),
-      (cart) => emit(CartLoadedState(cart: cart)),
+      (failure) {
+        String message = 'حدث خطأ أثناء تحميل السلة';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(CartError(message));
+      },
+      (cart) => emit(CartLoaded(cart)),
     );
   }
 
@@ -134,6 +160,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     AddToCartEvent event,
     Emitter<CartState> emit,
   ) async {
+    emit(CartLoading());
+
     final result = await addToCartUseCase(AddToCartParams(
       productId: event.productId,
       quantity: event.quantity,
@@ -142,11 +170,16 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     ));
 
     result.fold(
-      (failure) => emit(CartErrorState(message: failure.message)),
-      (cart) {
-        emit(CartUpdatedState(message: 'تم إضافة المنتج إلى السلة'));
-        emit(CartLoadedState(cart: cart));
+      (failure) {
+        String message = 'حدث خطأ أثناء إضافة المنتج للسلة';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(CartError(message));
       },
+      (cart) => emit(CartItemAdded(cart)),
     );
   }
 
@@ -154,23 +187,53 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     UpdateCartItemEvent event,
     Emitter<CartState> emit,
   ) async {
-    // سيتم تطبيقه لاحقاً مع إنشاء UpdateCartUseCase
-    emit(CartUpdatedState(message: 'تم تحديث المنتج في السلة'));
+    emit(CartLoading());
+
+    // TODO: Implement update cart item with API
+    await Future.delayed(const Duration(seconds: 1));
+
+    // For now, get cart again
+    final result = await getCartUseCase(NoParams());
+
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء تحديث السلة';
+        emit(CartError(message));
+      },
+      (cart) => emit(CartItemUpdated(cart)),
+    );
   }
 
   Future<void> _onRemoveFromCart(
     RemoveFromCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    // سيتم تطبيقه لاحقاً مع إنشاء RemoveFromCartUseCase
-    emit(CartUpdatedState(message: 'تم حذف المنتج من السلة'));
+    emit(CartLoading());
+
+    // TODO: Implement remove from cart with API
+    await Future.delayed(const Duration(seconds: 1));
+
+    // For now, get cart again
+    final result = await getCartUseCase(NoParams());
+
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء إزالة المنتج من السلة';
+        emit(CartError(message));
+      },
+      (cart) => emit(CartItemRemoved(cart)),
+    );
   }
 
   Future<void> _onClearCart(
     ClearCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    // سيتم تطبيقه لاحقاً مع إنشاء ClearCartUseCase
-    emit(CartUpdatedState(message: 'تم مسح السلة'));
+    emit(CartLoading());
+
+    // TODO: Implement clear cart with API
+    await Future.delayed(const Duration(seconds: 1));
+
+    emit(CartCleared());
   }
 }
