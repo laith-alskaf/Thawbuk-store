@@ -88,6 +88,18 @@ export const setupDependencies = () => {
         userRepository: userRepository,
     });
 
+    //5- Cart
+    const cartController = CartDependencies({
+        cartRepository: cartRepository,
+        productRepository: prodcutRepository
+    });
+
+    //6- Order
+    const orderController = OrderDependencies({
+        orderRepository: orderRepository,
+        cartRepository: cartRepository
+    });
+
     return {
         tokenService,
         userRepository,
@@ -95,6 +107,8 @@ export const setupDependencies = () => {
         productController,
         categoryController,
         wishlistController,
-        userController
+        userController,
+        cartController,
+        orderController
     };
 };
