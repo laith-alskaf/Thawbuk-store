@@ -1,6 +1,6 @@
 import { CartController } from "../controllers/cart.controller";
 import { ICartRepository } from "../../domain/repository/cart.repository";
-import { IProductRepository } from "../../domain/repository/product.repository";
+import { ProductRepository } from "../../domain/repository/product.repository";
 import {
   AddItemToCartUseCase,
   GetCartUseCase,
@@ -11,7 +11,7 @@ import {
 
 interface CartDependenciesParams {
   cartRepository: ICartRepository;
-  productRepository: IProductRepository;
+  productRepository: ProductRepository;
 }
 
 export const CartDependencies = ({
