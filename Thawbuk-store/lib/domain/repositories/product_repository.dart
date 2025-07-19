@@ -1,55 +1,44 @@
 import 'package:dartz/dartz.dart';
+import 'dart:io';
+
+import '../entities/product_entity.dart';
 import '../../core/errors/failures.dart';
-import '../entities/product.dart';
 
 abstract class ProductRepository {
-  Future<Either<Failure, List<Product>>> getProducts({
-    int page = 1,
-    int limit = 10,
-  });
+  Future<Either<Failure, List<ProductEntity>>> getProducts();
 
-  Future<Either<Failure, Product>> getProductById(String productId);
+  Future<Either<Failure, ProductEntity>> getProductById(String id);
 
-  Future<Either<Failure, List<Product>>> getProductsByCategory({
-    required String categoryId,
-    int page = 1,
-    int limit = 10,
-  });
+  Future<Either<Failure, List<ProductEntity>>> searchProducts(String query);
 
-  Future<Either<Failure, List<Product>>> searchProducts({
-    required String query,
-    String? categoryId,
-    int page = 1,
-    int limit = 10,
-  });
+  Future<Either<Failure, List<ProductEntity>>> getProductsByCategory(String category);
 
-  // للادمن فقط
-  Future<Either<Failure, Product>> createProduct({
+  Future<Either<Failure, ProductEntity>> createProduct({
     required String name,
+    required String nameAr,
     required String description,
+    required String descriptionAr,
     required double price,
-    required String categoryId,
-    required List<String> images,
+    required String category,
     required List<String> sizes,
     required List<String> colors,
-    required int stock,
-    String? brand,
-    Map<String, int>? ageRange,
+    required int quantity,
+    required List<File> images,
   });
 
-  Future<Either<Failure, Product>> updateProduct({
-    required String productId,
-    String? name,
-    String? description,
-    double? price,
-    String? categoryId,
-    List<String>? images,
-    List<String>? sizes,
-    List<String>? colors,
-    int? stock,
-    String? brand,
-    Map<String, int>? ageRange,
+  Future<Either<Failure, ProductEntity>> updateProduct({
+    required String id,
+    required String name,
+    required String nameAr,
+    required String description,
+    required String descriptionAr,
+    required double price,
+    required String category,
+    required List<String> sizes,
+    required List<String> colors,
+    required int quantity,
+    required List<File> images,
   });
 
-  Future<Either<Failure, void>> deleteProduct(String productId);
+  Future<Either<Failure, void>> deleteProduct(String id);
 }

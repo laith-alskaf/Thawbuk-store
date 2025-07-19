@@ -1,32 +1,26 @@
 import 'package:dartz/dartz.dart';
+
+import '../entities/cart_entity.dart';
 import '../../core/errors/failures.dart';
-import '../entities/cart.dart';
 
 abstract class CartRepository {
-  Future<Either<Failure, Cart>> getCart();
+  Future<Either<Failure, CartEntity>> getCart();
 
-  Future<Either<Failure, Cart>> addToCart({
+  Future<Either<Failure, CartEntity>> addToCart({
     required String productId,
     required int quantity,
     String? selectedSize,
     String? selectedColor,
   });
 
-  Future<Either<Failure, Cart>> updateCartItem({
-    required String productId,
+  Future<Either<Failure, CartEntity>> updateCartItem({
+    required String itemId,
     required int quantity,
-    String? selectedSize,
-    String? selectedColor,
   });
 
-  Future<Either<Failure, Cart>> removeFromCart({
-    required String productId,
-  });
+  Future<Either<Failure, CartEntity>> removeFromCart(String productId);
 
   Future<Either<Failure, void>> clearCart();
 
-  // للتخزين المحلي
-  Future<void> saveCartLocally(Cart cart);
-  Future<Cart?> getLocalCart();
-  Future<void> clearLocalCart();
+  Future<Either<Failure, CartEntity>> syncCart();
 }

@@ -1,25 +1,29 @@
 import 'package:dartz/dartz.dart';
+
+import '../entities/category_entity.dart';
 import '../../core/errors/failures.dart';
-import '../entities/category.dart';
 
 abstract class CategoryRepository {
-  Future<Either<Failure, List<Category>>> getCategories();
+  Future<Either<Failure, List<CategoryEntity>>> getCategories();
 
-  Future<Either<Failure, Category>> getCategoryById(String categoryId);
+  Future<Either<Failure, CategoryEntity>> getCategoryById(String id);
 
-  // للادمن فقط
-  Future<Either<Failure, Category>> createCategory({
+  Future<Either<Failure, CategoryEntity>> createCategory({
     required String name,
+    required String nameAr,
     String? description,
-    required String image,
-  });
-
-  Future<Either<Failure, Category>> updateCategory({
-    required String categoryId,
-    String? name,
-    String? description,
+    String? descriptionAr,
     String? image,
   });
 
-  Future<Either<Failure, void>> deleteCategory(String categoryId);
+  Future<Either<Failure, CategoryEntity>> updateCategory({
+    required String id,
+    required String name,
+    required String nameAr,
+    String? description,
+    String? descriptionAr,
+    String? image,
+  });
+
+  Future<Either<Failure, void>> deleteCategory(String id);
 }

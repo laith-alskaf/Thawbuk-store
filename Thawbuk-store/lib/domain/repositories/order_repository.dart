@@ -1,40 +1,22 @@
 import 'package:dartz/dartz.dart';
+
+import '../entities/order_entity.dart';
 import '../../core/errors/failures.dart';
-import '../entities/order.dart';
 
 abstract class OrderRepository {
-  Future<Either<Failure, Order>> createOrder({
-    required List<Map<String, dynamic>> items,
-    required Map<String, dynamic> shippingAddress,
-    required String paymentMethod,
+  Future<Either<Failure, List<OrderEntity>>> getOrders();
+
+  Future<Either<Failure, OrderEntity>> getOrderById(String id);
+
+  Future<Either<Failure, OrderEntity>> createOrder({
+    required AddressEntity shippingAddress,
     String? notes,
   });
 
-  Future<Either<Failure, List<Order>>> getUserOrders({
-    int page = 1,
-    int limit = 10,
-  });
-
-  Future<Either<Failure, Order>> getOrderById(String orderId);
-
-  Future<Either<Failure, Order>> getOrderByNumber(String orderNumber);
-
-  // للادمن فقط
-  Future<Either<Failure, List<Order>>> getAllOrders({
-    int page = 1,
-    int limit = 10,
-    String? status,
-    String? paymentStatus,
-    String? userId,
-  });
-
-  Future<Either<Failure, Order>> updateOrderStatus({
+  Future<Either<Failure, OrderEntity>> updateOrderStatus({
     required String orderId,
-    required String status,
+    required OrderStatus status,
   });
 
-  Future<Either<Failure, Order>> updatePaymentStatus({
-    required String orderId,
-    required String paymentStatus,
-  });
+  Future<Either<Failure, void>> cancelOrder(String orderId);
 }
