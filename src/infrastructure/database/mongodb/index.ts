@@ -21,8 +21,6 @@ export default class Database {
         }
 
         console.log(`New connection to MongoDB`);
-        console.log("CONFIG.DEV_MONGODB_URI:", CONFIG.DEV_MONGODB_URI);
-        console.log("typeof CONFIG.DEV_MONGODB_URI:", typeof CONFIG.DEV_MONGODB_URI);
         try {
             await connect(CONFIG.DEV_MONGODB_URI!);
             this.isConnected = true;
