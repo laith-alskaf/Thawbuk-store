@@ -2,9 +2,11 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/entities/product_entity.dart';
+import '../../../domain/entities/product.dart';
 import '../../../domain/usecases/product/get_products_usecase.dart';
 import '../../../domain/usecases/product/get_product_by_id_usecase.dart';
+import '../../../domain/usecases/product/search_products_usecase.dart';
+import '../../../domain/usecases/product/get_products_by_category_usecase.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
 
@@ -34,6 +36,15 @@ class SearchProductsEvent extends ProductEvent {
 
   @override
   List<Object?> get props => [query];
+}
+
+class GetProductsByCategoryEvent extends ProductEvent {
+  final String category;
+
+  const GetProductsByCategoryEvent(this.category);
+
+  @override
+  List<Object?> get props => [category];
 }
 
 class CreateProductEvent extends ProductEvent {
@@ -141,7 +152,7 @@ class ProductInitial extends ProductState {}
 class ProductLoading extends ProductState {}
 
 class ProductsLoaded extends ProductState {
-  final List<ProductEntity> products;
+  final List<Product> products;
 
   const ProductsLoaded(this.products);
 
@@ -150,7 +161,7 @@ class ProductsLoaded extends ProductState {
 }
 
 class ProductLoaded extends ProductState {
-  final ProductEntity product;
+  final Product product;
 
   const ProductLoaded(this.product);
 
@@ -159,7 +170,7 @@ class ProductLoaded extends ProductState {
 }
 
 class ProductCreated extends ProductState {
-  final ProductEntity product;
+  final Product product;
 
   const ProductCreated(this.product);
 
@@ -168,7 +179,7 @@ class ProductCreated extends ProductState {
 }
 
 class ProductUpdated extends ProductState {
-  final ProductEntity product;
+  final Product product;
 
   const ProductUpdated(this.product);
 
@@ -198,15 +209,20 @@ class ProductError extends ProductState {
 class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final GetProductsUseCase getProductsUseCase;
   final GetProductByIdUseCase getProductByIdUseCase;
+  final SearchProductsUseCase searchProductsUseCase;
+  final GetProductsByCategoryUseCase getProductsByCategoryUseCase;
 
   ProductBloc({
     required this.getProductsUseCase,
     required this.getProductByIdUseCase,
+    required this.searchProductsUseCase,
+    required this.getProductsByCategoryUseCase,
   }) : super(ProductInitial()) {
     
     on<GetProductsEvent>(_onGetProducts);
     on<GetProductByIdEvent>(_onGetProductById);
     on<SearchProductsEvent>(_onSearchProducts);
+    on<GetProductsByCategoryEvent>(_onGetProductsByCategory);
     on<CreateProductEvent>(_onCreateProduct);
     on<UpdateProductEvent>(_onUpdateProduct);
     on<DeleteProductEvent>(_onDeleteProduct);
@@ -262,9 +278,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   ) async {
     emit(ProductLoading());
 
-    // TODO: Implement search functionality
-    // For now, get all products and filter locally
-    final result = await getProductsUseCase(NoParams());
+    final result = await searchProductsUseCase(SearchProductsParams(query: event.query));
 
     result.fold(
       (failure) {
@@ -276,14 +290,31 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         }
         emit(ProductError(message));
       },
-      (products) {
-        final filteredProducts = products
-            .where((product) =>
-                product.displayName.toLowerCase().contains(event.query.toLowerCase()) ||
-                product.displayDescription.toLowerCase().contains(event.query.toLowerCase()))
-            .toList();
-        emit(ProductsLoaded(filteredProducts));
+      (products) => emit(ProductsLoaded(products)),
+    );
+  }
+
+  Future<void> _onGetProductsByCategory(
+    GetProductsByCategoryEvent event,
+    Emitter<ProductState> emit,
+  ) async {
+    emit(ProductLoading());
+
+    final result = await getProductsByCategoryUseCase(
+      GetProductsByCategoryParams(category: event.category),
+    );
+
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء تحميل المنتجات';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(ProductError(message));
       },
+      (products) => emit(ProductsLoaded(products)),
     );
   }
 
@@ -298,7 +329,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     await Future.delayed(const Duration(seconds: 1));
 
     // Create mock product
-    final product = ProductEntity(
+    final product = Product(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: event.name,
       nameAr: event.nameAr,
@@ -327,7 +358,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     await Future.delayed(const Duration(seconds: 1));
 
     // Create mock updated product
-    final product = ProductEntity(
+    final product = Product(
       id: event.productId,
       name: event.name,
       nameAr: event.nameAr,

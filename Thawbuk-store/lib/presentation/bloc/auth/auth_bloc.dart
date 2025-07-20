@@ -1,12 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/entities/user_entity.dart';
+import '../../../domain/entities/user.dart';
 import '../../../domain/usecases/auth/login_usecase.dart';
 import '../../../domain/usecases/auth/register_usecase.dart';
 import '../../../domain/usecases/auth/logout_usecase.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../core/errors/failures.dart';
+import '../../../core/usecases/usecase.dart';
 
 // Events
 abstract class AuthEvent extends Equatable {
@@ -32,22 +33,14 @@ class LoginEvent extends AuthEvent {
 }
 
 class RegisterEvent extends AuthEvent {
-  final String name;
-  final String email;
-  final String phone;
-  final String password;
-  final UserRole role;
+  final Map<String, dynamic> userData;
 
   const RegisterEvent({
-    required this.name,
-    required this.email,
-    required this.phone,
-    required this.password,
-    required this.role,
+    required this.userData,
   });
 
   @override
-  List<Object> get props => [name, email, phone, password, role];
+  List<Object> get props => [userData];
 }
 
 class LogoutEvent extends AuthEvent {}
@@ -65,7 +58,7 @@ class AuthInitial extends AuthState {}
 class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
-  final UserEntity user;
+  final User user;
 
   const AuthAuthenticated(this.user);
 
@@ -112,12 +105,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     try {
-      final result = await authRepository.getCurrentUser();
-      
-      result.fold(
-        (failure) => emit(AuthUnauthenticated()),
-        (user) => emit(AuthAuthenticated(user)),
-      );
+      final isLoggedIn = await authRepository.isUserLoggedIn();
+      if (isLoggedIn) {
+        final result = await authRepository.getCurrentUser();
+        result.fold(
+          (failure) => emit(AuthUnauthenticated()),
+          (user) => emit(AuthAuthenticated(user)),
+        );
+      } else {
+        emit(AuthUnauthenticated());
+      }
     } catch (e) {
       emit(AuthUnauthenticated());
     }
@@ -155,11 +152,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     final result = await registerUseCase(RegisterParams(
-      name: event.name,
-      email: event.email,
-      phone: event.phone,
-      password: event.password,
-      role: event.role,
+      userData: event.userData,
     ));
 
     result.fold(

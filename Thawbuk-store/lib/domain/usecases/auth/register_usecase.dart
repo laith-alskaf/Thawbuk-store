@@ -3,41 +3,27 @@ import 'package:equatable/equatable.dart';
 
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
-import '../../entities/user_entity.dart';
+import '../../entities/user.dart';
 import '../../repositories/auth_repository.dart';
 
-class RegisterUseCase implements UseCase<UserEntity, RegisterParams> {
+class RegisterUseCase implements UseCase<User, RegisterParams> {
   final AuthRepository repository;
 
   RegisterUseCase(this.repository);
 
   @override
-  Future<Either<Failure, UserEntity>> call(RegisterParams params) async {
-    return await repository.register(
-      name: params.name,
-      email: params.email,
-      phone: params.phone,
-      password: params.password,
-      role: params.role,
-    );
+  Future<Either<Failure, User>> call(RegisterParams params) async {
+    return await repository.register(params.userData);
   }
 }
 
 class RegisterParams extends Equatable {
-  final String name;
-  final String email;
-  final String phone;
-  final String password;
-  final UserRole role;
+  final Map<String, dynamic> userData;
 
   const RegisterParams({
-    required this.name,
-    required this.email,
-    required this.phone,
-    required this.password,
-    required this.role,
+    required this.userData,
   });
 
   @override
-  List<Object> get props => [name, email, phone, password, role];
+  List<Object> get props => [userData];
 }

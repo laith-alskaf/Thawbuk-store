@@ -39,13 +39,22 @@ import '../../domain/usecases/auth/register_usecase.dart';
 import '../../domain/usecases/auth/logout_usecase.dart';
 import '../../domain/usecases/product/get_products_usecase.dart';
 import '../../domain/usecases/product/get_product_by_id_usecase.dart';
+import '../../domain/usecases/product/search_products_usecase.dart';
+import '../../domain/usecases/product/get_products_by_category_usecase.dart';
 import '../../domain/usecases/cart/add_to_cart_usecase.dart';
 import '../../domain/usecases/cart/get_cart_usecase.dart';
+import '../../domain/usecases/cart/update_cart_usecase.dart';
+import '../../domain/usecases/cart/remove_from_cart_usecase.dart';
+import '../../domain/usecases/cart/clear_cart_usecase.dart';
+import '../../domain/usecases/order/get_orders_usecase.dart';
+import '../../domain/usecases/order/create_order_usecase.dart';
+import '../../domain/usecases/category/get_categories_usecase.dart';
 
 // Blocs
 import '../../presentation/bloc/auth/auth_bloc.dart';
 import '../../presentation/bloc/product/product_bloc.dart';
 import '../../presentation/bloc/cart/cart_bloc.dart';
+import '../../presentation/bloc/order/order_bloc.dart';
 import '../../presentation/bloc/theme/theme_cubit.dart';
 
 // Navigation
@@ -160,8 +169,16 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => LogoutUseCase(getIt()));
   getIt.registerLazySingleton(() => GetProductsUseCase(getIt()));
   getIt.registerLazySingleton(() => GetProductByIdUseCase(getIt()));
+  getIt.registerLazySingleton(() => SearchProductsUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetProductsByCategoryUseCase(getIt()));
   getIt.registerLazySingleton(() => AddToCartUseCase(getIt()));
   getIt.registerLazySingleton(() => GetCartUseCase(getIt()));
+  getIt.registerLazySingleton(() => UpdateCartUseCase(getIt()));
+  getIt.registerLazySingleton(() => RemoveFromCartUseCase(getIt()));
+  getIt.registerLazySingleton(() => ClearCartUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetOrdersUseCase(getIt()));
+  getIt.registerLazySingleton(() => CreateOrderUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetCategoriesUseCase(getIt()));
 
   // Blocs
   getIt.registerFactory(() => AuthBloc(
@@ -174,11 +191,21 @@ Future<void> configureDependencies() async {
   getIt.registerFactory(() => ProductBloc(
     getProductsUseCase: getIt(),
     getProductByIdUseCase: getIt(),
+    searchProductsUseCase: getIt(),
+    getProductsByCategoryUseCase: getIt(),
   ));
   
   getIt.registerFactory(() => CartBloc(
     addToCartUseCase: getIt(),
     getCartUseCase: getIt(),
+    updateCartUseCase: getIt(),
+    removeFromCartUseCase: getIt(),
+    clearCartUseCase: getIt(),
+  ));
+  
+  getIt.registerFactory(() => OrderBloc(
+    getOrdersUseCase: getIt(),
+    createOrderUseCase: getIt(),
   ));
   
   getIt.registerLazySingleton(() => ThemeCubit());

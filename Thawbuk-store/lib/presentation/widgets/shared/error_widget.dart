@@ -18,9 +18,9 @@ class CustomErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon ?? Icons.error_outline,
@@ -30,7 +30,9 @@ class CustomErrorWidget extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.darkGrey,
+              ),
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[
@@ -38,7 +40,71 @@ class CustomErrorWidget extends StatelessWidget {
               CustomButton(
                 text: 'إعادة المحاولة',
                 onPressed: onRetry,
-                type: ButtonType.outline,
+                icon: Icons.refresh,
+                width: 160,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EmptyStateWidget extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final IconData? icon;
+  final VoidCallback? onAction;
+  final String? actionText;
+
+  const EmptyStateWidget({
+    Key? key,
+    required this.title,
+    this.subtitle,
+    this.icon,
+    this.onAction,
+    this.actionText,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon ?? Icons.inbox_outlined,
+              size: 64,
+              color: AppColors.grey,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppColors.darkGrey,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                subtitle!,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.grey,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+            if (onAction != null && actionText != null) ...[
+              const SizedBox(height: 24),
+              CustomButton(
+                text: actionText!,
+                onPressed: onAction,
+                width: 200,
               ),
             ],
           ],

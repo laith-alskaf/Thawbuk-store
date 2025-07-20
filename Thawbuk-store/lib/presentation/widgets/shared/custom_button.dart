@@ -1,158 +1,81 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/constants/app_constants.dart';
-
-enum ButtonType { primary, secondary, outline, text }
-enum ButtonSize { small, medium, large }
 
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
-  final ButtonType type;
-  final ButtonSize size;
-  final Widget? icon;
   final bool isLoading;
-  final bool isFullWidth;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final double? width;
+  final double height;
+  final IconData? icon;
+  final bool outline;
 
   const CustomButton({
     Key? key,
     required this.text,
     this.onPressed,
-    this.type = ButtonType.primary,
-    this.size = ButtonSize.medium,
-    this.icon,
     this.isLoading = false,
-    this.isFullWidth = false,
+    this.backgroundColor,
+    this.textColor,
+    this.width,
+    this.height = 50,
+    this.icon,
+    this.outline = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
+    final bgColor = backgroundColor ?? 
+        (outline ? Colors.transparent : AppColors.primary);
+    final fgColor = textColor ?? 
+        (outline ? AppColors.primary : AppColors.white);
+
     return SizedBox(
-      width: isFullWidth ? double.infinity : null,
-      height: _getButtonHeight(),
-      child: _buildButton(context, theme),
-    );
-  }
-
-  Widget _buildButton(BuildContext context, ThemeData theme) {
-    Widget child = _buildButtonContent(theme);
-    
-    switch (type) {
-      case ButtonType.primary:
-        return ElevatedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            ),
-            padding: _getButtonPadding(),
+      width: width ?? double.infinity,
+      height: height,
+      child: ElevatedButton(
+        onPressed: isLoading ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: bgColor,
+          foregroundColor: fgColor,
+          side: outline ? const BorderSide(color: AppColors.primary) : null,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: child,
-        );
-        
-      case ButtonType.secondary:
-        return ElevatedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.secondary,
-            foregroundColor: AppColors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            ),
-            padding: _getButtonPadding(),
-          ),
-          child: child,
-        );
-        
-      case ButtonType.outline:
-        return OutlinedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.primary,
-            side: const BorderSide(color: AppColors.primary),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            ),
-            padding: _getButtonPadding(),
-          ),
-          child: child,
-        );
-        
-      case ButtonType.text:
-        return TextButton(
-          onPressed: isLoading ? null : onPressed,
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-            ),
-            padding: _getButtonPadding(),
-          ),
-          child: child,
-        );
-    }
-  }
-
-  Widget _buildButtonContent(ThemeData theme) {
-    if (isLoading) {
-      return SizedBox(
-        height: _getIconSize(),
-        width: _getIconSize(),
-        child: const CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+          elevation: outline ? 0 : 2,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
         ),
-      );
-    }
-
-    if (icon != null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          icon!,
-          const SizedBox(width: 8),
-          Text(text),
-        ],
-      );
-    }
-
-    return Text(text);
-  }
-
-  double _getButtonHeight() {
-    switch (size) {
-      case ButtonSize.small:
-        return 36;
-      case ButtonSize.medium:
-        return 48;
-      case ButtonSize.large:
-        return 56;
-    }
-  }
-
-  EdgeInsets _getButtonPadding() {
-    switch (size) {
-      case ButtonSize.small:
-        return const EdgeInsets.symmetric(horizontal: 12, vertical: 8);
-      case ButtonSize.medium:
-        return const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
-      case ButtonSize.large:
-        return const EdgeInsets.symmetric(horizontal: 20, vertical: 16);
-    }
-  }
-
-  double _getIconSize() {
-    switch (size) {
-      case ButtonSize.small:
-        return 16;
-      case ButtonSize.medium:
-        return 20;
-      case ButtonSize.large:
-        return 24;
-    }
+        child: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: 20),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(
+                    text,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: fgColor,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
   }
 }
