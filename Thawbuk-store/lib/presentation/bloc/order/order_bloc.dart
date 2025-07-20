@@ -39,7 +39,7 @@ class OrderInitial extends OrderState {}
 class OrderLoading extends OrderState {}
 
 class OrdersLoaded extends OrderState {
-  final List<Order> orders;
+  final List<OrderEntity> orders;
 
   const OrdersLoaded(this.orders);
 
@@ -48,7 +48,7 @@ class OrdersLoaded extends OrderState {
 }
 
 class OrderCreated extends OrderState {
-  final Order order;
+  final OrderEntity order;
 
   const OrderCreated(this.order);
 
