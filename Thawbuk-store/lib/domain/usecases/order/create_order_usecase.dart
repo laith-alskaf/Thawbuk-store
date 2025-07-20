@@ -21,12 +21,14 @@ class CreateOrderUseCase implements UseCase<OrderEntity, CreateOrderParams> {
 }
 
 class CreateOrderParams extends Equatable {
-  final Map<String, dynamic> orderData;
+  final AddressEntity shippingAddress;
+  final String? notes;
 
   const CreateOrderParams({
-    required this.orderData,
+    required this.shippingAddress,
+    this.notes,
   });
 
   @override
-  List<Object> get props => [orderData];
+  List<Object?> get props => [shippingAddress, notes];
 }
