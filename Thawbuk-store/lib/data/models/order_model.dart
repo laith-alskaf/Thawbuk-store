@@ -4,20 +4,28 @@ import 'cart_model.dart';
 
 part 'order_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class OrderModel extends OrderEntity {
+  @JsonKey(name: 'items')
+  @override
+  final List<CartItemModel> items;
+  
+  @JsonKey(name: 'shippingAddress')
+  @override
+  final AddressModel shippingAddress;
+
   const OrderModel({
     required super.id,
     required super.userId,
-    required super.items,
+    required this.items,
     required super.totalAmount,
     required super.status,
-    required super.shippingAddress,
+    required this.shippingAddress,
     super.notes,
     required super.createdAt,
     super.updatedAt,
     super.deliveredAt,
-  });
+  }) : super(items: items, shippingAddress: shippingAddress);
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return _$OrderModelFromJson(json);
@@ -29,10 +37,10 @@ class OrderModel extends OrderEntity {
     return OrderEntity(
       id: id,
       userId: userId,
-      items: items.map((item) => (item as CartItemModel).toEntity()).toList(),
+      items: items.map((item) => item.toEntity()).toList(),
       totalAmount: totalAmount,
       status: status,
-      shippingAddress: (shippingAddress as AddressModel).toEntity(),
+      shippingAddress: shippingAddress.toEntity(),
       notes: notes,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -41,7 +49,7 @@ class OrderModel extends OrderEntity {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class AddressModel extends AddressEntity {
   const AddressModel({
     required super.fullName,
