@@ -1,5 +1,5 @@
 import Server from './presentation/server';
-import Database from './infrastructure/database/mongodb';
+import Database from './infrastructure/database/mongodb/index';
 
 async function main() {
     try {
