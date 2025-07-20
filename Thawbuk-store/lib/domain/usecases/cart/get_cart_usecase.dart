@@ -2,16 +2,16 @@ import 'package:dartz/dartz.dart';
 
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
-import '../../entities/cart_entity.dart';
+import '../../entities/cart.dart';
 import '../../repositories/cart_repository.dart';
 
-class GetCartUseCase implements UseCase<CartEntity, NoParams> {
+class GetCartUseCase implements UseCase<Cart, NoParams> {
   final CartRepository repository;
 
   GetCartUseCase(this.repository);
 
   @override
-  Future<Either<Failure, CartEntity>> call(NoParams params) async {
+  Future<Either<Failure, Cart>> call(NoParams params) async {
     return await repository.getCart();
   }
 }
