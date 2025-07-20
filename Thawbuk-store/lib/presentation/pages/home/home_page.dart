@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> {
                   ];
 
                   // Add admin menu for owners
-                  if (authState is AuthAuthenticated && authState.user.isAdmin) {
+                  if (authState is AuthAuthenticated && authState.user.isOwner) {
                     items.add(
                       const PopupMenuItem(
                         value: 'admin',
