@@ -1,188 +1,152 @@
-# Thawbuk - ثوب
+# 🕯️ ثوبك - Thawbuk Store
+
+**متجر الألبسة التقليدية والعصرية**  
+*Traditional and Modern Clothing Store*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-v18+-green)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue)](https://www.typescriptlang.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen)](https://www.mongodb.com/)
-[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black)](https://vercel.com/)
+[![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue)](https://flutter.dev/)
 
-**Thawbuk** (meaning "ثوب" or "robe" in Arabic) is an e-commerce platform designed for clothing, combining traditional and modern fashion styles. It offers a seamless shopping experience with support for Arabic and English languages, personalized product recommendations based on user preferences, and push notifications for tailored offers. Built with a modern tech stack, Thawbuk ensures scalability, performance, and ease of use for both customers and store administrators.
+## 📋 نظرة عامة
 
----
+ثوبك هو تطبيق متجر إلكتروني متكامل للألبسة التقليدية والعصرية، يتضمن:
+- 🔧 **Backend API** مبني بـ Node.js/TypeScript  
+- 📱 **Flutter Mobile App** مع Clean Architecture
+- 🗄️ **MongoDB Database** لتخزين البيانات
 
-## 📋 Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Installation](#installation)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+## 🚀 البدء السريع
 
----
+### 🔧 تشغيل Backend
 
-## ✨ Features
+```bash
+cd /app
+npm install
+npm run dev
+```
+الخادم سيعمل على: `http://localhost:5000`
 
-### For Customers
-- 🛍️ **Browse and Shop**: Explore a wide range of clothing for men, women, teens, and kids.
-- 🌐 **Multilingual Support**: Switch between Arabic and English seamlessly.
-- 🎯 **Personalized Recommendations**: Get clothing suggestions based on age, gender, marital status, and children's ages.
-- 🔔 **Push Notifications**: Receive tailored offers and order updates via Firebase Cloud Messaging.
-- 📍 **Delivery Address Management**: Save and update delivery addresses easily.
+### 📱 تشغيل Flutter App
 
-### For Admins
-- 📦 **Product Management**: Add, update, or remove clothing items with details like sizes, colors, and age ranges.
-- 🏢 **Company Branding**: Upload company logo and manage store details (powered by Cloudinary).
-- 📊 **Order Tracking**: Monitor and manage customer orders efficiently.
+```bash
+cd /app/Thawbuk-store  
+flutter pub get
+flutter run
+```
 
----
+## 🏗️ هيكل المشروع
 
-## 🛠️ Tech Stack
+```
+/app
+├── src/                     # Backend (Node.js/TypeScript)
+│   ├── application/         # Use Cases & DTOs
+│   ├── domain/             # Entities & Repositories
+│   ├── infrastructure/     # Database & External Services  
+│   └── presentation/       # Controllers, Routes, Middleware
+├── Thawbuk-store/          # Flutter Mobile App
+│   ├── lib/
+│   │   ├── core/           # DI, Constants, Theme, Network
+│   │   ├── data/           # Data Sources, Models, Repositories
+│   │   ├── domain/         # Entities, Use Cases, Repositories
+│   │   └── presentation/   # Pages, Widgets, Bloc
+└── .env                    # Environment Variables
+```
 
-- **Backend**:
-  - Node.js with TypeScript
-  - Express.js for API development
-  - MongoDB (Atlas) for database
-  - Mongoose for schema modeling
-- **Frontend** (Optional):
-  - Flutter for mobile app (Arabic/English support with RTL)
-  - Next.js for web interface (optional)
-- **Deployment**:
-  - Vercel for serverless deployment
-- **Storage**:
-  - Cloudinary for image management (product images, company logos)
-- **Notifications**:
-  - Firebase Cloud Messaging (FCM) for push notifications
-- **Localization**:
-  - i18next for web or intl for Flutter to handle Arabic/English translations
-- **Verification** (Planned):
-  - Telegram Bot API for OTP verification
-  - CallMeBot API for WhatsApp verification (testing phase)
+## 📱 الميزات الرئيسية
 
----
+### 👤 إدارة المستخدمين
+- تسجيل الدخول والتسجيل
+- أدوار مختلفة: عميل، تاجر، أدمن
+- تأكيد الإيميل ونسيان كلمة المرور
 
-## 🚀 Installation
+### 🛍️ إدارة المنتجات  
+- عرض المنتجات مع الصور
+- تصنيفات متعددة
+- البحث والفلترة
+- إدارة المخزون
 
-### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB Atlas account
-- Vercel account
-- Cloudinary account
-- Firebase project for FCM
-- Git installed
+### 🛒 عملية الشراء
+- إضافة للسلة والمفضلة
+- إدارة الطلبات
+- حساب الأسعار والضرائب
 
-### Steps
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your-username/Thawbuk.git
-   cd Thawbuk
-   ```
+### 👨‍💼 لوحة الإدارة
+- إضافة وتعديل المنتجات
+- إدارة الفئات
+- إحصائيات المبيعات
 
-2. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
+## 🔌 API Endpoints
 
-3. **Set Up Environment Variables**:
-   Create a `.env` file in the root directory and add the following:
-   ```env
-   MONGODB_URI=your-mongodb-atlas-uri
-   CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
-   CLOUDINARY_API_KEY=your-cloudinary-api-key
-   CLOUDINARY_API_SECRET=your-cloudinary-api-secret
-   FIREBASE_FCM_SERVER_KEY=your-fcm-server-key
-   TELEGRAM_BOT_TOKEN=your-telegram-bot-token
-   CALLMEBOT_API_KEY=your-callmebot-api-key
-   PORT=3000
-   ```
+### المصادقة
+- `POST /api/auth/register` - تسجيل مستخدم جديد
+- `POST /api/auth/login` - تسجيل الدخول
 
-4. **Run the Application**:
-   ```bash
-   npm run dev
-   ```
-   The server will start at `http://localhost:3000`.
+### المنتجات (عام)
+- `GET /api/product` - جلب جميع المنتجات
+- `GET /api/product/:id` - جلب منتج واحد  
+- `GET /api/product/search` - البحث في المنتجات
 
-5. **Deploy to Vercel**:
-   - Install Vercel CLI:
-     ```bash
-     npm install -g vercel
-     ```
-   - Deploy:
-     ```bash
-     vercel
-     ```
+### الفئات (عام)
+- `GET /api/category` - جلب جميع الفئات
+- `GET /api/category/:id` - جلب فئة واحدة
 
----
+### محمية (تحتاج مصادقة)
+- `GET /api/user/cart` - جلب السلة
+- `POST /api/user/cart/add` - إضافة للسلة
+- `GET /api/user/order` - جلب الطلبات
+- `POST /api/user/order` - إنشاء طلب جديد
 
-## 📖 Usage
+## 🛠️ التقنيات المستخدمة
 
-1. **Customer Flow**:
-   - Sign up with an email and password.
-   - Update your profile with optional details (age, gender, marital status, children's ages) to receive personalized recommendations.
-   - Browse products, add to cart, and place orders.
-   - Receive push notifications for new offers or order updates.
+### Backend
+- **Node.js** + **TypeScript**
+- **Express.js** - Web Framework
+- **MongoDB** + **Mongoose** - Database
+- **JWT** - Authentication  
+- **Cloudinary** - Image Storage
+- **Nodemailer** - Email Service
+- **Joi** - Data Validation
 
-2. **Admin Flow**:
-   - Sign up as an admin with company details (name, address, logo).
-   - Manage products (add/edit/delete) via the admin dashboard.
-   - Monitor orders and update their status.
+### Frontend (Flutter)
+- **Flutter** + **Dart**
+- **Bloc/Cubit** - State Management
+- **Go Router** - Navigation
+- **Dio** - HTTP Client  
+- **Hive** - Local Storage
+- **GetIt** - Dependency Injection
 
-3. **Localization**:
-   - Switch between Arabic and English from the app settings.
-   - Product names and descriptions are displayed in the selected language.
+### DevOps
+- **Docker** Support
+- **Vercel** Deployment Ready
+- **MongoDB Atlas** Cloud Database
 
----
+## 🔧 متطلبات التشغيل
 
-## 🌐 API Endpoints
+### Backend
+- Node.js 16+
+- MongoDB Database
+- Cloudinary Account (للصور)
+- Gmail SMTP (للإيميلات)
 
-Here are some key API endpoints (base URL: `http://your-vercel-app.vercel.app/api`):
+### Flutter
+- Flutter SDK 3.0+
+- Dart 3.0+
+- Android Studio / VS Code
 
-- **User Management**:
-  - `POST /api/register`: Register a new user (admin/customer).
-  - `POST /api/login`: Log in and receive a JWT token.
-  - `POST /api/update-language`: Update user language preference (ar/en).
-- **Product Management**:
-  - `GET /api/products`: Fetch products (filtered by user language).
-  - `POST /api/products`: Add a new product (admin only).
-- **Verification**:
-  - `POST /api/send-verification`: Send OTP via WhatsApp or Telegram.
-- **Image Upload**:
-  - `POST /api/upload-image`: Upload product images or company logo to Cloudinary.
+## 🌟 الحالة الحالية
 
-For detailed API documentation, check the `/docs` folder (TBD).
+- ✅ **Backend API**: مكتمل وجاهز (95%)
+- ✅ **Flutter App**: مكتمل البناء (90%)  
+- ✅ **Database**: تحتوي على بيانات اختبار
+- ✅ **Authentication**: يعمل بكامل الميزات
+- ✅ **File Upload**: متكامل مع Cloudinary
+
+## 📞 للدعم
+
+لأي استفسار أو مشكلة تقنية، يرجى مراجعة ملف `test_result.md` للتفاصيل الكاملة.
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions to Thawbuk! To contribute:
-
-1. Fork the repository.
-2. Create a new branch:
-   ```bash
-   git checkout -b feature/your-feature
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add your feature"
-   ```
-4. Push to the branch:
-   ```bash
-   git push origin feature/your-feature
-   ```
-5. Open a Pull Request.
-
-Please follow the [Code of Conduct](CODE_OF_CONDUCT.md) and check the [Contributing Guidelines](CONTRIBUTING.md).
-
-
----
-
-## 📬 Contact
-
-For questions or feedback, reach out to:
-- **Email**: Laithalskaf@gmail.com
-
----
-
-*Thawbuk - Where tradition meets modernity in fashion.*
+📬 **Contact**: Laithalskaf@gmail.com  
+**مطور بـ ❤️ لخدمة المجتمع العربي**
