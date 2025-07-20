@@ -240,6 +240,14 @@ class _ProductDetailPageState extends State<ProductDetailPage>
           ),
         ),
       ),
+      bottomNavigationBar: BlocBuilder<ProductBloc, ProductState>(
+        builder: (context, state) {
+          if (state is ProductLoaded) {
+            return _buildBottomBar(state.product);
+          }
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
