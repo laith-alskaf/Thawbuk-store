@@ -2,33 +2,37 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 
 class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final String hint;
+  final TextEditingController? controller;
+  final String? label;
+  final String? hint;
+  final bool obscureText;
+  final TextInputType keyboardType;
   final IconData? prefixIcon;
   final Widget? suffixIcon;
-  final TextInputType keyboardType;
-  final bool obscureText;
-  final int maxLines;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
-  final bool enabled;
+  final void Function()? onTap;
   final bool readOnly;
+  final int maxLines;
+  final int? maxLength;
+  final TextCapitalization textCapitalization;
 
   const CustomTextField({
     Key? key,
-    required this.controller,
-    required this.label,
-    required this.hint,
+    this.controller,
+    this.label,
+    this.hint,
+    this.obscureText = false,
+    this.keyboardType = TextInputType.text,
     this.prefixIcon,
     this.suffixIcon,
-    this.keyboardType = TextInputType.text,
-    this.obscureText = false,
-    this.maxLines = 1,
     this.validator,
     this.onChanged,
-    this.enabled = true,
+    this.onTap,
     this.readOnly = false,
+    this.maxLines = 1,
+    this.maxLength,
+    this.textCapitalization = TextCapitalization.none,
   }) : super(key: key);
 
   @override
@@ -36,37 +40,44 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppColors.black,
+        if (label != null) ...[
+          Text(
+            label!,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.darkGrey,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        ],
         TextFormField(
           controller: controller,
-          keyboardType: keyboardType,
           obscureText: obscureText,
-          maxLines: maxLines,
+          keyboardType: keyboardType,
           validator: validator,
           onChanged: onChanged,
-          enabled: enabled,
+          onTap: onTap,
           readOnly: readOnly,
-          style: Theme.of(context).textTheme.bodyMedium,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          textCapitalization: textCapitalization,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: AppColors.black,
+          ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppColors.grey,
             ),
             prefixIcon: prefixIcon != null
-                ? Icon(prefixIcon, color: AppColors.grey)
+                ? Icon(
+                    prefixIcon,
+                    color: AppColors.grey,
+                  )
                 : null,
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: enabled 
-                ? AppColors.lightGrey 
-                : AppColors.grey.withOpacity(0.2),
+            fillColor: AppColors.lightGrey,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -86,7 +97,7 @@ class CustomTextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: AppColors.error,
-                width: 1,
+                width: 2,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
@@ -98,8 +109,9 @@ class CustomTextField extends StatelessWidget {
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 12,
+              vertical: 16,
             ),
+            counterText: maxLength != null ? null : "",
           ),
         ),
       ],

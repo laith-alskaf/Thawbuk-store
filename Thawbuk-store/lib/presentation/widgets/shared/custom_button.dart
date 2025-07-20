@@ -5,77 +5,98 @@ class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
   final bool isLoading;
+  final bool isOutlined;
+  final IconData? icon;
   final Color? backgroundColor;
   final Color? textColor;
   final double? width;
-  final double height;
-  final IconData? icon;
-  final bool outline;
+  final double? height;
 
   const CustomButton({
     Key? key,
     required this.text,
     this.onPressed,
     this.isLoading = false,
+    this.isOutlined = false,
+    this.icon,
     this.backgroundColor,
     this.textColor,
     this.width,
-    this.height = 50,
-    this.icon,
-    this.outline = false,
+    this.height,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    final bgColor = backgroundColor ?? 
-        (outline ? Colors.transparent : AppColors.primary);
-    final fgColor = textColor ?? 
-        (outline ? AppColors.primary : AppColors.white);
+    final buttonColor = backgroundColor ?? AppColors.primary;
+    final buttonTextColor = textColor ?? 
+        (isOutlined ? buttonColor : AppColors.white);
 
     return SizedBox(
-      width: width ?? double.infinity,
-      height: height,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor,
-          foregroundColor: fgColor,
-          side: outline ? const BorderSide(color: AppColors.primary) : null,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: outline ? 0 : 2,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+      width: width,
+      height: height ?? 48,
+      child: isOutlined
+          ? OutlinedButton.icon(
+              onPressed: isLoading ? null : onPressed,
+              icon: isLoading 
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(buttonTextColor),
+                      ),
+                    )
+                  : icon != null 
+                      ? Icon(icon, size: 18) 
+                      : const SizedBox.shrink(),
+              label: Text(
+                text,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: buttonTextColor,
                 ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 20),
-                    const SizedBox(width: 8),
-                  ],
-                  Text(
-                    text,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: fgColor,
-                    ),
-                  ),
-                ],
               ),
-      ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: buttonTextColor,
+                side: BorderSide(color: buttonColor),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            )
+          : ElevatedButton.icon(
+              onPressed: isLoading ? null : onPressed,
+              icon: isLoading 
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(buttonTextColor),
+                      ),
+                    )
+                  : icon != null 
+                      ? Icon(icon, size: 18) 
+                      : const SizedBox.shrink(),
+              label: Text(
+                text,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: buttonTextColor,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: buttonColor,
+                foregroundColor: buttonTextColor,
+                disabledBackgroundColor: buttonColor.withOpacity(0.6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 2,
+              ),
+            ),
     );
   }
 }

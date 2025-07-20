@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
-import 'custom_button.dart';
 
 class CustomErrorWidget extends StatelessWidget {
   final String message;
@@ -25,7 +24,7 @@ class CustomErrorWidget extends StatelessWidget {
             Icon(
               icon ?? Icons.error_outline,
               size: 64,
-              color: AppColors.error,
+              color: AppColors.grey,
             ),
             const SizedBox(height: 16),
             Text(
@@ -37,11 +36,14 @@ class CustomErrorWidget extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 24),
-              CustomButton(
-                text: 'إعادة المحاولة',
+              ElevatedButton.icon(
                 onPressed: onRetry,
-                icon: Icons.refresh,
-                width: 160,
+                icon: const Icon(Icons.refresh),
+                label: const Text('إعادة المحاولة'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.white,
+                ),
               ),
             ],
           ],
@@ -51,20 +53,32 @@ class CustomErrorWidget extends StatelessWidget {
   }
 }
 
-class EmptyStateWidget extends StatelessWidget {
-  final String title;
-  final String? subtitle;
-  final IconData? icon;
-  final VoidCallback? onAction;
-  final String? actionText;
+class NetworkErrorWidget extends StatelessWidget {
+  final VoidCallback? onRetry;
 
-  const EmptyStateWidget({
+  const NetworkErrorWidget({
     Key? key,
-    required this.title,
-    this.subtitle,
+    this.onRetry,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomErrorWidget(
+      message: 'تحقق من اتصال الإنترنت',
+      icon: Icons.wifi_off,
+      onRetry: onRetry,
+    );
+  }
+}
+
+class EmptyWidget extends StatelessWidget {
+  final String message;
+  final IconData? icon;
+
+  const EmptyWidget({
+    Key? key,
+    required this.message,
     this.icon,
-    this.onAction,
-    this.actionText,
   }) : super(key: key);
 
   @override
@@ -82,31 +96,12 @@ class EmptyStateWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              message,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppColors.darkGrey,
-                fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
             ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                subtitle!,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.grey,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-            if (onAction != null && actionText != null) ...[
-              const SizedBox(height: 24),
-              CustomButton(
-                text: actionText!,
-                onPressed: onAction,
-                width: 200,
-              ),
-            ],
           ],
         ),
       ),
