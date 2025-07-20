@@ -3,8 +3,12 @@ import '../../domain/entities/user_entity.dart';
 
 part 'user_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class UserModel extends UserEntity {
+  @JsonKey(name: 'company')
+  @override
+  final CompanyModel? company;
+
   const UserModel({
     required super.id,
     required super.email,
@@ -14,8 +18,8 @@ class UserModel extends UserEntity {
     required super.createdAt,
     super.lastLoginAt,
     super.profileImage,
-    super.company,
-  });
+    this.company,
+  }) : super(company: company);
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return _$UserModelFromJson(json);
@@ -33,12 +37,12 @@ class UserModel extends UserEntity {
       createdAt: createdAt,
       lastLoginAt: lastLoginAt,
       profileImage: profileImage,
-      company: company,
+      company: company?.toEntity(),
     );
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class CompanyModel extends CompanyEntity {
   const CompanyModel({
     required super.name,
