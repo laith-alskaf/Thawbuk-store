@@ -35,7 +35,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> register(Map<String, dynamic> userData) async {
+  Future<Either<Failure, UserEntity>> register(Map<String, dynamic> userData) async {
     if (await networkInfo.isConnected) {
       try {
         final userModel = await remoteDataSource.register(userData);
