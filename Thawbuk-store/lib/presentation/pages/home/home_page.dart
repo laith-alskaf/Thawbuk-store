@@ -79,6 +79,14 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const PopupMenuItem(
+                      value: 'settings',
+                      child: ListTile(
+                        leading: Icon(Icons.settings),
+                        title: Text('الإعدادات'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const PopupMenuItem(
                       value: 'orders',
                       child: ListTile(
                         leading: Icon(Icons.receipt),
