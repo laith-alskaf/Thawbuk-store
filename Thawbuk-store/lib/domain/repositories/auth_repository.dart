@@ -1,29 +1,18 @@
 import 'package:dartz/dartz.dart';
 
-import '../entities/user_entity.dart';
+import '../entities/user.dart';
 import '../../core/errors/failures.dart';
 
 abstract class AuthRepository {
-  Future<Either<Failure, UserEntity>> login({
-    required String email,
-    required String password,
-  });
+  Future<Either<Failure, User>> login(String email, String password);
 
-  Future<Either<Failure, UserEntity>> register({
-    required String name,
-    required String email,
-    required String phone,
-    required String password,
-    required UserRole role,
-  });
+  Future<Either<Failure, User>> register(Map<String, dynamic> userData);
 
   Future<Either<Failure, void>> logout();
 
-  Future<Either<Failure, UserEntity>> getCurrentUser();
+  Future<Either<Failure, User>> getCurrentUser();
 
-  Future<Either<Failure, bool>> isLoggedIn();
+  Future<bool> isUserLoggedIn();
 
-  Future<Either<Failure, void>> saveUser(UserEntity user);
-
-  Future<Either<Failure, void>> removeUser();
+  Future<Either<Failure, String?>> getToken();
 }
