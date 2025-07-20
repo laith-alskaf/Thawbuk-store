@@ -20,7 +20,7 @@ class CartRepositoryImpl implements CartRepository {
   });
 
   @override
-  Future<Either<Failure, Cart>> getCart() async {
+  Future<Either<Failure, CartEntity>> getCart() async {
     try {
       if (await networkInfo.isConnected) {
         final cartModel = await remoteDataSource.getCart();
