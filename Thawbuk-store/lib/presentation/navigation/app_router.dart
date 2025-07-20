@@ -86,6 +86,13 @@ class AppRouter {
           builder: (context, state) => const ProfilePage(),
         ),
 
+        // Settings
+        GoRoute(
+          path: '/settings',
+          name: 'settings',
+          builder: (context, state) => const SettingsPage(),
+        ),
+
         // Admin Routes
         GoRoute(
           path: '/admin/dashboard',
