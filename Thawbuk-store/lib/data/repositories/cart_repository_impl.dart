@@ -83,7 +83,7 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<Either<Failure, Cart>> removeFromCart(String productId) async {
+  Future<Either<Failure, CartEntity>> removeFromCart(String productId) async {
     if (await networkInfo.isConnected) {
       try {
         final cartModel = await remoteDataSource.removeFromCart(productId);
