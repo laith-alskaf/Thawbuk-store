@@ -170,7 +170,7 @@ class ProductLoaded extends ProductState {
 }
 
 class ProductCreated extends ProductState {
-  final Product product;
+  final ProductEntity product;
 
   const ProductCreated(this.product);
 
