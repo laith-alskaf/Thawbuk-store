@@ -3,160 +3,172 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../bloc/product/product_bloc.dart';
-import '../../widgets/shared/custom_card.dart';
+import '../../bloc/cart/cart_bloc.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../domain/entities/product_entity.dart';
+import '../../widgets/shared/custom_text_field.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../widgets/shared/error_widget.dart';
-import '../../widgets/shared/custom_text_field.dart';
-import '../../../domain/entities/product_entity.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/constants/app_constants.dart';
+import '../../widgets/products/product_card.dart';
+import '../../widgets/products/filter_bottom_sheet.dart';
+import '../../widgets/products/sort_bottom_sheet.dart';
+
+enum ViewMode { grid, list }
+enum SortType { newest, oldest, priceAsc, priceDesc, rating }
 
 class ProductsPage extends StatefulWidget {
-  const ProductsPage({Key? key}) : super(key: key);
+  final String? category;
+  
+  const ProductsPage({
+    Key? key,
+    this.category,
+  }) : super(key: key);
 
   @override
   State<ProductsPage> createState() => _ProductsPageState();
 }
 
-class _ProductsPageState extends State<ProductsPage> {
+class _ProductsPageState extends State<ProductsPage>
+    with SingleTickerProviderStateMixin {
+  
   final _searchController = TextEditingController();
-  String _selectedCategory = 'الكل';
-  String _sortBy = 'الأحدث';
-
-  final List<String> _categories = [
-    'الكل',
-    'الثياب التقليدية',
-    'الثياب العصرية',
-    'الأحذية',
-    'الإكسسوارات'
-  ];
-
-  final List<String> _sortOptions = [
-    'الأحدث',
-    'الأقدم',
-    'السعر: من الأقل للأعلى',
-    'السعر: من الأعلى للأقل',
-    'الأكثر شعبية'
-  ];
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  
+  ViewMode _viewMode = ViewMode.grid;
+  SortType _sortType = SortType.newest;
+  
+  List<String> _selectedSizes = [];
+  List<String> _selectedColors = [];
+  RangeValues _priceRange = const RangeValues(0, 1000);
+  bool _inStockOnly = false;
+  
+  String _searchQuery = '';
+  List<ProductEntity> _filteredProducts = [];
+  List<ProductEntity> _allProducts = [];
 
   @override
   void initState() {
     super.initState();
-    context.read<ProductBloc>().add(GetProductsEvent());
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _loadProducts();
+    _animationController.forward();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _animationController.dispose();
     super.dispose();
+  }
+
+  void _loadProducts() {
+    if (widget.category != null) {
+      context.read<ProductBloc>().add(GetProductsByCategoryEvent(widget.category!));
+    } else {
+      context.read<ProductBloc>().add(GetProductsEvent());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          // شريط البحث والفلتر
-          _buildSearchAndFilter(),
-          
-          // قائمة المنتجات
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                context.read<ProductBloc>().add(GetProductsEvent());
-              },
-              child: BlocBuilder<ProductBloc, ProductState>(
-                builder: (context, state) {
-                  if (state is ProductLoading) {
-                    return const LoadingWidget(message: 'جاري تحميل المنتجات...');
-                  }
-                  
-                  if (state is ProductError) {
-                    return CustomErrorWidget(
-                      message: state.message,
-                      onRetry: () {
-                        context.read<ProductBloc>().add(GetProductsEvent());
-                      },
-                    );
-                  }
-                  
-                  if (state is ProductsLoaded) {
-                    final filteredProducts = _filterProducts(state.products);
-                    
-                    if (filteredProducts.isEmpty) {
-                      return _buildEmptyState();
-                    }
-                    
-                    return _buildProductsGrid(filteredProducts);
-                  }
-                  
-                  return const SizedBox.shrink();
-                },
-              ),
-            ),
-          ),
-        ],
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Column(
+          children: [
+            _buildSearchAndFilters(),
+            _buildProductsBody(),
+          ],
+        ),
       ),
+      floatingActionButton: _buildScrollToTopFAB(),
     );
   }
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      title: const Text('المنتجات'),
+      title: Text(widget.category != null ? 'منتجات ${widget.category}' : 'جميع المنتجات'),
+      elevation: 0,
       actions: [
         IconButton(
-          icon: const Icon(Icons.filter_list),
-          onPressed: _showFilterBottomSheet,
+          icon: Icon(_viewMode == ViewMode.grid ? Icons.list : Icons.grid_view),
+          onPressed: _toggleViewMode,
+          tooltip: _viewMode == ViewMode.grid ? 'عرض قائمة' : 'عرض شبكة',
+        ),
+        IconButton(
+          icon: const Icon(Icons.sort),
+          onPressed: _showSortOptions,
+          tooltip: 'ترتيب',
         ),
       ],
     );
   }
 
-  Widget _buildSearchAndFilter() {
+  Widget _buildSearchAndFilters() {
     return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      color: AppColors.background,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.grey.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          // شريط البحث
+          // Search Bar
           CustomTextField(
-            hint: 'ابحث عن المنتجات...',
             controller: _searchController,
-            prefixIcon: const Icon(Icons.search),
-            onChanged: (value) {
-              setState(() {});
-            },
+            hint: 'ابحث عن المنتجات...',
+            prefixIcon: Icons.search,
+            suffixIcon: _searchQuery.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: _clearSearch,
+                  )
+                : null,
+            onChanged: _onSearchChanged,
           ),
           
           const SizedBox(height: 12),
           
-          // الفئات
+          // Filter Chips
           SizedBox(
             height: 40,
-            child: ListView.builder(
+            child: ListView(
               scrollDirection: Axis.horizontal,
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                final category = _categories[index];
-                final isSelected = _selectedCategory == category;
-                
-                return Container(
-                  margin: const EdgeInsets.only(left: 8),
-                  child: FilterChip(
-                    label: Text(category),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedCategory = category;
-                      });
-                    },
-                    backgroundColor: AppColors.lightGrey,
-                    selectedColor: AppColors.primary.withOpacity(0.2),
-                    checkmarkColor: AppColors.primary,
-                  ),
-                );
-              },
+              children: [
+                _buildFilterChip(
+                  'فلترة',
+                  Icons.filter_list,
+                  _hasActiveFilters(),
+                  _showFilterOptions,
+                ),
+                const SizedBox(width: 8),
+                if (_selectedSizes.isNotEmpty)
+                  _buildActiveFilterChip('الأحجام: ${_selectedSizes.join(", ")}'),
+                if (_selectedColors.isNotEmpty)
+                  _buildActiveFilterChip('الألوان: ${_selectedColors.join(", ")}'),
+                if (_inStockOnly)
+                  _buildActiveFilterChip('متوفر فقط'),
+              ],
             ),
           ),
         ],
@@ -164,188 +176,35 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  Widget _buildProductsGrid(List<ProductEntity> products) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.75,
-      ),
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        final product = products[index];
-        return _buildProductCard(product);
-      },
-    );
-  }
-
-  Widget _buildProductCard(ProductEntity product) {
-    return CustomCard(
-      onTap: () => context.go('/product/${product.id}'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // صورة المنتج
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.lightGrey,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Stack(
-                children: [
-                  // الصورة
-                  product.mainImage.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          product.mainImage,
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(
-                                Icons.image_not_supported,
-                                size: 40,
-                                color: AppColors.grey,
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                    : const Center(
-                        child: Icon(
-                          Icons.checkroom,
-                          size: 40,
-                          color: AppColors.grey,
-                        ),
-                      ),
-                  
-                  // حالة التوفر
-                  if (!product.isAvailable)
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'غير متوفر',
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  
-                  // زر المفضلة
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppColors.white.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.favorite_border,
-                        size: 18,
-                        color: AppColors.grey,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+  Widget _buildFilterChip(String label, IconData icon, bool isActive, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.primary : AppColors.lightGrey,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isActive ? AppColors.primary : AppColors.grey.withOpacity(0.3),
           ),
-          
-          const SizedBox(height: 8),
-          
-          // اسم المنتج
-          Text(
-            product.displayName,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          
-          const SizedBox(height: 4),
-          
-          // الفئة
-          Text(
-            product.category,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.grey,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // السعر والتقييم
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${product.price.toStringAsFixed(0)} ل.س',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              
-              if (product.rating != null)
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star,
-                      size: 16,
-                      color: AppColors.warning,
-                    ),
-                    Text(
-                      product.rating!.toStringAsFixed(1),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.search_off,
-              size: 80,
-              color: AppColors.grey,
+            Icon(
+              icon,
+              size: 16,
+              color: isActive ? AppColors.white : AppColors.grey,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(width: 4),
             Text(
-              'لا توجد منتجات',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'جرب تغيير معايير البحث أو الفلتر',
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isActive ? AppColors.white : AppColors.grey,
+              ),
             ),
           ],
         ),
@@ -353,80 +212,318 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  List<ProductEntity> _filterProducts(List<ProductEntity> products) {
-    var filtered = products;
-    
-    // فلترة حسب البحث
-    if (_searchController.text.isNotEmpty) {
-      final searchTerm = _searchController.text.toLowerCase();
-      filtered = filtered.where((product) {
-        return product.displayName.toLowerCase().contains(searchTerm) ||
-               product.displayDescription.toLowerCase().contains(searchTerm);
-      }).toList();
-    }
-    
-    // فلترة حسب الفئة
-    if (_selectedCategory != 'الكل') {
-      filtered = filtered.where((product) {
-        return product.category == _selectedCategory;
-      }).toList();
-    }
-    
-    // ترتيب
-    switch (_sortBy) {
-      case 'السعر: من الأقل للأعلى':
-        filtered.sort((a, b) => a.price.compareTo(b.price));
-        break;
-      case 'السعر: من الأعلى للأقل':
-        filtered.sort((a, b) => b.price.compareTo(a.price));
-        break;
-      case 'الأقدم':
-        filtered.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-        break;
-      case 'الأكثر شعبية':
-        filtered.sort((a, b) => (b.rating ?? 0).compareTo(a.rating ?? 0));
-        break;
-      default: // الأحدث
-        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    }
-    
-    return filtered;
+  Widget _buildActiveFilterChip(String label) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.secondary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.secondary,
+            ),
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: _clearFilters,
+            child: Icon(
+              Icons.close,
+              size: 14,
+              color: AppColors.secondary,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  void _showFilterBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'ترتيب حسب',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              
-              const SizedBox(height: 16),
-              
-              ...._sortOptions.map((option) {
-                return RadioListTile<String>(
-                  title: Text(option),
-                  value: option,
-                  groupValue: _sortBy,
-                  onChanged: (value) {
-                    setState(() {
-                      _sortBy = value!;
-                    });
-                    Navigator.of(context).pop();
-                  },
-                );
-              }).toList(),
-            ],
+  Widget _buildProductsBody() {
+    return Expanded(
+      child: BlocConsumer<ProductBloc, ProductState>(
+        listener: (context, state) {
+          if (state is ProductsLoaded) {
+            setState(() {
+              _allProducts = state.products;
+              _applyFiltersAndSort();
+            });
+          }
+        },
+        builder: (context, state) {
+          if (state is ProductLoading) {
+            return _viewMode == ViewMode.grid
+                ? const GridLoadingWidget()
+                : const ListLoadingWidget();
+          } else if (state is ProductError) {
+            return CustomErrorWidget(
+              message: state.message,
+              onRetry: _loadProducts,
+            );
+          } else if (state is ProductsLoaded || _filteredProducts.isNotEmpty) {
+            return _buildProductsList();
+          }
+          
+          return const EmptyWidget(
+            message: 'لا توجد منتجات',
+            icon: Icons.inventory_2_outlined,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildProductsList() {
+    if (_filteredProducts.isEmpty) {
+      return const EmptyWidget(
+        message: 'لم يتم العثور على منتجات تطابق البحث',
+        icon: Icons.search_off,
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async => _loadProducts(),
+      child: _viewMode == ViewMode.grid
+          ? _buildGridView()
+          : _buildListView(),
+    );
+  }
+
+  Widget _buildGridView() {
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.7,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: _filteredProducts.length,
+      itemBuilder: (context, index) {
+        return Hero(
+          tag: 'product-${_filteredProducts[index].id}',
+          child: ProductCard(
+            product: _filteredProducts[index],
+            onTap: () => _navigateToProductDetail(_filteredProducts[index]),
+            onAddToCart: () => _addToCart(_filteredProducts[index]),
+            onToggleWishlist: () => _toggleWishlist(_filteredProducts[index]),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildListView() {
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: _filteredProducts.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        return Hero(
+          tag: 'product-${_filteredProducts[index].id}',
+          child: ProductCard(
+            product: _filteredProducts[index],
+            isListView: true,
+            onTap: () => _navigateToProductDetail(_filteredProducts[index]),
+            onAddToCart: () => _addToCart(_filteredProducts[index]),
+            onToggleWishlist: () => _toggleWishlist(_filteredProducts[index]),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget? _buildScrollToTopFAB() {
+    return FloatingActionButton(
+      mini: true,
+      onPressed: () {
+        // Scroll to top logic would go here
+      },
+      child: const Icon(Icons.keyboard_arrow_up),
+    );
+  }
+
+  // Helper Methods
+  void _toggleViewMode() {
+    setState(() {
+      _viewMode = _viewMode == ViewMode.grid ? ViewMode.list : ViewMode.grid;
+    });
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+    
+    // Debounce search
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (_searchQuery == query) {
+        _applyFiltersAndSort();
+      }
+    });
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      _searchQuery = '';
+    });
+    _applyFiltersAndSort();
+  }
+
+  void _applyFiltersAndSort() {
+    setState(() {
+      _filteredProducts = _allProducts.where((product) {
+        // Search filter
+        if (_searchQuery.isNotEmpty) {
+          final searchLower = _searchQuery.toLowerCase();
+          if (!product.displayName.toLowerCase().contains(searchLower) &&
+              !product.displayDescription.toLowerCase().contains(searchLower)) {
+            return false;
+          }
+        }
+
+        // Size filter
+        if (_selectedSizes.isNotEmpty) {
+          final hasMatchingSize = product.sizes.any((size) => 
+              _selectedSizes.contains(size));
+          if (!hasMatchingSize) return false;
+        }
+
+        // Color filter
+        if (_selectedColors.isNotEmpty) {
+          final hasMatchingColor = product.colors.any((color) => 
+              _selectedColors.contains(color));
+          if (!hasMatchingColor) return false;
+        }
+
+        // Price filter
+        if (product.price < _priceRange.start || product.price > _priceRange.end) {
+          return false;
+        }
+
+        // Stock filter
+        if (_inStockOnly && !product.isAvailable) {
+          return false;
+        }
+
+        return true;
+      }).toList();
+
+      // Apply sorting
+      _filteredProducts.sort((a, b) {
+        switch (_sortType) {
+          case SortType.newest:
+            return b.createdAt.compareTo(a.createdAt);
+          case SortType.oldest:
+            return a.createdAt.compareTo(b.createdAt);
+          case SortType.priceAsc:
+            return a.price.compareTo(b.price);
+          case SortType.priceDesc:
+            return b.price.compareTo(a.price);
+          case SortType.rating:
+            return (b.rating ?? 0).compareTo(a.rating ?? 0);
+        }
+      });
+    });
+  }
+
+  bool _hasActiveFilters() {
+    return _selectedSizes.isNotEmpty ||
+           _selectedColors.isNotEmpty ||
+           _inStockOnly ||
+           _priceRange != const RangeValues(0, 1000);
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _selectedSizes.clear();
+      _selectedColors.clear();
+      _priceRange = const RangeValues(0, 1000);
+      _inStockOnly = false;
+    });
+    _applyFiltersAndSort();
+  }
+
+  void _showFilterOptions() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FilterBottomSheet(
+        selectedSizes: _selectedSizes,
+        selectedColors: _selectedColors,
+        priceRange: _priceRange,
+        inStockOnly: _inStockOnly,
+        onApplyFilters: (sizes, colors, priceRange, inStock) {
+          setState(() {
+            _selectedSizes = sizes;
+            _selectedColors = colors;
+            _priceRange = priceRange;
+            _inStockOnly = inStock;
+          });
+          _applyFiltersAndSort();
+        },
+      ),
+    );
+  }
+
+  void _showSortOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SortBottomSheet(
+        currentSort: _sortType,
+        onSortSelected: (sortType) {
+          setState(() {
+            _sortType = sortType;
+          });
+          _applyFiltersAndSort();
+        },
+      ),
+    );
+  }
+
+  void _navigateToProductDetail(ProductEntity product) {
+    context.push('/product/${product.id}');
+  }
+
+  void _addToCart(ProductEntity product) {
+    context.read<CartBloc>().add(AddToCartEvent(
+      productId: product.id,
+      quantity: 1,
+    ));
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('تم إضافة ${product.displayName} للسلة'),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  void _toggleWishlist(ProductEntity product) {
+    // TODO: Implement wishlist functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('تم إضافة ${product.displayName} للمفضلة'),
+        backgroundColor: AppColors.secondary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
     );
   }
 }
