@@ -43,7 +43,7 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<Either<Failure, Cart>> addToCart(String productId, int quantity, {String? size, String? color}) async {
+  Future<Either<Failure, CartEntity>> addToCart(String productId, int quantity, {String? size, String? color}) async {
     if (await networkInfo.isConnected) {
       try {
         final cartData = {
