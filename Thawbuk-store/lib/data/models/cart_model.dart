@@ -4,16 +4,20 @@ import 'product_model.dart';
 
 part 'cart_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class CartModel extends CartEntity {
+  @JsonKey(name: 'items')
+  @override
+  final List<CartItemModel> items;
+
   const CartModel({
     required super.id,
     required super.userId,
-    required super.items,
+    required this.items,
     required super.totalAmount,
     required super.createdAt,
     required super.updatedAt,
-  });
+  }) : super(items: items);
 
   factory CartModel.fromJson(Map<String, dynamic> json) {
     return _$CartModelFromJson(json);
@@ -25,7 +29,7 @@ class CartModel extends CartEntity {
     return CartEntity(
       id: id,
       userId: userId,
-      items: items.map((item) => (item as CartItemModel).toEntity()).toList(),
+      items: items.map((item) => item.toEntity()).toList(),
       totalAmount: totalAmount,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -33,18 +37,22 @@ class CartModel extends CartEntity {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class CartItemModel extends CartItemEntity {
+  @JsonKey(name: 'product')
+  @override
+  final ProductModel product;
+
   const CartItemModel({
     required super.id,
     required super.productId,
-    required super.product,
+    required this.product,
     required super.quantity,
     super.selectedSize,
     super.selectedColor,
     required super.unitPrice,
     required super.totalPrice,
-  });
+  }) : super(product: product);
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
     return _$CartItemModelFromJson(json);
@@ -56,7 +64,7 @@ class CartItemModel extends CartItemEntity {
     return CartItemEntity(
       id: id,
       productId: productId,
-      product: (product as ProductModel).toEntity(),
+      product: product.toEntity(),
       quantity: quantity,
       selectedSize: selectedSize,
       selectedColor: selectedColor,
