@@ -22,19 +22,19 @@ class ThemeState extends Equatable {
 class ThemeCubit extends Cubit<ThemeState> {
   ThemeCubit() : super(ThemeState(
     themeData: AppTheme.lightTheme,
-    isDark: false,
+    isDarkMode: false,
   ));
 
   void toggleTheme() {
-    if (state.isDark) {
+    if (state.isDarkMode) {
       emit(ThemeState(
         themeData: AppTheme.lightTheme,
-        isDark: false,
+        isDarkMode: false,
       ));
     } else {
       emit(ThemeState(
         themeData: AppTheme.darkTheme,
-        isDark: true,
+        isDarkMode: true,
       ));
     }
   }
@@ -42,14 +42,14 @@ class ThemeCubit extends Cubit<ThemeState> {
   void setLightTheme() {
     emit(ThemeState(
       themeData: AppTheme.lightTheme,
-      isDark: false,
+      isDarkMode: false,
     ));
   }
 
   void setDarkTheme() {
     emit(ThemeState(
       themeData: AppTheme.darkTheme,
-      isDark: true,
+      isDarkMode: true,
     ));
   }
 }
