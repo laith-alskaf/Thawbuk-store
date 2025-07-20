@@ -42,7 +42,7 @@ export const signupSchema = Joi.object({
             'any.required': Messages.USER.VALIDATION.CITY_REQUIRED_EN,
         }).when('role', { is: 'customer', then: Joi.required() }),
     }),
-    age: Joi.number().min(0).max(18).messages({
+    age: Joi.number().min(18).max(120).messages({
         'number.min': Messages.USER.VALIDATION.AGE_MIN_EN,
         'number.max': Messages.USER.VALIDATION.AGE_MAX_EN,
     }).when('role', { is: 'customer', then: Joi.required() }),
