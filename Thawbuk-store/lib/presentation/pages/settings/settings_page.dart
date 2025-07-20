@@ -361,7 +361,7 @@ class SettingsPage extends StatelessWidget {
           _buildContactTile(
             context,
             'واتس آب',
-            '+963 XXX XXX XXX',
+            '+963 982 055 788',
             Icons.phone,
             AppColors.success,
             () => _launchWhatsApp(context),
@@ -372,7 +372,7 @@ class SettingsPage extends StatelessWidget {
           _buildContactTile(
             context,
             'تليجرام',
-            '@LaithalskafDev',
+            '@Laith041',
             Icons.telegram,
             AppColors.info,
             () => _launchTelegram(context),
@@ -383,7 +383,7 @@ class SettingsPage extends StatelessWidget {
           _buildContactTile(
             context,
             'البريد الإلكتروني',
-            'laith.alskaf@example.com',
+            'laithalskaf@gmail.com',
             Icons.email,
             AppColors.error,
             () => _launchEmail(context),
