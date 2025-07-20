@@ -3,13 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../bloc/cart/cart_bloc.dart';
+import '../../bloc/auth/auth_bloc.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../domain/entities/cart_entity.dart';
 import '../../widgets/shared/custom_button.dart';
-import '../../widgets/shared/custom_card.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../widgets/shared/error_widget.dart';
-import '../../../domain/entities/cart_entity.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/constants/app_constants.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -34,12 +33,10 @@ class _CartPageState extends State<CartPage> {
           BlocBuilder<CartBloc, CartState>(
             builder: (context, state) {
               if (state is CartLoaded && state.cart.items.isNotEmpty) {
-                return TextButton(
-                  onPressed: _showClearCartDialog,
-                  child: const Text(
-                    'مسح الكل',
-                    style: TextStyle(color: AppColors.white),
-                  ),
+                return TextButton.icon(
+                  onPressed: () => _showClearCartDialog(),
+                  icon: const Icon(Icons.clear_all),
+                  label: const Text('مسح الكل'),
                 );
               }
               return const SizedBox.shrink();
@@ -47,147 +44,194 @@ class _CartPageState extends State<CartPage> {
           ),
         ],
       ),
-      body: BlocConsumer<CartBloc, CartState>(
+      body: BlocListener<CartBloc, CartState>(
         listener: (context, state) {
-          if (state is CartError) {
+          if (state is CartItemAdded) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
+              const SnackBar(
+                content: Text('تم إضافة المنتج للسلة'),
+                backgroundColor: AppColors.success,
+              ),
+            );
+          } else if (state is CartItemRemoved) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('تم حذف المنتج من السلة'),
+                backgroundColor: AppColors.warning,
               ),
             );
           } else if (state is CartCleared) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('تم مسح السلة بنجاح'),
-                backgroundColor: AppColors.success,
+                backgroundColor: AppColors.info,
               ),
             );
           }
         },
-        builder: (context, state) {
-          if (state is CartLoading) {
-            return const LoadingWidget(message: 'جاري تحميل السلة...');
-          }
-          
-          if (state is CartError) {
-            return CustomErrorWidget(
-              message: state.message,
-              onRetry: () {
-                context.read<CartBloc>().add(GetCartEvent());
-              },
-            );
-          }
-          
-          if (state is CartLoaded) {
-            if (state.cart.isEmpty) {
-              return _buildEmptyCart();
+        child: BlocBuilder<CartBloc, CartState>(
+          builder: (context, state) {
+            if (state is CartLoading) {
+              return const ListLoadingWidget();
+            } else if (state is CartError) {
+              return CustomErrorWidget(
+                message: state.message,
+                onRetry: () => context.read<CartBloc>().add(GetCartEvent()),
+              );
+            } else if (state is CartLoaded) {
+              return _buildCartContent(state.cart);
+            } else if (state is CartCleared) {
+              return const EmptyWidget(
+                message: 'سلة التسوق فارغة',
+                icon: Icons.shopping_cart_outlined,
+              );
             }
             
-            return _buildCartContent(state.cart);
+            return const EmptyWidget(
+              message: 'سلة التسوق فارغة',
+              icon: Icons.shopping_cart_outlined,
+            );
+          },
+        ),
+      ),
+      bottomNavigationBar: BlocBuilder<CartBloc, CartState>(
+        builder: (context, state) {
+          if (state is CartLoaded && state.cart.items.isNotEmpty) {
+            return _buildCheckoutBar(state.cart);
           }
-          
           return const SizedBox.shrink();
         },
       ),
     );
   }
 
-  Widget _buildEmptyCart() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.shopping_cart_outlined,
-              size: 80,
-              color: AppColors.grey,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'السلة فارغة',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'ابدأ التسوق وأضف المنتجات التي تعجبك',
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            CustomButton(
-              text: 'تصفح المنتجات',
-              onPressed: () => context.go('/products'),
-              icon: const Icon(Icons.shopping_bag),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildCartContent(CartEntity cart) {
+    if (cart.isEmpty) {
+      return Column(
+        children: [
+          const Expanded(
+            child: EmptyWidget(
+              message: 'سلة التسوق فارغة\nابدأ التسوق لإضافة منتجات',
+              icon: Icons.shopping_cart_outlined,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: CustomButton(
+              text: 'تصفح المنتجات',
+              onPressed: () => context.push('/products'),
+              icon: Icons.store,
+            ),
+          ),
+        ],
+      );
+    }
+
     return Column(
       children: [
-        // قائمة المنتجات
+        // Cart Summary
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColors.primary, AppColors.primaryLight],
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'إجمالي المنتجات',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.white.withOpacity(0.9),
+                    ),
+                  ),
+                  Text(
+                    '${cart.itemsCount} منتج',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'المجموع',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.white.withOpacity(0.9),
+                    ),
+                  ),
+                  Text(
+                    '${cart.totalAmount.toStringAsFixed(2)} ريال',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // Cart Items
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: cart.items.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final item = cart.items[index];
               return _buildCartItem(item);
             },
           ),
         ),
-        
-        // ملخص الطلب
-        _buildOrderSummary(cart),
       ],
     );
   }
 
   Widget _buildCartItem(CartItemEntity item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: CustomCard(
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // صورة المنتج
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.lightGrey,
-                borderRadius: BorderRadius.circular(8),
+            // Product Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  image: item.product.images.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(item.product.images.first),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: item.product.images.isEmpty
+                    ? const Icon(Icons.image, color: AppColors.grey)
+                    : null,
               ),
-              child: item.product.mainImage.isNotEmpty
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      item.product.mainImage,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.image_not_supported,
-                          size: 40,
-                          color: AppColors.grey,
-                        );
-                      },
-                    ),
-                  )
-                : const Icon(
-                    Icons.checkroom,
-                    size: 40,
-                    color: AppColors.grey,
-                  ),
             ),
             
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             
-            // معلومات المنتج
+            // Product Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,16 +247,40 @@ class _CartPageState extends State<CartPage> {
                   
                   const SizedBox(height: 4),
                   
-                  // الخيارات المحددة
                   if (item.selectedSize != null || item.selectedColor != null)
-                    Text(
-                      [
-                        if (item.selectedSize != null) 'الحجم: ${item.selectedSize}',
-                        if (item.selectedColor != null) 'اللون: ${item.selectedColor}',
-                      ].join(' • '),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.grey,
-                      ),
+                    Row(
+                      children: [
+                        if (item.selectedSize != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'الحجم: ${item.selectedSize}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        if (item.selectedSize != null && item.selectedColor != null)
+                          const SizedBox(width: 8),
+                        if (item.selectedColor != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'اللون: ${item.selectedColor}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.secondary,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   
                   const SizedBox(height: 8),
@@ -220,261 +288,189 @@ class _CartPageState extends State<CartPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // السعر
                       Text(
-                        '${item.totalPrice.toStringAsFixed(0)} ل.س',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        '${item.unitPrice.toStringAsFixed(2)} ريال',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       
-                      // تحكم بالكمية
-                      _buildQuantityControls(item),
+                      Row(
+                        children: [
+                          Text(
+                            'المجموع: ',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            '${item.totalPrice.toStringAsFixed(2)} ريال',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
             
-            // زر الحذف
-            IconButton(
-              onPressed: () => _removeFromCart(item),
-              icon: const Icon(
-                Icons.delete_outline,
-                color: AppColors.error,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuantityControls(CartItemEntity item) {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: item.quantity > 1 
-            ? () => _updateQuantity(item, item.quantity - 1)
-            : null,
-          icon: const Icon(Icons.remove, size: 18),
-          style: IconButton.styleFrom(
-            backgroundColor: AppColors.lightGrey,
-            minimumSize: const Size(32, 32),
-          ),
-        ),
-        
-        Container(
-          width: 40,
-          alignment: Alignment.center,
-          child: Text(
-            item.quantity.toString(),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        
-        IconButton(
-          onPressed: item.quantity < item.product.quantity
-            ? () => _updateQuantity(item, item.quantity + 1)
-            : null,
-          icon: const Icon(Icons.add, size: 18),
-          style: IconButton.styleFrom(
-            backgroundColor: AppColors.lightGrey,
-            minimumSize: const Size(32, 32),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOrderSummary(CartEntity cart) {
-    return Container(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // ملخص التكاليف
-          CustomCard(
-            backgroundColor: AppColors.lightGrey.withOpacity(0.5),
-            child: Column(
+            const SizedBox(width: 8),
+            
+            // Quantity Controls
+            Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'عدد المنتجات',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    Text(
-                      '${cart.itemsCount}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                // Remove Button
+                IconButton(
+                  onPressed: () => _removeItem(item.productId),
+                  icon: const Icon(Icons.delete_outline),
+                  color: AppColors.error,
+                  iconSize: 20,
                 ),
                 
-                const SizedBox(height: 8),
-                
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'المجموع الفرعي',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    Text(
-                      '${cart.totalAmount.toStringAsFixed(0)} ل.س',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                // Quantity Controls
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.lightGrey),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: item.quantity > 1 
+                            ? () => _updateQuantity(item.productId, item.quantity - 1)
+                            : null,
+                        icon: const Icon(Icons.remove),
+                        iconSize: 16,
                       ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 8),
-                
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'التوصيل',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    Text(
-                      'مجاني',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.success,
-                        fontWeight: FontWeight.w600,
+                      
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.lightGrey,
+                        ),
+                        child: Text(
+                          '${item.quantity}',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                
-                const Divider(height: 24),
-                
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'المجموع الكلي',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                      
+                      IconButton(
+                        onPressed: () => _updateQuantity(item.productId, item.quantity + 1),
+                        icon: const Icon(Icons.add),
+                        iconSize: 16,
                       ),
-                    ),
-                    Text(
-                      '${cart.totalAmount.toStringAsFixed(0)} ل.س',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // زر إتمام الطلب
-          CustomButton(
-            text: 'إتمام الطلب',
-            isFullWidth: true,
-            onPressed: () => _proceedToCheckout(cart),
-            icon: const Icon(Icons.payment),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCheckoutBar(CartEntity cart) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.grey,
+            blurRadius: 10,
+            offset: Offset(0, -2),
           ),
         ],
       ),
-    );
-  }
-
-  void _updateQuantity(CartItemEntity item, int newQuantity) {
-    context.read<CartBloc>().add(
-      UpdateCartItemEvent(
-        itemId: item.id,
-        quantity: newQuantity,
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'المجموع الإجمالي',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  Text(
+                    '${cart.totalAmount.toStringAsFixed(2)} ريال',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(width: 16),
+            
+            Expanded(
+              child: BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, authState) {
+                  return CustomButton(
+                    text: 'إتمام الطلب',
+                    onPressed: authState is AuthAuthenticated
+                        ? () => _proceedToCheckout(cart)
+                        : () => context.push('/login'),
+                    icon: Icons.shopping_bag_outlined,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _removeFromCart(CartItemEntity item) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('إزالة من السلة'),
-          content: Text('هل تريد إزالة "${item.product.displayName}" من السلة؟'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('إلغاء'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.read<CartBloc>().add(
-                  RemoveFromCartEvent(item.productId),
-                );
-              },
-              child: const Text(
-                'إزالة',
-                style: TextStyle(color: AppColors.error),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+  void _updateQuantity(String productId, int newQuantity) {
+    context.read<CartBloc>().add(UpdateCartItemEvent(
+      productId: productId,
+      quantity: newQuantity,
+    ));
+  }
+
+  void _removeItem(String productId) {
+    context.read<CartBloc>().add(RemoveFromCartEvent(productId));
   }
 
   void _showClearCartDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('مسح السلة'),
-          content: const Text('هل تريد مسح جميع المنتجات من السلة؟'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('إلغاء'),
+      builder: (context) => AlertDialog(
+        title: const Text('مسح السلة'),
+        content: const Text('هل أنت متأكد من مسح جميع المنتجات من السلة؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.read<CartBloc>().add(ClearCartEvent());
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.read<CartBloc>().add(ClearCartEvent());
-              },
-              child: const Text(
-                'مسح الكل',
-                style: TextStyle(color: AppColors.error),
-              ),
-            ),
-          ],
-        );
-      },
+            child: const Text('مسح'),
+          ),
+        ],
+      ),
     );
   }
 
   void _proceedToCheckout(CartEntity cart) {
-    // TODO: إضافة صفحة الدفع
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('سيتم إضافة عملية الدفع قريباً'),
-        backgroundColor: AppColors.info,
-      ),
-    );
+    // Navigate to checkout/order page
+    context.push('/checkout');
   }
 }
