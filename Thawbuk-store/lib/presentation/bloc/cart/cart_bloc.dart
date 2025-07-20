@@ -74,7 +74,7 @@ class CartInitial extends CartState {}
 class CartLoading extends CartState {}
 
 class CartLoaded extends CartState {
-  final Cart cart;
+  final CartEntity cart;
 
   const CartLoaded(this.cart);
 
