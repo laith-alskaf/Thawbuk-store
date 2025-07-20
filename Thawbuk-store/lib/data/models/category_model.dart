@@ -1,18 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/category.dart';
+import '../../domain/entities/category_entity.dart';
 
 part 'category_model.g.dart';
 
 @JsonSerializable()
-class CategoryModel extends Category {
+class CategoryModel extends CategoryEntity {
   const CategoryModel({
     required super.id,
     required super.name,
+    required super.nameAr,
     super.description,
-    required super.image,
-    required super.createdBy,
+    super.descriptionAr,
+    super.image,
+    super.productsCount,
     required super.createdAt,
-    required super.updatedAt,
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
@@ -21,15 +22,16 @@ class CategoryModel extends Category {
 
   Map<String, dynamic> toJson() => _$CategoryModelToJson(this);
 
-  Category toEntity() {
-    return Category(
+  CategoryEntity toEntity() {
+    return CategoryEntity(
       id: id,
       name: name,
+      nameAr: nameAr,
       description: description,
+      descriptionAr: descriptionAr,
       image: image,
-      createdBy: createdBy,
+      productsCount: productsCount,
       createdAt: createdAt,
-      updatedAt: updatedAt,
     );
   }
 }

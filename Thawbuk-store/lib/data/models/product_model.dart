@@ -1,25 +1,27 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/product.dart';
+import '../../domain/entities/product_entity.dart';
 
 part 'product_model.g.dart';
 
 @JsonSerializable()
-class ProductModel extends Product {
+class ProductModel extends ProductEntity {
   const ProductModel({
     required super.id,
     required super.name,
+    required super.nameAr,
     required super.description,
+    required super.descriptionAr,
     required super.price,
-    required super.categoryId,
-    required super.createdBy,
+    required super.category,
     required super.images,
     required super.sizes,
     required super.colors,
-    required super.stock,
-    super.brand,
-    super.ageRange,
+    required super.inStock,
+    required super.quantity,
     required super.createdAt,
-    required super.updatedAt,
+    super.updatedAt,
+    super.rating,
+    super.reviewsCount,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -28,39 +30,24 @@ class ProductModel extends Product {
 
   Map<String, dynamic> toJson() => _$ProductModelToJson(this);
 
-  Product toEntity() {
-    return Product(
+  ProductEntity toEntity() {
+    return ProductEntity(
       id: id,
       name: name,
+      nameAr: nameAr,
       description: description,
+      descriptionAr: descriptionAr,
       price: price,
-      categoryId: categoryId,
-      createdBy: createdBy,
+      category: category,
       images: images,
       sizes: sizes,
       colors: colors,
-      stock: stock,
-      brand: brand,
-      ageRange: ageRange,
+      inStock: inStock,
+      quantity: quantity,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      rating: rating,
+      reviewsCount: reviewsCount,
     );
   }
-}
-
-@JsonSerializable()
-class AgeRangeModel {
-  final int minAge;
-  final int maxAge;
-
-  const AgeRangeModel({
-    required this.minAge,
-    required this.maxAge,
-  });
-
-  factory AgeRangeModel.fromJson(Map<String, dynamic> json) {
-    return _$AgeRangeModelFromJson(json);
-  }
-
-  Map<String, dynamic> toJson() => _$AgeRangeModelToJson(this);
 }

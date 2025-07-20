@@ -1,25 +1,20 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/user.dart';
+import '../../domain/entities/user_entity.dart';
 
 part 'user_model.g.dart';
 
 @JsonSerializable()
-class UserModel extends User {
+class UserModel extends UserEntity {
   const UserModel({
     required super.id,
     required super.email,
-    super.name,
+    required super.name,
+    super.phone,
     required super.role,
-    super.age,
-    super.gender,
-    super.address,
-    super.children,
-    super.companyDetails,
-    super.fcmToken,
-    required super.isEmailVerified,
-    required super.lastLogin,
     required super.createdAt,
-    required super.updatedAt,
+    super.lastLoginAt,
+    super.profileImage,
+    super.company,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -28,85 +23,42 @@ class UserModel extends User {
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
-  User toEntity() {
-    return User(
+  UserEntity toEntity() {
+    return UserEntity(
       id: id,
       email: email,
       name: name,
+      phone: phone,
       role: role,
-      age: age,
-      gender: gender,
-      address: address,
-      children: children,
-      companyDetails: companyDetails,
-      fcmToken: fcmToken,
-      isEmailVerified: isEmailVerified,
-      lastLogin: lastLogin,
       createdAt: createdAt,
-      updatedAt: updatedAt,
+      lastLoginAt: lastLoginAt,
+      profileImage: profileImage,
+      company: company,
     );
   }
 }
 
 @JsonSerializable()
-class AddressModel {
-  final String street;
-  final String city;
-  final String? country;
-  final String? postalCode;
-  final String? phone;
-
-  const AddressModel({
-    required this.street,
-    required this.city,
-    this.country,
-    this.postalCode,
-    this.phone,
+class CompanyModel extends CompanyEntity {
+  const CompanyModel({
+    required super.name,
+    required super.address,
+    super.logo,
+    super.description,
   });
 
-  factory AddressModel.fromJson(Map<String, dynamic> json) {
-    return _$AddressModelFromJson(json);
+  factory CompanyModel.fromJson(Map<String, dynamic> json) {
+    return _$CompanyModelFromJson(json);
   }
 
-  Map<String, dynamic> toJson() => _$AddressModelToJson(this);
-}
+  Map<String, dynamic> toJson() => _$CompanyModelToJson(this);
 
-@JsonSerializable()
-class ChildModel {
-  final int age;
-  final String gender;
-
-  const ChildModel({
-    required this.age,
-    required this.gender,
-  });
-
-  factory ChildModel.fromJson(Map<String, dynamic> json) {
-    return _$ChildModelFromJson(json);
+  CompanyEntity toEntity() {
+    return CompanyEntity(
+      name: name,
+      address: address,
+      logo: logo,
+      description: description,
+    );
   }
-
-  Map<String, dynamic> toJson() => _$ChildModelToJson(this);
-}
-
-@JsonSerializable()
-class CompanyDetailsModel {
-  final String companyName;
-  final String? companyDescription;
-  final AddressModel companyAddress;
-  final String companyPhone;
-  final String? companyLogo;
-
-  const CompanyDetailsModel({
-    required this.companyName,
-    this.companyDescription,
-    required this.companyAddress,
-    required this.companyPhone,
-    this.companyLogo,
-  });
-
-  factory CompanyDetailsModel.fromJson(Map<String, dynamic> json) {
-    return _$CompanyDetailsModelFromJson(json);
-  }
-
-  Map<String, dynamic> toJson() => _$CompanyDetailsModelToJson(this);
 }

@@ -1,17 +1,18 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/cart.dart';
+import '../../domain/entities/cart_entity.dart';
 import 'product_model.dart';
 
 part 'cart_model.g.dart';
 
 @JsonSerializable()
-class CartModel extends Cart {
+class CartModel extends CartEntity {
   const CartModel({
     required super.id,
     required super.userId,
     required super.items,
     required super.totalAmount,
-    required super.totalItems,
+    required super.createdAt,
+    required super.updatedAt,
   });
 
   factory CartModel.fromJson(Map<String, dynamic> json) {
@@ -20,25 +21,29 @@ class CartModel extends Cart {
 
   Map<String, dynamic> toJson() => _$CartModelToJson(this);
 
-  Cart toEntity() {
-    return Cart(
+  CartEntity toEntity() {
+    return CartEntity(
       id: id,
       userId: userId,
-      items: items.map((item) => item.toEntity()).toList(),
+      items: items.map((item) => (item as CartItemModel).toEntity()).toList(),
       totalAmount: totalAmount,
-      totalItems: totalItems,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }
 
 @JsonSerializable()
-class CartItemModel extends CartItem {
+class CartItemModel extends CartItemEntity {
   const CartItemModel({
+    required super.id,
     required super.productId,
+    required super.product,
     required super.quantity,
     super.selectedSize,
     super.selectedColor,
-    super.product,
+    required super.unitPrice,
+    required super.totalPrice,
   });
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
@@ -47,13 +52,16 @@ class CartItemModel extends CartItem {
 
   Map<String, dynamic> toJson() => _$CartItemModelToJson(this);
 
-  CartItem toEntity() {
-    return CartItem(
+  CartItemEntity toEntity() {
+    return CartItemEntity(
+      id: id,
       productId: productId,
+      product: (product as ProductModel).toEntity(),
       quantity: quantity,
       selectedSize: selectedSize,
       selectedColor: selectedColor,
-      product: product?.toEntity(),
+      unitPrice: unitPrice,
+      totalPrice: totalPrice,
     );
   }
 }
