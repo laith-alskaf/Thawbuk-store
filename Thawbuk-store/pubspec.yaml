@@ -19,7 +19,7 @@ dependencies:
   # Networking
   dio: ^5.3.2
   retrofit: ^4.0.3
-  json_annotation: ^4.8.1
+  json_annotation: ^4.9.0
   
   # Storage
   shared_preferences: ^2.2.2
