@@ -57,6 +57,9 @@ class _HomePageState extends State<HomePage> {
                     case 'profile':
                       context.push('/profile');
                       break;
+                    case 'settings':
+                      context.push('/settings');
+                      break;
                     case 'orders':
                       context.push('/orders');
                       break;
