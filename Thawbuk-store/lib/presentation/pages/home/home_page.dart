@@ -307,7 +307,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildProductsGrid(List<Product> products) {
+  Widget _buildProductsGrid(List<ProductEntity> products) {
     if (products.isEmpty) {
       return const Center(
         child: Text('لا توجد منتجات'),
