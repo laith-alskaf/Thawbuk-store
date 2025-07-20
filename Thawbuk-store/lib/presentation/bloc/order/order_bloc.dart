@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/entities/order.dart';
+import '../../../domain/entities/order_entity.dart';
 import '../../../domain/usecases/order/get_orders_usecase.dart';
 import '../../../domain/usecases/order/create_order_usecase.dart';
 import '../../../core/errors/failures.dart';
