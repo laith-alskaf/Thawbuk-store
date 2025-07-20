@@ -1,10 +1,9 @@
 import 'package:dartz/dartz.dart';
-
+import 'package:thawbuk_store/domain/entities/product_entity.dart';
+import 'package:thawbuk_store/domain/entities/user_entity.dart';
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/entities/product.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_local_data_source.dart';
 import '../datasources/user_remote_data_source.dart';
@@ -21,7 +20,7 @@ class UserRepositoryImpl implements UserRepository {
   });
 
   @override
-  Future<Either<Failure, User>> updateProfile(Map<String, dynamic> userData) async {
+  Future<Either<Failure, UserEntity>> updateProfile(Map<String, dynamic> userData) async {
     if (await networkInfo.isConnected) {
       try {
         final userModel = await remoteDataSource.updateProfile(userData);
@@ -34,8 +33,8 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, List<Product>>> getWishlist() async {
+  // @override
+  Future<Either<Failure, List<ProductEntity>>> getWishlist() async {
     try {
       if (await networkInfo.isConnected) {
         final productModels = await remoteDataSource.getWishlist();
@@ -55,7 +54,7 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  @override
+  // @override
   Future<Either<Failure, void>> addToWishlist(String productId) async {
     if (await networkInfo.isConnected) {
       try {
@@ -69,7 +68,7 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  @override
+  // @override
   Future<Either<Failure, void>> removeFromWishlist(String productId) async {
     if (await networkInfo.isConnected) {
       try {
@@ -83,7 +82,7 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  @override
+  // @override
   Future<Either<Failure, String>> getLanguage() async {
     try {
       final language = await localDataSource.getLanguage();
@@ -94,7 +93,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, void>> setLanguage(String language) async {
+  Future<Either<Failure, void>> updateLanguage(String language) async {
     try {
       await localDataSource.setLanguage(language);
       return const Right(null);
@@ -121,5 +120,20 @@ class UserRepositoryImpl implements UserRepository {
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
     }
+  }
+  @override
+  Future<Either<Failure, void>> updateFcmToken(String token) async {
+    // try {
+      // await localDataSource.setThemeMode(token);
+      return const Right(null);
+    // } on CacheException catch (e) {
+      // return Left(CacheFailure(e.message));
+    // }
+  }
+  
+  @override
+  Future<Either<Failure, UserEntity>> getCurrentUser() {
+    // TODO: implement getCurrentUser
+    throw UnimplementedError();
   }
 }

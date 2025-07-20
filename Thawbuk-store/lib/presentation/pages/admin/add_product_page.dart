@@ -374,8 +374,7 @@ class _AddProductPageState extends State<AddProductPage> {
           // زر إضافة صور
           CustomButton(
             text: 'إضافة صور',
-            type: ButtonType.outline,
-            icon: const Icon(Icons.photo_camera),
+            icon:  Icons.photo_camera,
             onPressed: _selectImages,
           ),
           
@@ -447,7 +446,7 @@ class _AddProductPageState extends State<AddProductPage> {
           children: [
             CustomButton(
               text: 'إضافة المنتج',
-              isFullWidth: true,
+              // isFullWidth: true,
               isLoading: state is ProductLoading,
               onPressed: state is ProductLoading ? null : _addProduct,
             ),
@@ -455,9 +454,9 @@ class _AddProductPageState extends State<AddProductPage> {
             const SizedBox(height: 12),
             
             CustomButton(
-              text: 'إلغاء',
-              type: ButtonType.outline,
-              isFullWidth: true,
+              text: 'إلغاء',isOutlined: true,
+              // type: ButtonType.outline,
+              // isFullWidth: true,
               onPressed: state is ProductLoading ? null : () => context.pop(),
             ),
           ],

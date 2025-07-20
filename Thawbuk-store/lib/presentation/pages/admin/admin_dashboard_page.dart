@@ -89,7 +89,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Widget _buildWelcomeCard(user) {
     return CustomCard(
-      backgroundColor: AppColors.primary.withOpacity(0.1),
+      color: AppColors.primary.withOpacity(0.1),
       child: Row(
         children: [
           Expanded(
@@ -252,7 +252,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             Expanded(
               child: CustomButton(
                 text: 'إضافة منتج',
-                icon: const Icon(Icons.add),
+                icon: Icons.add,
                 onPressed: () => context.go('/admin/add-product'),
               ),
             ),
@@ -260,8 +260,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             Expanded(
               child: CustomButton(
                 text: 'إدارة المنتجات',
-                type: ButtonType.outline,
-                icon: const Icon(Icons.inventory),
+                // type: ButtonType.outline,
+                isOutlined: true,
+                icon:Icons.inventory,
                 onPressed: () => context.go('/admin/products'),
               ),
             ),
@@ -273,8 +274,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             Expanded(
               child: CustomButton(
                 text: 'الطلبات الجديدة',
-                type: ButtonType.secondary,
-                icon: const Icon(Icons.new_releases),
+                // type: ButtonType.secondary,
+                icon: Icons.new_releases,
                 onPressed: () {
                   // TODO: الانتقال لصفحة الطلبات الجديدة
                 },
@@ -284,8 +285,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             Expanded(
               child: CustomButton(
                 text: 'التقارير',
-                type: ButtonType.outline,
-                icon: const Icon(Icons.analytics),
+                // type: ButtonType.outline,
+                isOutlined: true,
+                icon:Icons.analytics,
                 onPressed: () {
                   // TODO: الانتقال لصفحة التقارير
                 },
@@ -503,7 +505,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 const SizedBox(height: 16),
                 CustomButton(
                   text: 'إضافة منتج',
-                  size: ButtonSize.small,
+                  // size: ButtonSize.small,
                   onPressed: () => context.go('/admin/add-product'),
                 ),
               ],

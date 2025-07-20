@@ -34,7 +34,7 @@ class ProfilePage extends StatelessWidget {
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is AuthLoading) {
-            return const LoadingWidget(message: 'جاري تحميل الملف الشخصي...');
+            return const LoadingWidget();
           }
           
           if (state is! AuthAuthenticated) {
@@ -458,9 +458,10 @@ class ProfilePage extends StatelessWidget {
   Widget _buildLogoutButton(BuildContext context) {
     return CustomButton(
       text: 'تسجيل الخروج',
-      type: ButtonType.outline,
-      isFullWidth: true,
-      icon: const Icon(Icons.logout),
+      // type: ButtonType.outline,
+      isOutlined: true,
+      // isFullWidth: true,
+      icon: Icons.logout,
       onPressed: () => _showLogoutDialog(context),
     );
   }

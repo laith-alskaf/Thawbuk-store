@@ -329,7 +329,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     await Future.delayed(const Duration(seconds: 1));
 
     // Create mock product
-    final product = Product(
+    final product = ProductEntity(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: event.name,
       nameAr: event.nameAr,
@@ -358,7 +358,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     await Future.delayed(const Duration(seconds: 1));
 
     // Create mock updated product
-    final product = Product(
+    final product = ProductEntity(
       id: event.productId,
       name: event.name,
       nameAr: event.nameAr,

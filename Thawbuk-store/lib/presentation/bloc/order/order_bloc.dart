@@ -106,7 +106,8 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     emit(OrderLoading());
 
     final result = await createOrderUseCase(CreateOrderParams(
-      orderData: event.orderData,
+      shippingAddress: event.orderData['shippingAddress'],
+      notes: event.orderData['notes']
     ));
 
     result.fold(

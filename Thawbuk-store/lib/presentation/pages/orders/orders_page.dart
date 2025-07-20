@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:thawbuk_store/presentation/bloc/cart/cart_bloc.dart';
 import '../../bloc/order/order_bloc.dart';
-import '../../bloc/auth/auth_bloc.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/order_entity.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../widgets/shared/error_widget.dart';
-import '../../widgets/orders/order_card.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({Key? key}) : super(key: key);
@@ -178,15 +176,16 @@ class _OrdersPageState extends State<OrdersPage>
         itemCount: orders.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
-          return OrderCard(
-            order: orders[index],
-            onTap: () => _showOrderDetails(orders[index]),
-            onTrack: () => _trackOrder(orders[index]),
-            onReorder: () => _reorderItems(orders[index]),
-            onCancel: orders[index].status == OrderStatus.pending
-                ? () => _cancelOrder(orders[index])
-                : null,
-          );
+          return SizedBox();
+          // return OrderCard(
+          //   order: orders[index],
+          //   onTap: () => _showOrderDetails(orders[index]),
+          //   onTrack: () => _trackOrder(orders[index]),
+          //   onReorder: () => _reorderItems(orders[index]),
+          //   onCancel: orders[index].status == OrderStatus.pending
+          //       ? () => _cancelOrder(orders[index])
+          //       : null,
+          // );
         },
       ),
     );

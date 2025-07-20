@@ -52,7 +52,6 @@ class CartItemEntity extends Equatable {
     required this.unitPrice,
     required this.totalPrice,
   });
-
   @override
   List<Object?> get props => [
         id,

@@ -108,9 +108,9 @@ class AppRouter {
         final authBloc = context.read<AuthBloc>();
         final authState = authBloc.state;
         
-        final isGoingToLogin = state.location == '/login';
-        final isGoingToRegister = state.location == '/register';
-        final isGoingToSplash = state.location == '/splash';
+        final isGoingToLogin = state.name == '/login';
+        final isGoingToRegister = state.name == '/register';
+        final isGoingToSplash = state.name == '/splash';
         
         // If on splash, let it handle the navigation
         if (isGoingToSplash) return null;
@@ -124,7 +124,7 @@ class AppRouter {
           if (isGoingToLogin || isGoingToRegister) return '/home';
           
           // Admin route protection
-          final isGoingToAdmin = state.location.startsWith('/admin');
+          final isGoingToAdmin = state.path!.startsWith('/admin');
           if (isGoingToAdmin && !authState.user.isOwner) {
             return '/home';
           }

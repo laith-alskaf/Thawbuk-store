@@ -15,7 +15,7 @@ abstract class CartEvent extends Equatable {
   const CartEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class GetCartEvent extends CartEvent {}
@@ -135,7 +135,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     required this.removeFromCartUseCase,
     required this.clearCartUseCase,
   }) : super(CartInitial()) {
-    
     on<GetCartEvent>(_onGetCart);
     on<AddToCartEvent>(_onAddToCart);
     on<UpdateCartItemEvent>(_onUpdateCartItem);
@@ -172,8 +171,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     final result = await addToCartUseCase(AddToCartParams(
       productId: event.productId,
       quantity: event.quantity,
-      selectedSize: event.selectedSize,
-      selectedColor: event.selectedColor,
+      size: event.selectedSize,
+      color: event.selectedColor,
     ));
 
     result.fold(

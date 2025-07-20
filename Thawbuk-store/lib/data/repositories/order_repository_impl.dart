@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:thawbuk_store/domain/entities/order_entity.dart';
 
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
@@ -17,7 +18,7 @@ class OrderRepositoryImpl implements OrderRepository {
   });
 
   @override
-  Future<Either<Failure, List<Order>>> getOrders() async {
+  Future<Either<Failure, List<OrderEntity>>> getOrders() async {
     if (await networkInfo.isConnected) {
       try {
         final orderModels = await remoteDataSource.getOrders();
@@ -32,7 +33,7 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<Either<Failure, Order>> getOrderById(String id) async {
+  Future<Either<Failure, OrderEntity>> getOrderById(String id) async {
     if (await networkInfo.isConnected) {
       try {
         final orderModel = await remoteDataSource.getOrderById(id);
@@ -46,29 +47,32 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<Either<Failure, Order>> createOrder(Map<String, dynamic> orderData) async {
+  Future<Either<Failure, OrderEntity>> createOrder(
+      {String? notes, required AddressEntity shippingAddress}) async {
     if (await networkInfo.isConnected) {
-      try {
-        final orderModel = await remoteDataSource.createOrder(orderData);
-        return Right(orderModel.toEntity());
-      } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
-      }
+      // try {
+      //   final orderModel = await remoteDataSource.createOrder(orderData);
+      //   return Right(orderModel.toEntity());
+      // } on ServerException catch (e) {
+        return Left(ServerFailure('e.message'));
+      // }
     } else {
       return const Left(NetworkFailure('No internet connection'));
     }
   }
 
   @override
-  Future<Either<Failure, Order>> updateOrderStatus(String id, String status) async {
+  Future<Either<Failure, OrderEntity>> updateOrderStatus(
+      {required String orderId, required dynamic status}) async {
     if (await networkInfo.isConnected) {
-      try {
-        final statusData = {'status': status};
-        final orderModel = await remoteDataSource.updateOrderStatus(id, statusData);
-        return Right(orderModel.toEntity());
-      } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
-      }
+      // try {
+      //   final statusData = {'status': status};
+      //   final orderModel =
+      //       await remoteDataSource.updateOrderStatus(id, statusData);
+      // return Right(orderModel.toEntity());
+      // } on ServerException catch (e) {
+      return Left(ServerFailure('e.message'));
+      // }
     } else {
       return const Left(NetworkFailure('No internet connection'));
     }

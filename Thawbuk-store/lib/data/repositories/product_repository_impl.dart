@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
+import 'package:thawbuk_store/domain/entities/product_entity.dart';
 
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
@@ -17,11 +20,12 @@ class ProductRepositoryImpl implements ProductRepository {
   });
 
   @override
-  Future<Either<Failure, List<Product>>> getProducts() async {
+  Future<Either<Failure, List<ProductEntity>>> getProducts() async {
     if (await networkInfo.isConnected) {
       try {
         final productModels = await remoteDataSource.getProducts();
-        final products = productModels.map((model) => model.toEntity()).toList();
+        final products =
+            productModels.map((model) => model.toEntity()).toList();
         return Right(products);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
@@ -32,7 +36,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, Product>> getProductById(String id) async {
+  Future<Either<Failure, ProductEntity>> getProductById(String id) async {
     if (await networkInfo.isConnected) {
       try {
         final productModel = await remoteDataSource.getProductById(id);
@@ -46,11 +50,13 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, List<Product>>> searchProducts(String query) async {
+  Future<Either<Failure, List<ProductEntity>>> searchProducts(
+      String query) async {
     if (await networkInfo.isConnected) {
       try {
         final productModels = await remoteDataSource.searchProducts(query);
-        final products = productModels.map((model) => model.toEntity()).toList();
+        final products =
+            productModels.map((model) => model.toEntity()).toList();
         return Right(products);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
@@ -61,11 +67,14 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, List<Product>>> getProductsByCategory(String category) async {
+  Future<Either<Failure, List<ProductEntity>>> getProductsByCategory(
+      String category) async {
     if (await networkInfo.isConnected) {
       try {
-        final productModels = await remoteDataSource.getProductsByCategory(category);
-        final products = productModels.map((model) => model.toEntity()).toList();
+        final productModels =
+            await remoteDataSource.getProductsByCategory(category);
+        final products =
+            productModels.map((model) => model.toEntity()).toList();
         return Right(products);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
@@ -76,28 +85,50 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, Product>> createProduct(Map<String, dynamic> productData) async {
+  Future<Either<Failure, ProductEntity>> createProduct(
+      {required String category,
+      required List<String> colors,
+      required String description,
+      required String descriptionAr,
+      required List<File> images,
+      required String name,
+      required String nameAr,
+      required double price,
+      required int quantity,
+      required List<String> sizes}) async {
     if (await networkInfo.isConnected) {
-      try {
-        final productModel = await remoteDataSource.createProduct(productData);
-        return Right(productModel.toEntity());
-      } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
-      }
+      // try {
+      //   final productModel = await remoteDataSource.createProduct(productData);
+      //   return Right(productModel.toEntity());
+      // } on ServerException catch (e) {
+      return Left(ServerFailure('e.message'));
+      // }
     } else {
       return const Left(NetworkFailure('No internet connection'));
     }
   }
 
   @override
-  Future<Either<Failure, Product>> updateProduct(String id, Map<String, dynamic> productData) async {
+  Future<Either<Failure, ProductEntity>> updateProduct(
+      {required String category,
+      required List<String> colors,
+      required String description,
+      required String descriptionAr,
+      required String id,
+      required List<File> images,
+      required String name,
+      required String nameAr,
+      required double price,
+      required int quantity,
+      required List<String> sizes}) async {
     if (await networkInfo.isConnected) {
-      try {
-        final productModel = await remoteDataSource.updateProduct(id, productData);
-        return Right(productModel.toEntity());
-      } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
-      }
+      // try {
+      //   final productModel =
+      //       await remoteDataSource.updateProduct(id, productData);
+      //   return Right(productModel.toEntity());
+      // } on ServerException catch (e) {
+        return Left(ServerFailure('e.message'));
+      // }
     } else {
       return const Left(NetworkFailure('No internet connection'));
     }

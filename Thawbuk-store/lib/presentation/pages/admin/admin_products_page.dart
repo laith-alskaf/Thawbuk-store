@@ -44,7 +44,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
         child: BlocBuilder<ProductBloc, ProductState>(
           builder: (context, state) {
             if (state is ProductLoading) {
-              return const LoadingWidget(message: 'جاري تحميل المنتجات...');
+              return const LoadingWidget();
             }
             
             if (state is ProductError) {
@@ -103,7 +103,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
             CustomButton(
               text: 'إضافة منتج',
               onPressed: () => context.go('/admin/add-product'),
-              icon: const Icon(Icons.add),
+              icon:Icons.add,
             ),
           ],
         ),
@@ -243,8 +243,9 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
                 Expanded(
                   child: CustomButton(
                     text: 'تعديل',
-                    type: ButtonType.outline,
-                    size: ButtonSize.small,
+                    // type: ButtonType.outline,
+                    isOutlined: true,
+                    // size: ButtonSize.small,
                     onPressed: () => _editProduct(product),
                   ),
                 ),
@@ -254,8 +255,9 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
                 Expanded(
                   child: CustomButton(
                     text: 'حذف',
-                    type: ButtonType.outline,
-                    size: ButtonSize.small,
+                    // type: ButtonType.outline,
+                    isOutlined: true,
+                    // size: ButtonSize.small,
                     onPressed: () => _showDeleteConfirmation(product),
                   ),
                 ),
@@ -265,7 +267,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
                 Expanded(
                   child: CustomButton(
                     text: 'عرض',
-                    size: ButtonSize.small,
+                    // size: ButtonSize.small,
                     onPressed: () => context.go('/product/${product.id}'),
                   ),
                 ),
