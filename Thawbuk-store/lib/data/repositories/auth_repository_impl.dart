@@ -65,7 +65,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> getCurrentUser() async {
+  Future<Either<Failure, UserEntity>> getCurrentUser() async {
     try {
       // Try to get from cache first
       final cachedUser = await localDataSource.getCachedUser();
