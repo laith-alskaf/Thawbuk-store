@@ -331,7 +331,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildProductCard(Product product) {
+  Widget _buildProductCard(ProductEntity product) {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
