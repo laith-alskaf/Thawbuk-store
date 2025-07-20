@@ -12,6 +12,7 @@ import '../pages/products/product_detail_page.dart';
 import '../pages/cart/cart_page.dart';
 import '../pages/orders/orders_page.dart';
 import '../pages/profile/profile_page.dart';
+import '../pages/settings/settings_page.dart';
 import '../pages/admin/add_product_page.dart';
 import '../pages/admin/admin_products_page.dart';
 import '../pages/admin/admin_dashboard_page.dart';
