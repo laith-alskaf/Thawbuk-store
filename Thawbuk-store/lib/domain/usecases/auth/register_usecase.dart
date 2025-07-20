@@ -3,16 +3,16 @@ import 'package:equatable/equatable.dart';
 
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
-import '../../entities/user.dart';
+import '../../entities/user_entity.dart';
 import '../../repositories/auth_repository.dart';
 
-class RegisterUseCase implements UseCase<User, RegisterParams> {
+class RegisterUseCase implements UseCase<UserEntity, RegisterParams> {
   final AuthRepository repository;
 
   RegisterUseCase(this.repository);
 
   @override
-  Future<Either<Failure, User>> call(RegisterParams params) async {
+  Future<Either<Failure, UserEntity>> call(RegisterParams params) async {
     return await repository.register(params.userData);
   }
 }

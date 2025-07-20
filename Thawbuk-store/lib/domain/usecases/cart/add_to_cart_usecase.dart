@@ -3,21 +3,21 @@ import 'package:equatable/equatable.dart';
 
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
-import '../../entities/cart.dart';
+import '../../entities/cart_entity.dart';
 import '../../repositories/cart_repository.dart';
 
-class AddToCartUseCase implements UseCase<Cart, AddToCartParams> {
+class AddToCartUseCase implements UseCase<CartEntity, AddToCartParams> {
   final CartRepository repository;
 
   AddToCartUseCase(this.repository);
 
   @override
-  Future<Either<Failure, Cart>> call(AddToCartParams params) async {
+  Future<Either<Failure, CartEntity>> call(AddToCartParams params) async {
     return await repository.addToCart(
       params.productId,
       params.quantity,
-      size: params.selectedSize,
-      color: params.selectedColor,
+      size: params.size,
+      color: params.color,
     );
   }
 }
@@ -25,16 +25,16 @@ class AddToCartUseCase implements UseCase<Cart, AddToCartParams> {
 class AddToCartParams extends Equatable {
   final String productId;
   final int quantity;
-  final String? selectedSize;
-  final String? selectedColor;
+  final String? size;
+  final String? color;
 
   const AddToCartParams({
     required this.productId,
     required this.quantity,
-    this.selectedSize,
-    this.selectedColor,
+    this.size,
+    this.color,
   });
 
   @override
-  List<Object?> get props => [productId, quantity, selectedSize, selectedColor];
+  List<Object?> get props => [productId, quantity, size, color];
 }
