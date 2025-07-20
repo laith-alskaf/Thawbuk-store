@@ -20,7 +20,12 @@ const userSchema = new Schema<UserDocument>({
         default: 'customer'
     },
     companyDetails: {
-        companyName: { type: String, unique: true, required: function () { return this.role === 'admin'; } },
+        companyName: { 
+            type: String, 
+            unique: true, 
+            sparse: true, // This allows multiple null values
+            required: function () { return this.role === 'admin'; } 
+        },
         companyDescription: { type: String },
         companyAddress: {
             street: { type: String },
