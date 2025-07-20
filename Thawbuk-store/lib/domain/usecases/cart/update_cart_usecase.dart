@@ -3,16 +3,16 @@ import 'package:equatable/equatable.dart';
 
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
-import '../../entities/cart.dart';
+import '../../entities/cart_entity.dart';
 import '../../repositories/cart_repository.dart';
 
-class UpdateCartUseCase implements UseCase<Cart, UpdateCartParams> {
+class UpdateCartUseCase implements UseCase<CartEntity, UpdateCartParams> {
   final CartRepository repository;
 
   UpdateCartUseCase(this.repository);
 
   @override
-  Future<Either<Failure, Cart>> call(UpdateCartParams params) async {
+  Future<Either<Failure, CartEntity>> call(UpdateCartParams params) async {
     return await repository.updateCartItem(params.productId, params.quantity);
   }
 }
