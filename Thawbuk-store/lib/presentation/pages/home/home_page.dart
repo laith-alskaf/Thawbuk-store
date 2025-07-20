@@ -6,8 +6,8 @@ import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/product/product_bloc.dart';
 import '../../bloc/cart/cart_bloc.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../domain/entities/user.dart';
-import '../../../domain/entities/product.dart';
+import '../../../domain/entities/user_entity.dart';
+import '../../../domain/entities/product_entity.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
