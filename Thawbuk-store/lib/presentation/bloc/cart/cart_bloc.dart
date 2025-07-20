@@ -92,7 +92,7 @@ class CartError extends CartState {
 }
 
 class CartItemAdded extends CartState {
-  final Cart cart;
+  final CartEntity cart;
 
   const CartItemAdded(this.cart);
 
@@ -101,7 +101,7 @@ class CartItemAdded extends CartState {
 }
 
 class CartItemUpdated extends CartState {
-  final Cart cart;
+  final CartEntity cart;
 
   const CartItemUpdated(this.cart);
 
@@ -110,7 +110,7 @@ class CartItemUpdated extends CartState {
 }
 
 class CartItemRemoved extends CartState {
-  final Cart cart;
+  final CartEntity cart;
 
   const CartItemRemoved(this.cart);
 
