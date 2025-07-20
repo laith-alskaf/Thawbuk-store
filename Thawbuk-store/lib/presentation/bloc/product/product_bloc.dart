@@ -179,7 +179,7 @@ class ProductCreated extends ProductState {
 }
 
 class ProductUpdated extends ProductState {
-  final Product product;
+  final ProductEntity product;
 
   const ProductUpdated(this.product);
 
