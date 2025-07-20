@@ -6,14 +6,17 @@ import '../../../core/usecases/usecase.dart';
 import '../../entities/order_entity.dart';
 import '../../repositories/order_repository.dart';
 
-class CreateOrderUseCase implements UseCase<Order, CreateOrderParams> {
+class CreateOrderUseCase implements UseCase<OrderEntity, CreateOrderParams> {
   final OrderRepository repository;
 
   CreateOrderUseCase(this.repository);
 
   @override
-  Future<Either<Failure, Order>> call(CreateOrderParams params) async {
-    return await repository.createOrder(params.orderData);
+  Future<Either<Failure, OrderEntity>> call(CreateOrderParams params) async {
+    return await repository.createOrder(
+      shippingAddress: params.shippingAddress,
+      notes: params.notes,
+    );
   }
 }
 
