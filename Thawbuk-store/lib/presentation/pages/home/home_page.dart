@@ -203,7 +203,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildWelcomeSection(User user) {
+  Widget _buildWelcomeSection(UserEntity user) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
