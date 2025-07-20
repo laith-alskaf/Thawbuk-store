@@ -425,6 +425,15 @@ class ProfilePage extends StatelessWidget {
           
           _buildOptionTile(
             context,
+            'الإعدادات',
+            Icons.settings,
+            () {
+              context.push('/settings');
+            },
+          ),
+          
+          _buildOptionTile(
+            context,
             'حول التطبيق',
             Icons.info,
             () {
