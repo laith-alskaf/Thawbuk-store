@@ -4,12 +4,6 @@ import path from "path";
 // Load .env file from the project root
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
-console.log('Environment variables loaded:', {
-    MONGODB_URI: process.env.MONGODB_URI ? 'SET' : 'NOT SET',
-    PORT: process.env.PORT,
-    NODE_ENV: process.env.NODE_ENV
-});
-
 export const CONFIG = {
     DEV_MONGODB_URI: process.env.MONGODB_URI!,
     PORT: process.env.PORT || 8080,
