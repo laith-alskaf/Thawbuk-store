@@ -20,7 +20,7 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<Either<Failure, User>> login(String email, String password) async {
+  Future<Either<Failure, UserEntity>> login(String email, String password) async {
     if (await networkInfo.isConnected) {
       try {
         final userModel = await remoteDataSource.login(email, password);
