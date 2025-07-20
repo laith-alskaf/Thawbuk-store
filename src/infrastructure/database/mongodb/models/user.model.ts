@@ -43,7 +43,7 @@ const userSchema = new Schema<UserDocument>({
         age: { type: Number, min: 0, max: 18 },
         gender: { type: String, enum: ['male', 'female'] },
     }],
-    age: { type: Number, min: 0 },
+    age: { type: Number, min: 18, max: 120 },
     gender: { type: String, enum: ['male', 'female', 'other'], default: null },
     lastLogin: {
         type: Date,
