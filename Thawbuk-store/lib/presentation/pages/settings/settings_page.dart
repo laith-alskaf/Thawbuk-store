@@ -463,7 +463,7 @@ class SettingsPage extends StatelessWidget {
 
   // دوال إطلاق التطبيقات الخارجية
   void _launchWhatsApp(BuildContext context) async {
-    const phoneNumber = '+963XXXXXXXXX'; // يجب تعديل الرقم الحقيقي
+    const phoneNumber = '+963982055788';
     const message = 'مرحباً، أريد التواصل معك بخصوص تطبيق ثوبك';
     final url = Uri.parse('https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
     
@@ -479,7 +479,7 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _launchTelegram(BuildContext context) async {
-    const username = 'LaithalskafDev'; // يجب تعديل اسم المستخدم الحقيقي
+    const username = 'Laith041';
     final url = Uri.parse('https://t.me/$username');
     
     try {
@@ -494,7 +494,7 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _launchEmail(BuildContext context) async {
-    const email = 'laith.alskaf@example.com'; // يجب تعديل الإيميل الحقيقي
+    const email = 'laithalskaf@gmail.com';
     const subject = 'استفسار حول تطبيق ثوبك';
     const body = 'مرحباً ليث،\n\nأريد التواصل معك بخصوص تطبيق ثوبك.\n\nشكراً';
     
