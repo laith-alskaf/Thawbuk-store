@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
                 builder: (context, cartState) {
                   int itemCount = 0;
                   if (cartState is CartLoaded) {
-                    itemCount = cartState.cart.totalItems;
+                    itemCount = cartState.cart.itemsCount;
                   }
 
                   return Badge(
