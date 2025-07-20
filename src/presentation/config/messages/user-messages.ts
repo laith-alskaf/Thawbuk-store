@@ -69,11 +69,11 @@ export const USER = {
         STREET_REQUIRED: "اسم الشارع مطلوب.",
         STREET_REQUIRED_EN: "Street name is required.",
 
-        AGE_MIN: "العمر يجب أن يكون أكبر من 0.",
-        AGE_MIN_EN: "Age must be greater than 0.",
+        AGE_MIN: "العمر يجب أن يكون 18 عاماً أو أكثر.",
+        AGE_MIN_EN: "Age must be 18 years or older.",
 
-        AGE_MAX: "العمر يجب أن يكون أقل من أو يساوي 18.",
-        AGE_MAX_EN: "Age must be less than or equal to 18.",
+        AGE_MAX: "العمر يجب أن يكون 120 عاماً أو أقل.",
+        AGE_MAX_EN: "Age must be 120 years or less.",
 
         GENDER_INVALID: "الجنس غير صالح.",
         GENDER_INVALID_EN: "Invalid gender."
