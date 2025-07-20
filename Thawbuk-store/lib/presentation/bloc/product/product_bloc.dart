@@ -152,7 +152,7 @@ class ProductInitial extends ProductState {}
 class ProductLoading extends ProductState {}
 
 class ProductsLoaded extends ProductState {
-  final List<Product> products;
+  final List<ProductEntity> products;
 
   const ProductsLoaded(this.products);
 
