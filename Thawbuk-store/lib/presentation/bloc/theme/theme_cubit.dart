@@ -7,15 +7,15 @@ import '../../../core/theme/app_theme.dart';
 // States
 class ThemeState extends Equatable {
   final ThemeData themeData;
-  final bool isDark;
+  final bool isDarkMode;
 
   const ThemeState({
     required this.themeData,
-    required this.isDark,
+    required this.isDarkMode,
   });
 
   @override
-  List<Object> get props => [themeData, isDark];
+  List<Object> get props => [themeData, isDarkMode];
 }
 
 // Cubit
