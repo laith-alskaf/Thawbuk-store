@@ -59,7 +59,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout() async {
     try {
-      await httpClient.post('/auth/logout');
+      await httpClient.deleteVoid('/auth/logout');
     } catch (e) {
       throw ServerException('Logout failed: ${e.toString()}');
     }
