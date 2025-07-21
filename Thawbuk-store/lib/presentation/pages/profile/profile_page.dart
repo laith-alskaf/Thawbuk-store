@@ -16,10 +16,35 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('الملف الشخصي'),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Icon(
+                Icons.account_circle,
+                color: AppColors.primary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'الملف الشخصي',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.black,
+        elevation: 1,
+        shadowColor: Colors.grey.withOpacity(0.3),
+        centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: const Icon(Icons.edit_outlined), // أيقونة تعديل أوضح
             onPressed: () {
               // TODO: تنفيذ تعديل الملف الشخصي
               ScaffoldMessenger.of(context).showSnackBar(
