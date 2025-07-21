@@ -46,6 +46,13 @@ class App extends StatelessWidget {
               Locale('en', 'US'),
             ],
             
+            // Localizations delegates
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            
             // التصميم
             theme: themeState.themeData,
           );
