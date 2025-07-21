@@ -68,28 +68,8 @@ Future<void> configureDependencies() async {
   // Core
   getIt.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl());
   
-  // Dio setup
-  final dio = Dio(BaseOptions(
-    baseUrl: AppConstants.baseUrl,
-    connectTimeout: Duration(milliseconds: AppConstants.connectTimeoutMs),
-    receiveTimeout: Duration(milliseconds: AppConstants.receiveTimeoutMs),
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-  ));
-  
-  dio.interceptors.add(AuthInterceptor(getIt<SharedPreferences>()));
-  dio.interceptors.add(LogInterceptor(
-    requestBody: true,
-    responseBody: true,
-    error: true,
-    requestHeader: true,
-    responseHeader: false,
-  ));
-  
-  getIt.registerLazySingleton(() => dio);
-  getIt.registerLazySingleton(() => ApiClient(getIt<Dio>()));
+  // HTTP Client setup
+  getIt.registerLazySingleton(() => HttpClient(getIt<SharedPreferences>()));
 
   // Data sources
   getIt.registerLazySingleton<AuthRemoteDataSource>(
