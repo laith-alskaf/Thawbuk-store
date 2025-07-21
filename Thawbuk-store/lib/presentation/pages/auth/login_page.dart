@@ -59,6 +59,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const SizedBox(height: 20), // مسافة في البداية
                   // Logo
                   Container(
                     height: 120,
