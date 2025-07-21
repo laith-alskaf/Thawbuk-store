@@ -79,7 +79,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   @override
   Future<void> removeFromWishlist(String productId) async {
     try {
-      await httpClient.delete('/user/wishlist/$productId');
+      await httpClient.deleteVoid('/user/wishlist/$productId');
     } catch (e) {
       throw ServerException('Failed to remove from wishlist: ${e.toString()}');
     }
