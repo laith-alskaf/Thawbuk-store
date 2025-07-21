@@ -1,10 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/app_constants.dart';
-import '../network/api_client.dart';
-import '../network/dio_interceptor.dart';
+import '../network/http_client.dart';
 import '../network/network_info.dart';
 
 // Data Sources
