@@ -84,7 +84,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
   @override
   Future<void> deleteCategory(String id) async {
     try {
-      await httpClient.delete('/user/category/$id');
+      await httpClient.deleteVoid('/user/category/$id');
     } catch (e) {
       throw ServerException('Failed to delete category: ${e.toString()}');
     }
