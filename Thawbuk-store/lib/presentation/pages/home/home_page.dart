@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                     label: Text(itemCount.toString()),
                     isLabelVisible: itemCount > 0,
                     child: IconButton(
-                      icon: const Icon(Icons.shopping_cart),
+                      icon: const Icon(Icons.shopping_bag), // أيقونة حقيبة تسوق أوضح
                       onPressed: () => context.push('/cart'),
                     ),
                   );
