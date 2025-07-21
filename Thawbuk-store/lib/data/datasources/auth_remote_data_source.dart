@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../core/errors/exceptions.dart';
-import '../../core/network/api_client.dart';
+import '../../core/network/http_client.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
@@ -11,18 +11,19 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final ApiClient apiClient;
+  final HttpClient httpClient;
 
-  AuthRemoteDataSourceImpl(this.apiClient);
+  AuthRemoteDataSourceImpl(this.httpClient);
 
   @override
   Future<UserModel> login(String email, String password) async {
     try {
-      final response = await apiClient.login({
+      final response = await httpClient.post('/auth/login', body: {
         'email': email,
         'password': password,
       });
-      return response;
+      
+      return UserModel.fromJson(response);
     } catch (e) {
       throw ServerException('Login failed: ${e.toString()}');
     }
@@ -31,8 +32,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> register(Map<String, dynamic> userData) async {
     try {
-      final response = await apiClient.register(userData);
-      return response;
+      final response = await httpClient.post('/auth/register', body: userData);
+      return UserModel.fromJson(response);
     } catch (e) {
       throw ServerException('Registration failed: ${e.toString()}');
     }
@@ -41,7 +42,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout() async {
     try {
-      await apiClient.logout();
+      await httpClient.post('/auth/logout');
     } catch (e) {
       throw ServerException('Logout failed: ${e.toString()}');
     }
@@ -50,8 +51,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> getCurrentUser() async {
     try {
-      final response = await apiClient.getCurrentUser();
-      return response;
+      final response = await httpClient.get('/user/me');
+      return UserModel.fromJson(response);
     } catch (e) {
       throw ServerException('Failed to get current user: ${e.toString()}');
     }
