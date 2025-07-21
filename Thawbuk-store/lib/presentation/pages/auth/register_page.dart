@@ -44,6 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
         title: const Text('إنشاء حساب جديد'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -92,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: _nameController,
                     label: 'الاسم الكامل',
                     hint: 'أدخل اسمك الكامل',
-                    prefixIcon: Icons.person_outlined,
+                    prefixIcon: Icons.account_circle, // أيقونة شخص أوضح
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء إدخال الاسم';
@@ -112,7 +113,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'البريد الإلكتروني',
                     hint: 'أدخل بريدك الإلكتروني',
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icons.email_outlined,
+                    prefixIcon: Icons.alternate_email, // أيقونة بريد إلكتروني أوضح
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء إدخال البريد الإلكتروني';
@@ -132,7 +133,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'العمر',
                     hint: 'أدخل عمرك',
                     keyboardType: TextInputType.number,
-                    prefixIcon: Icons.cake_outlined,
+                    prefixIcon: Icons.date_range, // أيقونة تاريخ أوضح من الكعكة
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء إدخال العمر';
@@ -231,7 +232,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'كلمة المرور',
                     hint: 'أدخل كلمة المرور',
                     obscureText: _isPasswordHidden,
-                    prefixIcon: Icons.lock_outlined,
+                    prefixIcon: Icons.key, // أيقونة مفتاح أوضح
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordHidden ? Icons.visibility : Icons.visibility_off,
@@ -261,7 +262,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'تأكيد كلمة المرور',
                     hint: 'أعد إدخال كلمة المرور',
                     obscureText: _isConfirmPasswordHidden,
-                    prefixIcon: Icons.lock_outlined,
+                    prefixIcon: Icons.key, // أيقونة مفتاح أوضح
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isConfirmPasswordHidden ? Icons.visibility : Icons.visibility_off,

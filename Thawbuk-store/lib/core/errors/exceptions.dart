@@ -39,3 +39,9 @@ class UnauthorizedException implements Exception {
   
   const UnauthorizedException(this.message);
 }
+
+class ClientException implements Exception {
+  final String message;
+  
+  const ClientException(this.message);
+}

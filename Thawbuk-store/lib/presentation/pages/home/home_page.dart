@@ -30,7 +30,35 @@ class _HomePageState extends State<HomePage> {
       builder: (context, authState) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('ثوبك'),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.store,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'ثوبك',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.white,
+            foregroundColor: AppColors.black,
+            elevation: 2,
+            shadowColor: Colors.grey.withOpacity(0.3),
+            centerTitle: false,
             actions: [
               // Cart Icon
               BlocBuilder<CartBloc, CartState>(
@@ -44,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                     label: Text(itemCount.toString()),
                     isLabelVisible: itemCount > 0,
                     child: IconButton(
-                      icon: const Icon(Icons.shopping_cart),
+                      icon: const Icon(Icons.shopping_bag), // أيقونة حقيبة تسوق أوضح
                       onPressed: () => context.push('/cart'),
                     ),
                   );
@@ -76,7 +104,7 @@ class _HomePageState extends State<HomePage> {
                     const PopupMenuItem(
                       value: 'profile',
                       child: ListTile(
-                        leading: Icon(Icons.person),
+                        leading: Icon(Icons.account_circle), // أيقونة حساب أوضح
                         title: Text('الملف الشخصي'),
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -84,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                     const PopupMenuItem(
                       value: 'settings',
                       child: ListTile(
-                        leading: Icon(Icons.settings),
+                        leading: Icon(Icons.tune), // أيقونة إعدادات أوضح
                         title: Text('الإعدادات'),
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -92,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                     const PopupMenuItem(
                       value: 'orders',
                       child: ListTile(
-                        leading: Icon(Icons.receipt),
+                        leading: Icon(Icons.list_alt), // أيقونة قائمة أوضح للطلبات
                         title: Text('طلباتي'),
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -105,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                       const PopupMenuItem(
                         value: 'admin',
                         child: ListTile(
-                          leading: Icon(Icons.admin_panel_settings),
+                          leading: Icon(Icons.dashboard), // أيقونة لوحة تحكم أوضح
                           title: Text('لوحة الإدارة'),
                           contentPadding: EdgeInsets.zero,
                         ),
@@ -117,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                     const PopupMenuItem(
                       value: 'logout',
                       child: ListTile(
-                        leading: Icon(Icons.logout),
+                        leading: Icon(Icons.exit_to_app), // أيقونة خروج أوضح
                         title: Text('تسجيل الخروج'),
                         contentPadding: EdgeInsets.zero,
                       ),
