@@ -64,6 +64,18 @@ class HttpClient {
     }
   }
 
+  /// طلب DELETE (مع إرجاع بيانات)
+  Future<Map<String, dynamic>> delete(String endpoint) async {
+    try {
+      final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      final response = await http.delete(url, headers: _headers);
+      
+      return _handleResponse(response);
+    } catch (e) {
+      throw ServerException('DELETE request failed: ${e.toString()}');
+    }
+  }
+
   /// طلب DELETE (للحالات التي لا تحتاج رد)
   Future<void> deleteVoid(String endpoint) async {
     try {
