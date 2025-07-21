@@ -133,7 +133,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'العمر',
                     hint: 'أدخل عمرك',
                     keyboardType: TextInputType.number,
-                    prefixIcon: Icons.cake_outlined,
+                    prefixIcon: Icons.date_range, // أيقونة تاريخ أوضح من الكعكة
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء إدخال العمر';
