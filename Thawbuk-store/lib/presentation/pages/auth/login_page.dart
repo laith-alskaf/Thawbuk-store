@@ -123,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                     label: 'كلمة المرور',
                     hint: 'أدخل كلمة المرور',
                     obscureText: _isPasswordHidden,
-                    prefixIcon: Icons.lock_outlined,
+                    prefixIcon: Icons.key, // أيقونة مفتاح أوضح من القفل
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordHidden ? Icons.visibility : Icons.visibility_off,
