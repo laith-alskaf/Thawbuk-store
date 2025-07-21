@@ -232,7 +232,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'كلمة المرور',
                     hint: 'أدخل كلمة المرور',
                     obscureText: _isPasswordHidden,
-                    prefixIcon: Icons.lock_outlined,
+                    prefixIcon: Icons.key, // أيقونة مفتاح أوضح
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordHidden ? Icons.visibility : Icons.visibility_off,
