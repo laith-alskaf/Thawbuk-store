@@ -183,6 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 30), // مسافة في النهاية لضمان عدم التداخل مع الكيبورد
                 ],
               ),
             ),
