@@ -65,6 +65,12 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     try {
       final response = await httpClient.delete('/user/cart/remove/$productId');
       
+      // للتعامل مع الحالة التي قد تعيد فيها API cart محدثة أو مجرد message
+      if (response.isEmpty) {
+        // إذا لم تعد API أي بيانات، نحتاج للحصول على السلة الحالية
+        return await getCart();
+      }
+      
       if (response['data'] != null) {
         return CartModel.fromJson(response['data'] as Map<String, dynamic>);
       } else {
