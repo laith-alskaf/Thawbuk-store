@@ -145,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                     const PopupMenuItem(
                       value: 'logout',
                       child: ListTile(
-                        leading: Icon(Icons.logout),
+                        leading: Icon(Icons.exit_to_app), // أيقونة خروج أوضح
                         title: Text('تسجيل الخروج'),
                         contentPadding: EdgeInsets.zero,
                       ),
