@@ -103,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                     label: 'البريد الإلكتروني',
                     hint: 'أدخل بريدك الإلكتروني',
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icons.email_outlined,
+                    prefixIcon: Icons.alternate_email, // أيقونة بريد إلكتروني أوضح
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء إدخال البريد الإلكتروني';
