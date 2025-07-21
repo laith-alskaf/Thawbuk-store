@@ -30,7 +30,35 @@ class _HomePageState extends State<HomePage> {
       builder: (context, authState) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('ثوبك'),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.store,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'ثوبك',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.white,
+            foregroundColor: AppColors.black,
+            elevation: 2,
+            shadowColor: Colors.grey.withOpacity(0.3),
+            centerTitle: false,
             actions: [
               // Cart Icon
               BlocBuilder<CartBloc, CartState>(
