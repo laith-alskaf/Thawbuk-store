@@ -146,6 +146,131 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
         ),
       ),
+      
+      // اتجاه النص
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+    );
+  }
+  
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      
+      // الألوان الأساسية
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.primaryLight,
+        primaryContainer: AppColors.primary,
+        secondary: AppColors.secondaryLight,
+        secondaryContainer: AppColors.secondary,
+        background: Color(0xFF121212),
+        surface: Color(0xFF1E1E1E),
+        error: AppColors.error,
+      ),
+      
+      // الخطوط
+      textTheme: GoogleFonts.cairoTextTheme(ThemeData.dark().textTheme).copyWith(
+        displayLarge: GoogleFonts.cairo(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: AppColors.white,
+        ),
+        displayMedium: GoogleFonts.cairo(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: AppColors.white,
+        ),
+        headlineLarge: GoogleFonts.cairo(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: AppColors.white,
+        ),
+        headlineMedium: GoogleFonts.cairo(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.white,
+        ),
+        bodyLarge: GoogleFonts.cairo(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          color: AppColors.white,
+        ),
+        bodyMedium: GoogleFonts.cairo(
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+          color: AppColors.lightGrey,
+        ),
+        bodySmall: GoogleFonts.cairo(
+          fontSize: 12,
+          fontWeight: FontWeight.normal,
+          color: AppColors.grey,
+        ),
+      ),
+      
+      // شريط التطبيق
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: GoogleFonts.cairo(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: AppColors.white,
+        ),
+      ),
+      
+      // الأزرار
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryLight,
+          foregroundColor: AppColors.black,
+          textStyle: GoogleFonts.cairo(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 12,
+          ),
+        ),
+      ),
+      
+      // حقول الإدخال
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF2A2A2A),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: AppColors.primaryLight,
+            width: 2,
+          ),
+        ),
+        hintStyle: GoogleFonts.cairo(
+          color: AppColors.grey,
+        ),
+      ),
+      
+      // البطاقات
+      cardTheme: const CardTheme(
+        color: Color(0xFF1E1E1E),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
+      ),
+      
+      // اتجاه النص
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+    );
     );
   }
   
