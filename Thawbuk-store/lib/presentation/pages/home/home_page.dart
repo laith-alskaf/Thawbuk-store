@@ -104,7 +104,7 @@ class _HomePageState extends State<HomePage> {
                     const PopupMenuItem(
                       value: 'profile',
                       child: ListTile(
-                        leading: Icon(Icons.person),
+                        leading: Icon(Icons.account_circle), // أيقونة حساب أوضح
                         title: Text('الملف الشخصي'),
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                     const PopupMenuItem(
                       value: 'settings',
                       child: ListTile(
-                        leading: Icon(Icons.settings),
+                        leading: Icon(Icons.tune), // أيقونة إعدادات أوضح
                         title: Text('الإعدادات'),
                         contentPadding: EdgeInsets.zero,
                       ),
