@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                     const PopupMenuItem(
                       value: 'orders',
                       child: ListTile(
-                        leading: Icon(Icons.receipt),
+                        leading: Icon(Icons.list_alt), // أيقونة قائمة أوضح للطلبات
                         title: Text('طلباتي'),
                         contentPadding: EdgeInsets.zero,
                       ),
