@@ -84,7 +84,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   @override
   Future<void> cancelOrder(String id) async {
     try {
-      await httpClient.delete('/user/order/$id');
+      await httpClient.deleteVoid('/user/order/$id');
     } catch (e) {
       throw ServerException('Failed to cancel order: ${e.toString()}');
     }
