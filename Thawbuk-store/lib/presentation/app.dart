@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import '../core/di/dependency_injection.dart';
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/product/product_bloc.dart';
