@@ -128,7 +128,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<void> deleteProduct(String id) async {
     try {
-      await httpClient.delete('/user/product/$id');
+      await httpClient.deleteVoid('/user/product/$id');
     } catch (e) {
       throw ServerException('Failed to delete product: ${e.toString()}');
     }
