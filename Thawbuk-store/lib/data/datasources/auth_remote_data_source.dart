@@ -23,7 +23,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'password': password,
       });
       
-      return UserModel.fromJson(response);
+      // حفظ التوكن إذا كان موجوداً في الاستجابة
+      if (response['token'] != null) {
+        await httpClient.sharedPreferences.setString(
+          'auth_token', 
+          response['token']
+        );
+      }
+      
+      return UserModel.fromJson(response['user'] ?? response);
     } catch (e) {
       throw ServerException('Login failed: ${e.toString()}');
     }
@@ -33,7 +41,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> register(Map<String, dynamic> userData) async {
     try {
       final response = await httpClient.post('/auth/register', body: userData);
-      return UserModel.fromJson(response);
+      
+      // حفظ التوكن إذا كان موجوداً في الاستجابة  
+      if (response['token'] != null) {
+        await httpClient.sharedPreferences.setString(
+          'auth_token',
+          response['token']
+        );
+      }
+      
+      return UserModel.fromJson(response['user'] ?? response);
     } catch (e) {
       throw ServerException('Registration failed: ${e.toString()}');
     }
