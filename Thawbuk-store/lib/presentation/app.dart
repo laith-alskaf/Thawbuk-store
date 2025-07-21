@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import '../core/di/dependency_injection.dart';
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/product/product_bloc.dart';
@@ -45,13 +45,22 @@ class App extends StatelessWidget {
               Locale('ar', 'SA'),
               Locale('en', 'US'),
             ],
+            
             // Localizations delegates
             localizationsDelegates: const [
-              DefaultMaterialLocalizations.delegate,
-              DefaultWidgetsLocalizations.delegate,
-              DefaultCupertinoLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
             ],
-
+            
+            // إتجاه النص من اليمين لليسار للعربية
+            builder: (context, child) {
+              return Directionality(
+                textDirection: TextDirection.rtl,
+                child: child!,
+              );
+            },
+            
             // التصميم
             theme: themeState.themeData,
           );
