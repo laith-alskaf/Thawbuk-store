@@ -262,7 +262,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'تأكيد كلمة المرور',
                     hint: 'أعد إدخال كلمة المرور',
                     obscureText: _isConfirmPasswordHidden,
-                    prefixIcon: Icons.lock_outlined,
+                    prefixIcon: Icons.key, // أيقونة مفتاح أوضح
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isConfirmPasswordHidden ? Icons.visibility : Icons.visibility_off,
