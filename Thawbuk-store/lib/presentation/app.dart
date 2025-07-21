@@ -53,6 +53,14 @@ class App extends StatelessWidget {
               GlobalCupertinoLocalizations.delegate,
             ],
             
+            // إتجاه النص من اليمين لليسار للعربية
+            builder: (context, child) {
+              return Directionality(
+                textDirection: TextDirection.rtl,
+                child: child!,
+              );
+            },
+            
             // التصميم
             theme: themeState.themeData,
           );
