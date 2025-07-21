@@ -44,6 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
         title: const Text('إنشاء حساب جديد'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
