@@ -84,7 +84,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   @override
   Future<void> clearCart() async {
     try {
-      await httpClient.delete('/user/cart/clear');
+      await httpClient.deleteVoid('/user/cart/clear');
     } catch (e) {
       throw ServerException('Failed to clear cart: ${e.toString()}');
     }
