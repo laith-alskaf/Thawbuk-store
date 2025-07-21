@@ -93,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: _nameController,
                     label: 'الاسم الكامل',
                     hint: 'أدخل اسمك الكامل',
-                    prefixIcon: Icons.person_outlined,
+                    prefixIcon: Icons.account_circle, // أيقونة شخص أوضح
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء إدخال الاسم';
