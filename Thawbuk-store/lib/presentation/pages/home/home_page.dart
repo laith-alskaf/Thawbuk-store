@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                       const PopupMenuItem(
                         value: 'admin',
                         child: ListTile(
-                          leading: Icon(Icons.admin_panel_settings),
+                          leading: Icon(Icons.dashboard), // أيقونة لوحة تحكم أوضح
                           title: Text('لوحة الإدارة'),
                           contentPadding: EdgeInsets.zero,
                         ),
