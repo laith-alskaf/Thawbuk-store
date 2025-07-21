@@ -64,13 +64,17 @@ class HttpClient {
     }
   }
 
-  /// طلب DELETE
-  Future<Map<String, dynamic>> delete(String endpoint) async {
+  /// طلب DELETE (للحالات التي لا تحتاج رد)
+  Future<void> deleteVoid(String endpoint) async {
     try {
       final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
       final response = await http.delete(url, headers: _headers);
       
-      return _handleResponse(response);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return;
+      } else {
+        throw ServerException('Delete failed with status: ${response.statusCode}');
+      }
     } catch (e) {
       throw ServerException('DELETE request failed: ${e.toString()}');
     }
