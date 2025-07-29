@@ -1,6 +1,8 @@
 export interface CreateCategoryDTO {
     name: string,
+    nameAr: string,
     description: string,
+    descriptionAr: string,
     createdBy: string,
     image?: string
 }
@@ -14,14 +16,14 @@ export interface UpdateCategoryDTO {
 export interface CategoryInfoDTO {
     _id: string,
     name: string,
-    image: string
+    nameAr: string,
+    image: string,
     description: string | null,
+    descriptionAr: string | null,
+    productsCount?: number,
 }
 
 
 export interface DeleteCategoryDTO {
     categoryId: string
 }
-
-
-

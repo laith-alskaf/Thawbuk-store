@@ -3,6 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../bloc/product/product_bloc.dart';
+import '../../bloc/category/category_bloc.dart';
+import '../../bloc/category/category_event.dart';
+import '../../bloc/category/category_state.dart';
+import '../../../domain/entities/category_entity.dart';
 import '../../widgets/shared/custom_card.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../widgets/shared/error_widget.dart';
@@ -22,7 +26,8 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<ProductBloc>().add(GetProductsEvent());
+    context.read<ProductBloc>().add(GetMyProductsEvent());
+    context.read<CategoryBloc>().add(GetCategoriesEvent());
   }
 
   @override
@@ -39,7 +44,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          context.read<ProductBloc>().add(GetProductsEvent());
+          context.read<ProductBloc>().add(GetMyProductsEvent());
         },
         child: BlocBuilder<ProductBloc, ProductState>(
           builder: (context, state) {
@@ -51,7 +56,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
               return CustomErrorWidget(
                 message: state.message,
                 onRetry: () {
-                  context.read<ProductBloc>().add(GetProductsEvent());
+                  context.read<ProductBloc>().add(GetMyProductsEvent());
                 },
               );
             }
@@ -112,17 +117,33 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
   }
 
   Widget _buildProductsList(List<ProductEntity> products) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        final product = products[index];
-        return _buildProductCard(product);
+    return BlocBuilder<CategoryBloc, CategoryState>(
+      builder: (context, categoryState) {
+        if (categoryState is CategoriesLoaded) {
+          return ListView.builder(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              final category = categoryState.categories.firstWhere(
+                (c) => c.id == product.categoryId,
+                orElse: () =>  CategoryEntity(
+                  id: '',
+                  name: '',
+                  nameAr: '',
+                  createdAt: DateTime.now(),
+                ),
+              );
+              return _buildProductCard(product, category);
+            },
+          );
+        }
+        return const LoadingWidget();
       },
     );
   }
 
-  Widget _buildProductCard(ProductEntity product) {
+  Widget _buildProductCard(ProductEntity product, CategoryEntity category) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: CustomCard(
@@ -178,7 +199,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
                       const SizedBox(height: 4),
                       
                       Text(
-                        product.category,
+                        category.displayName,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.grey,
                         ),
@@ -226,7 +247,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
                       const SizedBox(height: 4),
                       
                       Text(
-                        'الكمية: ${product.quantity}',
+                        'الكمية: ${product.stock}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -280,12 +301,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
   }
 
   void _editProduct(ProductEntity product) {
-    // TODO: تنفيذ تعديل المنتج
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('سيتم إضافة تعديل المنتجات قريباً'),
-      ),
-    );
+    context.go('/admin/add-product', extra: product);
   }
 
   void _showDeleteConfirmation(ProductEntity product) {

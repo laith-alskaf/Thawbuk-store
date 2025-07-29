@@ -9,10 +9,12 @@ part of 'user_model.dart';
 UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       id: json['id'] as String,
       email: json['email'] as String,
-      name: json['name'] as String,
+      // name: json['name'] as String,
+      name: 'Laith',
       phone: json['phone'] as String?,
       role: $enumDecode(_$UserRoleEnumMap, json['role']),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      // createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.parse('1969-07-20 20:18:04Z'),
       lastLoginAt: json['lastLoginAt'] == null
           ? null
           : DateTime.parse(json['lastLoginAt'] as String),
@@ -37,7 +39,7 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
 const _$UserRoleEnumMap = {
   UserRole.customer: 'customer',
   UserRole.admin: 'admin',
-  UserRole.owner: 'owner',
+  UserRole.owner: 'superAdmin',
 };
 
 CompanyModel _$CompanyModelFromJson(Map<String, dynamic> json) => CompanyModel(

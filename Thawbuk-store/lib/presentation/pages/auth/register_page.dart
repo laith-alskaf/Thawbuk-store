@@ -26,6 +26,8 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isConfirmPasswordHidden = true;
   String _selectedGender = 'male';
   String _selectedRole = 'customer';
+  final _companyNameController = TextEditingController();
+  final _companyCityController = TextEditingController();
 
   @override
   void dispose() {
@@ -49,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            context.go('/home');
+            context.go('/verify-email/${_emailController.text.trim()}');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -224,6 +226,35 @@ class _RegisterPageState extends State<RegisterPage> {
                     ],
                   ),
                   
+                  if (_selectedRole == 'admin') ...[
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _companyNameController,
+                      label: 'اسم المتجر',
+                      hint: 'أدخل اسم المتجر',
+                      prefixIcon: Icons.store,
+                      validator: (value) {
+                        if (_selectedRole == 'admin' && (value == null || value.isEmpty)) {
+                          return 'الرجاء إدخال اسم المتجر';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _companyCityController,
+                      label: 'مدينة المتجر',
+                      hint: 'أدخل مدينة المتجر',
+                      prefixIcon: Icons.location_city,
+                      validator: (value) {
+                        if (_selectedRole == 'admin' && (value == null || value.isEmpty)) {
+                          return 'الرجاء إدخال مدينة المتجر';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+
                   const SizedBox(height: 16),
                   
                   // Password Field
@@ -341,6 +372,15 @@ class _RegisterPageState extends State<RegisterPage> {
         'gender': _selectedGender,
         'role': _selectedRole,
       };
+
+      if (_selectedRole == 'admin') {
+        userData['companyDetails'] = {
+          'companyName': _companyNameController.text.trim(),
+          'companyAddress': {
+            'city': _companyCityController.text.trim(),
+          },
+        };
+      }
 
       context.read<AuthBloc>().add(
         RegisterEvent(userData: userData),

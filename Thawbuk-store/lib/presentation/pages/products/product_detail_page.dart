@@ -108,6 +108,14 @@ class _ProductDetailPageState extends State<ProductDetailPage>
           return const SizedBox.shrink();
         },
       ),
+      bottomNavigationBar: BlocBuilder<ProductBloc, ProductState>(
+        builder: (context, state) {
+          if (state is ProductLoaded) {
+            return _buildBottomBar(state.product);
+          }
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
@@ -321,9 +329,9 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (product.reviewsCount > 0)
+                  if ((product.reviewsCount ?? 0) > 0)
                     Text(
-                      '${product.reviewsCount} تقييم',
+                      '${product.reviewsCount!} تقييم',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.grey,
                       ),
@@ -469,13 +477,13 @@ class _ProductDetailPageState extends State<ProductDetailPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Size Selection
-          if (product.sizes.isNotEmpty) ...[
+          if (product.sizes?.isNotEmpty == true) ...[
             _buildSizeSelection(product),
             const SizedBox(height: 20),
           ],
           
           // Color Selection
-          if (product.colors.isNotEmpty) ...[
+          if (product.colors?.isNotEmpty == true) ...[
             _buildColorSelection(product),
             const SizedBox(height: 20),
           ],
@@ -501,7 +509,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: product.sizes.map((size) {
+          children: product.sizes!.map((size) {
             final isSelected = size == _selectedSize;
             
             return GestureDetector(
@@ -556,7 +564,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
         Wrap(
           spacing: 12,
           runSpacing: 8,
-          children: product.colors.map((color) {
+          children: product.colors!.map((color) {
             final isSelected = color == _selectedColor;
             
             return GestureDetector(
@@ -650,7 +658,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                     ),
                   ),
                   IconButton(
-                    onPressed: _quantity < product.quantity ? () {
+                    onPressed: _quantity < product.stock ? () {
                       setState(() {
                         _quantity++;
                       });
@@ -663,7 +671,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
             ),
             const SizedBox(width: 16),
             Text(
-              'متوفر: ${product.quantity} قطعة',
+              'متوفر: ${product.stock} قطعة',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: AppColors.grey,
               ),

@@ -6,6 +6,7 @@ import '../bloc/auth/auth_bloc.dart';
 import '../pages/splash/splash_page.dart';
 import '../pages/auth/login_page.dart';
 import '../pages/auth/register_page.dart';
+import '../pages/auth/verify_email_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/products/products_page.dart';
 import '../pages/products/product_detail_page.dart';
@@ -42,6 +43,14 @@ class AppRouter {
           name: 'register',
           builder: (context, state) => const RegisterPage(),
         ),
+        GoRoute(
+          path: '/verify-email/:email',
+          name: 'verify-email',
+          builder: (context, state) {
+            final email = state.pathParameters['email']!;
+            return VerifyEmailPage(email: email);
+          },
+        ),
 
         // Main App Routes
         GoRoute(
@@ -49,12 +58,15 @@ class AppRouter {
           name: 'home',
           builder: (context, state) => const HomePage(),
         ),
-        
+
         // Products
         GoRoute(
           path: '/products',
           name: 'products',
-          builder: (context, state) => const ProductsPage(),
+          builder: (context, state) {
+            final category = state.uri.queryParameters['category'];
+            return ProductsPage(category: category);
+          },
         ),
         GoRoute(
           path: '/product/:id',
@@ -110,37 +122,72 @@ class AppRouter {
           builder: (context, state) => const AdminProductsPage(),
         ),
       ],
-      
+
       // Redirect logic
       redirect: (context, state) {
         final authBloc = context.read<AuthBloc>();
         final authState = authBloc.state;
-        
-        final isGoingToLogin = state.name == '/login';
-        final isGoingToRegister = state.name == '/register';
-        final isGoingToSplash = state.name == '/splash';
-        
+
+        final isGoingToLogin = state.matchedLocation == '/login';
+        final isGoingToRegister = state.matchedLocation == '/register';
+        final isGoingToSplash = state.matchedLocation == '/splash';
+        final isGoingHome = state.matchedLocation == '/home';
+
         // If on splash, let it handle the navigation
         if (isGoingToSplash) return null;
-        
+
+        if (authState is AuthGuest) {
+          final protectedRoutes = ['/cart', '/orders', '/profile', '/admin'];
+          if (protectedRoutes.any((route) => state.matchedLocation.startsWith(route))) {
+            // Show a dialog and redirect to login
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('تسجيل الدخول مطلوب'),
+                  content: const Text('الرجاء تسجيل الدخول أو إنشاء حساب جديد للمتابعة.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        context.go('/login');
+                      },
+                      child: const Text('تسجيل الدخول'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        context.go('/register');
+                      },
+                      child: const Text('إنشاء حساب'),
+                    ),
+                  ],
+                ),
+              );
+            });
+            return '/home'; // Stay on the current page while the dialog is shown
+          }
+          return null;
+        }
+
         if (authState is AuthUnauthenticated) {
           if (isGoingToLogin || isGoingToRegister) return null;
           return '/login';
         }
-        
+
         if (authState is AuthAuthenticated) {
           if (isGoingToLogin || isGoingToRegister) return '/home';
-          
+
           // Admin route protection
-          final isGoingToAdmin = state.path!.startsWith('/admin');
+          final isGoingToAdmin = state.matchedLocation.startsWith('/admin');
           if (isGoingToAdmin && !authState.user.isOwner) {
             return '/home';
           }
         }
-        
+
         return null;
       },
-      
+
       // Error handling
       errorBuilder: (context, state) => Scaffold(
         body: Center(

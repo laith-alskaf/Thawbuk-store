@@ -24,11 +24,12 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         return (response['data'] as List)
             .map((json) => OrderModel.fromJson(json as Map<String, dynamic>))
             .toList();
-      } else if (response is List) {
-        return response
-            .map((json) => OrderModel.fromJson(json as Map<String, dynamic>))
-            .toList();
       }
+      // else if (response is List) {
+      //   return response
+      //       .map((json) => OrderModel.fromJson(json as Map<String, dynamic>))
+      //       .toList();
+      // }
       
       throw ServerException('Invalid response format for orders');
     } catch (e) {

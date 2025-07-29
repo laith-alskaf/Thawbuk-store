@@ -5,6 +5,7 @@ import '../../../domain/entities/user_entity.dart';
 import '../../../domain/usecases/auth/login_usecase.dart';
 import '../../../domain/usecases/auth/register_usecase.dart';
 import '../../../domain/usecases/auth/logout_usecase.dart';
+import '../../../domain/usecases/auth/verify_email_usecase.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
@@ -45,6 +46,18 @@ class RegisterEvent extends AuthEvent {
 
 class LogoutEvent extends AuthEvent {}
 
+class VerifyEmailEvent extends AuthEvent {
+  final String email;
+  final String code;
+
+  const VerifyEmailEvent(this.email, this.code);
+
+  @override
+  List<Object> get props => [email, code];
+}
+
+class ContinueAsGuestEvent extends AuthEvent {}
+
 // States
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -68,6 +81,10 @@ class AuthAuthenticated extends AuthState {
 
 class AuthUnauthenticated extends AuthState {}
 
+class AuthGuest extends AuthState {}
+
+class AuthVerified extends AuthState {}
+
 class AuthError extends AuthState {
   final String message;
 
@@ -83,18 +100,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUseCase registerUseCase;
   final LogoutUseCase logoutUseCase;
   final AuthRepository authRepository;
+  final VerifyEmailUseCase verifyEmailUseCase;
 
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
     required this.logoutUseCase,
     required this.authRepository,
+    required this.verifyEmailUseCase,
   }) : super(AuthInitial()) {
     
     on<CheckAuthStatusEvent>(_onCheckAuthStatus);
     on<LoginEvent>(_onLogin);
     on<RegisterEvent>(_onRegister);
     on<LogoutEvent>(_onLogout);
+    on<VerifyEmailEvent>(_onVerifyEmail);
+    on<ContinueAsGuestEvent>(_onContinueAsGuest);
 
     // Check auth status on startup
     add(CheckAuthStatusEvent());
@@ -181,5 +202,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(AuthError('حدث خطأ أثناء تسجيل الخروج')),
       (_) => emit(AuthUnauthenticated()),
     );
+  }
+
+  Future<void> _onVerifyEmail(
+    VerifyEmailEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+
+    final result = await verifyEmailUseCase(VerifyEmailParams(
+      email: event.email,
+      code: event.code,
+    ));
+
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء التحقق من البريد الإلكتروني';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(AuthError(message));
+      },
+      (_) => emit(AuthVerified()),
+    );
+  }
+
+  Future<void> _onContinueAsGuest(
+    ContinueAsGuestEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthGuest());
   }
 }

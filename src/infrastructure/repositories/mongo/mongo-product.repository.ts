@@ -33,6 +33,62 @@ export class MongoProductRepository implements ProductRepository {
         return await ProductModel.find({ categoryId: categoryId }).exec();
     }
 
+    async filter(params: any): Promise<IProduct[]> {
+        const query: any = {};
+
+        if (params.category) {
+            query.categoryId = params.category;
+        }
+
+        if (params.searchQuery) {
+            query.$or = [
+                { name: { $regex: params.searchQuery, $options: 'i' } },
+                { description: { $regex: params.searchQuery, $options: 'i' } },
+            ];
+        }
+
+        if (params.sizes && params.sizes.length > 0) {
+            query.sizes = { $in: params.sizes };
+        }
+
+        if (params.colors && params.colors.length > 0) {
+            query.colors = { $in: params.colors };
+        }
+
+        if (params.minPrice || params.maxPrice) {
+            query.price = {};
+            if (params.minPrice) {
+                query.price.$gte = params.minPrice;
+            }
+            if (params.maxPrice) {
+                query.price.$lte = params.maxPrice;
+            }
+        }
+
+        let sort: any = {};
+        if (params.sortBy) {
+            switch (params.sortBy) {
+                case 'newest':
+                    sort.createdAt = -1;
+                    break;
+                case 'oldest':
+                    sort.createdAt = 1;
+                    break;
+                case 'priceAsc':
+                    sort.price = 1;
+                    break;
+                case 'priceDesc':
+                    sort.price = -1;
+                    break;
+                case 'rating':
+                    sort.rating = -1;
+                    break;
+            }
+        }
+
+        return await ProductModel.find(query).sort(sort).exec();
+    }
+
 
     async findByUserId(page: number, limit: number, filter: any): Promise<{ products: IProduct[], total: number } | null> {
         const products = await ProductModel.find(filter)

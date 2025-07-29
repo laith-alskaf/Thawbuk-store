@@ -183,6 +183,20 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      context.read<AuthBloc>().add(ContinueAsGuestEvent());
+                      context.go('/home');
+                    },
+                    child: Text(
+                      'المتابعة كزائر',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.darkGrey,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 30), // مسافة في النهاية لضمان عدم التداخل مع الكيبورد
                 ],
               ),

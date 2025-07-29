@@ -333,9 +333,9 @@ class _ProductCardState extends State<ProductCard>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.product.colors.isNotEmpty)
+        if (widget.product.colors?.isNotEmpty == true)
           _buildColorIndicators(),
-        if (widget.product.sizes.isNotEmpty)
+        if (widget.product.sizes?.isNotEmpty == true)
           _buildSizeInfo(),
       ],
     );
@@ -344,7 +344,7 @@ class _ProductCardState extends State<ProductCard>
   Widget _buildColorIndicators() {
     return Row(
       children: [
-        ...widget.product.colors.take(3).map((color) => 
+        ...widget.product.colors!.take(3).map((color) => 
           Container(
             margin: const EdgeInsets.only(right: 4),
             width: 12,
@@ -359,9 +359,9 @@ class _ProductCardState extends State<ProductCard>
             ),
           ),
         ),
-        if (widget.product.colors.length > 3)
+        if (widget.product.colors!.length > 3)
           Text(
-            '+${widget.product.colors.length - 3}',
+            '+${widget.product.colors!.length - 3}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.grey,
             ),
@@ -372,7 +372,7 @@ class _ProductCardState extends State<ProductCard>
 
   Widget _buildSizeInfo() {
     return Text(
-      'الأحجام: ${widget.product.sizes.take(3).join(", ")}${widget.product.sizes.length > 3 ? "..." : ""}',
+      'الأحجام: ${widget.product.sizes!.take(3).join(", ")}${widget.product.sizes!.length > 3 ? "..." : ""}',
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
         color: AppColors.grey,
       ),
@@ -400,9 +400,9 @@ class _ProductCardState extends State<ProductCard>
             fontWeight: FontWeight.bold,
           ),
         ),
-        if (widget.product.reviewsCount > 0)
+        if ((widget.product.reviewsCount ?? 0) > 0)
           Text(
-            '${widget.product.reviewsCount} تقييم',
+            '${widget.product.reviewsCount!} تقييم',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.grey,
             ),

@@ -6,7 +6,9 @@ export interface IAgeRange {
 export interface IProduct {
   _id: string;
   name: string;
+  nameAr: string;
   description: string;
+  descriptionAr: string;
   price: number;
   categoryId: string;
   createdBy: string;
@@ -16,9 +18,10 @@ export interface IProduct {
   stock: number;
   brand?: string;
   ageRange?: IAgeRange;
+  rating?: number;
+  reviewsCount?: number;
   createdAt: Date;
   updatedAt: Date;
-
 }
 
 export class ProductMapper {
@@ -35,6 +38,10 @@ export class ProductMapper {
       colors: product.colors,
       brand: product.brand,
       ageRange: product.ageRange,
+      nameAr: product.nameAr,
+      descriptionAr: product.descriptionAr,
+      rating: product.rating,
+      reviewsCount: product.reviewsCount,
     };
   }
 }

@@ -4,6 +4,6 @@ export * from './delete-product.usecase';
 export * from './get-product-by-id.usecase';
 export * from './get-product-by-user-id-usecase';
 export * from './get-products-by-category-id.usecase';
+export * from './get-filtered-products.use-case';
 export * from './search-products.usecase';
 export * from './update-product.usecase';
-

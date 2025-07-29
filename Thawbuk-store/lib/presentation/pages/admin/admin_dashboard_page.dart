@@ -451,7 +451,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                 style: const TextStyle(color: AppColors.primary),
                               ),
                               Text(
-                                'الكمية: ${product.quantity}',
+                                'الكمية: ${product.stock}',
                                 style: const TextStyle(
                                   color: AppColors.grey,
                                   fontSize: 12,

@@ -44,8 +44,7 @@ class _ProductsPageState extends State<ProductsPage>
   bool _inStockOnly = false;
   
   String _searchQuery = '';
-  List<ProductEntity> _filteredProducts = [];
-  List<ProductEntity> _allProducts = [];
+  List<ProductEntity> _products = [];
 
   @override
   void initState() {
@@ -63,6 +62,7 @@ class _ProductsPageState extends State<ProductsPage>
       curve: Curves.easeInOut,
     ));
     
+    print('ProductsPage initState - Category: ${widget.category}');
     _loadProducts();
     _animationController.forward();
   }
@@ -75,10 +75,28 @@ class _ProductsPageState extends State<ProductsPage>
   }
 
   void _loadProducts() {
-    if (widget.category != null) {
-      context.read<ProductBloc>().add(GetProductsByCategoryEvent(widget.category!));
+    print('Loading products - Category: ${widget.category}, Search: $_searchQuery, HasFilters: ${_hasActiveFilters()}');
+    
+    if (widget.category != null && _searchQuery.isEmpty && !_hasActiveFilters()) {
+      // If we have a specific category and no search/filters, use category-specific endpoint
+      print('Using GetProductsByCategoryEvent for category: ${widget.category}');
+      context.read<ProductBloc>().add(
+            GetProductsByCategoryEvent(widget.category!),
+          );
     } else {
-      context.read<ProductBloc>().add(GetProductsEvent());
+      // Otherwise use filtered products endpoint
+      print('Using GetFilteredProductsEvent');
+      context.read<ProductBloc>().add(
+            GetFilteredProductsEvent(
+              category: widget.category,
+              searchQuery: _searchQuery,
+              sizes: _selectedSizes,
+              colors: _selectedColors,
+              minPrice: _priceRange.start,
+              maxPrice: _priceRange.end,
+              sortBy: _sortType.toString().split('.').last,
+            ),
+          );
     }
   }
 
@@ -252,8 +270,7 @@ class _ProductsPageState extends State<ProductsPage>
         listener: (context, state) {
           if (state is ProductsLoaded) {
             setState(() {
-              _allProducts = state.products;
-              _applyFiltersAndSort();
+              _products = state.products;
             });
           }
         },
@@ -267,10 +284,16 @@ class _ProductsPageState extends State<ProductsPage>
               message: state.message,
               onRetry: _loadProducts,
             );
-          } else if (state is ProductsLoaded || _filteredProducts.isNotEmpty) {
-            return _buildProductsList();
+          } else if (state is ProductsLoaded) {
+            if (state.products.isEmpty) {
+              return const EmptyWidget(
+                message: 'لم يتم العثور على منتجات تطابق البحث',
+                icon: Icons.search_off,
+              );
+            }
+            return _buildProductsList(state.products);
           }
-          
+
           return const EmptyWidget(
             message: 'لا توجد منتجات',
             icon: Icons.inventory_2_outlined,
@@ -280,23 +303,16 @@ class _ProductsPageState extends State<ProductsPage>
     );
   }
 
-  Widget _buildProductsList() {
-    if (_filteredProducts.isEmpty) {
-      return const EmptyWidget(
-        message: 'لم يتم العثور على منتجات تطابق البحث',
-        icon: Icons.search_off,
-      );
-    }
-
+  Widget _buildProductsList(List<ProductEntity> products) {
     return RefreshIndicator(
       onRefresh: () async => _loadProducts(),
       child: _viewMode == ViewMode.grid
-          ? _buildGridView()
-          : _buildListView(),
+          ? _buildGridView(products)
+          : _buildListView(products),
     );
   }
 
-  Widget _buildGridView() {
+  Widget _buildGridView(List<ProductEntity> products) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -305,35 +321,35 @@ class _ProductsPageState extends State<ProductsPage>
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
-      itemCount: _filteredProducts.length,
+      itemCount: products.length,
       itemBuilder: (context, index) {
         return Hero(
-          tag: 'product-${_filteredProducts[index].id}',
+          tag: 'product-${products[index].id}',
           child: ProductCard(
-            product: _filteredProducts[index],
-            onTap: () => _navigateToProductDetail(_filteredProducts[index]),
-            onAddToCart: () => _addToCart(_filteredProducts[index]),
-            onToggleWishlist: () => _toggleWishlist(_filteredProducts[index]),
+            product: products[index],
+            onTap: () => _navigateToProductDetail(products[index]),
+            onAddToCart: () => _addToCart(products[index]),
+            onToggleWishlist: () => _toggleWishlist(products[index]),
           ),
         );
       },
     );
   }
 
-  Widget _buildListView() {
+  Widget _buildListView(List<ProductEntity> products) {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
-      itemCount: _filteredProducts.length,
+      itemCount: products.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         return Hero(
-          tag: 'product-${_filteredProducts[index].id}',
+          tag: 'product-${products[index].id}',
           child: ProductCard(
-            product: _filteredProducts[index],
+            product: products[index],
             isListView: true,
-            onTap: () => _navigateToProductDetail(_filteredProducts[index]),
-            onAddToCart: () => _addToCart(_filteredProducts[index]),
-            onToggleWishlist: () => _toggleWishlist(_filteredProducts[index]),
+            onTap: () => _navigateToProductDetail(products[index]),
+            onAddToCart: () => _addToCart(products[index]),
+            onToggleWishlist: () => _toggleWishlist(products[index]),
           ),
         );
       },
@@ -361,11 +377,11 @@ class _ProductsPageState extends State<ProductsPage>
     setState(() {
       _searchQuery = query;
     });
-    
+
     // Debounce search
     Future.delayed(const Duration(milliseconds: 500), () {
       if (_searchQuery == query) {
-        _applyFiltersAndSort();
+        _loadProducts();
       }
     });
   }
@@ -375,71 +391,16 @@ class _ProductsPageState extends State<ProductsPage>
     setState(() {
       _searchQuery = '';
     });
-    _applyFiltersAndSort();
-  }
-
-  void _applyFiltersAndSort() {
-    setState(() {
-      _filteredProducts = _allProducts.where((product) {
-        // Search filter
-        if (_searchQuery.isNotEmpty) {
-          final searchLower = _searchQuery.toLowerCase();
-          if (!product.displayName.toLowerCase().contains(searchLower) &&
-              !product.displayDescription.toLowerCase().contains(searchLower)) {
-            return false;
-          }
-        }
-
-        // Size filter
-        if (_selectedSizes.isNotEmpty) {
-          final hasMatchingSize = product.sizes.any((size) => 
-              _selectedSizes.contains(size));
-          if (!hasMatchingSize) return false;
-        }
-
-        // Color filter
-        if (_selectedColors.isNotEmpty) {
-          final hasMatchingColor = product.colors.any((color) => 
-              _selectedColors.contains(color));
-          if (!hasMatchingColor) return false;
-        }
-
-        // Price filter
-        if (product.price < _priceRange.start || product.price > _priceRange.end) {
-          return false;
-        }
-
-        // Stock filter
-        if (_inStockOnly && !product.isAvailable) {
-          return false;
-        }
-
-        return true;
-      }).toList();
-
-      // Apply sorting
-      _filteredProducts.sort((a, b) {
-        switch (_sortType) {
-          case SortType.newest:
-            return b.createdAt.compareTo(a.createdAt);
-          case SortType.oldest:
-            return a.createdAt.compareTo(b.createdAt);
-          case SortType.priceAsc:
-            return a.price.compareTo(b.price);
-          case SortType.priceDesc:
-            return b.price.compareTo(a.price);
-          case SortType.rating:
-            return (b.rating ?? 0).compareTo(a.rating ?? 0);
-        }
-      });
-    });
+    _loadProducts();
   }
 
   bool _hasActiveFilters() {
-    return _selectedSizes.isNotEmpty ||
+    final hasFilters = _selectedSizes.isNotEmpty ||
            _selectedColors.isNotEmpty ||
            _inStockOnly ||
            _priceRange != const RangeValues(0, 1000);
+    print('_hasActiveFilters: $hasFilters - Sizes: $_selectedSizes, Colors: $_selectedColors, InStock: $_inStockOnly, PriceRange: $_priceRange');
+    return hasFilters;
   }
 
   void _clearFilters() {
@@ -449,7 +410,7 @@ class _ProductsPageState extends State<ProductsPage>
       _priceRange = const RangeValues(0, 1000);
       _inStockOnly = false;
     });
-    _applyFiltersAndSort();
+    _loadProducts();
   }
 
   void _showFilterOptions() {
@@ -469,7 +430,7 @@ class _ProductsPageState extends State<ProductsPage>
             _priceRange = priceRange;
             _inStockOnly = inStock;
           });
-          _applyFiltersAndSort();
+          _loadProducts();
         },
       ),
     );
@@ -485,7 +446,7 @@ class _ProductsPageState extends State<ProductsPage>
           setState(() {
             _sortType = sortType;
           });
-          _applyFiltersAndSort();
+          _loadProducts();
         },
       ),
     );

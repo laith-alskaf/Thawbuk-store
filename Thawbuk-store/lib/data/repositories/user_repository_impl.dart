@@ -58,7 +58,7 @@ class UserRepositoryImpl implements UserRepository {
   Future<Either<Failure, void>> addToWishlist(String productId) async {
     if (await networkInfo.isConnected) {
       try {
-        await remoteDataSource.addToWishlist(productId);
+        await remoteDataSource.addToWishlist({productId:productId});
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));

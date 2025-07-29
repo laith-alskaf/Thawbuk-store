@@ -3,44 +3,48 @@ import 'package:equatable/equatable.dart';
 class ProductEntity extends Equatable {
   final String id;
   final String name;
-  final String nameAr;
-  final String description;
-  final String descriptionAr;
+  final String? nameAr;
+  final String? description;
+  final String? descriptionAr;
   final double price;
-  final String category;
+  final String categoryId;
+  final String? createdBy;
   final List<String> images;
-  final List<String> sizes;
-  final List<String> colors;
-  final bool inStock;
-  final int quantity;
-  final DateTime createdAt;
+  final List<String>? sizes;
+  final List<String>? colors;
+  final int stock;
+  final DateTime? createdAt;
   final DateTime? updatedAt;
   final double? rating;
-  final int reviewsCount;
+  final int? reviewsCount;
+  final String? brand;
+  final Map<String, int>? ageRange;
 
   const ProductEntity({
     required this.id,
     required this.name,
-    required this.nameAr,
-    required this.description,
-    required this.descriptionAr,
+    this.nameAr,
+    this.description,
+    this.descriptionAr,
     required this.price,
-    required this.category,
+    required this.categoryId,
+    this.createdBy,
     required this.images,
-    required this.sizes,
-    required this.colors,
-    required this.inStock,
-    required this.quantity,
-    required this.createdAt,
+    this.sizes,
+    this.colors,
+    required this.stock,
+    this.createdAt,
     this.updatedAt,
     this.rating,
-    this.reviewsCount = 0,
+    this.reviewsCount,
+    this.brand,
+    this.ageRange,
   });
 
-  String get displayName => nameAr.isNotEmpty ? nameAr : name;
-  String get displayDescription => descriptionAr.isNotEmpty ? descriptionAr : description;
+  String get displayName => nameAr?.isNotEmpty == true ? nameAr! : name;
+  String get displayDescription => descriptionAr?.isNotEmpty == true ? descriptionAr! : description ?? '';
   String get mainImage => images.isNotEmpty ? images.first : '';
-  bool get isAvailable => inStock && quantity > 0;
+  bool get isAvailable => stock > 0;
 
   @override
   List<Object?> get props => [
@@ -50,15 +54,17 @@ class ProductEntity extends Equatable {
         description,
         descriptionAr,
         price,
-        category,
+        categoryId,
+        createdBy,
         images,
         sizes,
         colors,
-        inStock,
-        quantity,
+        stock,
         createdAt,
         updatedAt,
         rating,
         reviewsCount,
+        brand,
+        ageRange,
       ];
 }

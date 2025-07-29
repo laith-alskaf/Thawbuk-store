@@ -55,11 +55,12 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
         return (response['data'] as List)
             .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
             .toList();
-      } else if (response is List) {
-        return response
-            .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
-            .toList();
       }
+      // else if (response is List) {
+      //   return response
+      //       .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
+      //       .toList();
+      // }
       
       throw ServerException('Invalid response format for wishlist');
     } catch (e) {

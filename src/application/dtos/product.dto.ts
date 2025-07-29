@@ -2,7 +2,9 @@ import { IAgeRange } from "../../domain/entity/product";
 
 export interface CreateProductDTO {
     name: string;
+    nameAr: string;
     description: string;
+    descriptionAr: string;
     price: number;
     categoryId: string;
     createdBy: string;
@@ -23,7 +25,9 @@ export interface UpdateProductDTO {
 export interface ProductInfoDTO {
     _id: string,
     name: string;
+    nameAr: string;
     description: string;
+    descriptionAr: string;
     price: number;
     categoryId: string;
     images: string[];
@@ -32,6 +36,8 @@ export interface ProductInfoDTO {
     stock: number;
     brand?: string;
     ageRange?: IAgeRange;
+    rating?: number;
+    reviewsCount?: number;
 }
 export interface PeginationProductDTO {
     limit: number | 10,
@@ -52,6 +58,3 @@ export interface GetProductsByUserIdDTO {
 export interface DeleteProductDTO {
     productId: string
 }
-
-
-

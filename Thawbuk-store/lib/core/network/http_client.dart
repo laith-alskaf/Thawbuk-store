@@ -9,7 +9,7 @@ class HttpClient {
   final SharedPreferences sharedPreferences;
   
   HttpClient(this.sharedPreferences);
-
+  static var client = http.Client();
   /// الحصول على الرؤوس الأساسية
   Map<String, String> get _headers {
     final token = sharedPreferences.getString(AppConstants.tokenKey);
@@ -21,11 +21,24 @@ class HttpClient {
   }
 
   /// طلب GET
-  Future<Map<String, dynamic>> get(String endpoint) async {
+  Future<Map<String, dynamic>> get(String endpoint,
+      {Map<String, dynamic>? queryParameters}) async {
     try {
-      final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      var url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+
+      if (queryParameters != null) {
+        // Filter out null values and convert all values to strings
+        final validQueryParameters = queryParameters.entries
+            .where((entry) => entry.value != null)
+            .map((entry) =>
+                MapEntry(entry.key, entry.value.toString()))
+            .toList();
+            
+        url = url.replace(queryParameters: Map.fromEntries(validQueryParameters));
+      }
+
       final response = await http.get(url, headers: _headers);
-      
+
       return _handleResponse(response);
     } catch (e) {
       throw ServerException('GET request failed: ${e.toString()}');
@@ -36,12 +49,14 @@ class HttpClient {
   Future<Map<String, dynamic>> post(String endpoint, {Map<String, dynamic>? body}) async {
     try {
       final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
-      final response = await http.post(
+      final response = await client.post(
         url,
         headers: _headers,
         body: body != null ? jsonEncode(body) : null,
       );
-      
+
+      print(url);
+      print(response.body);
       return _handleResponse(response);
     } catch (e) {
       throw ServerException('POST request failed: ${e.toString()}');

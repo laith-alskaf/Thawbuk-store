@@ -8,24 +8,26 @@ part of 'category_model.dart';
 
 CategoryModel _$CategoryModelFromJson(Map<String, dynamic> json) =>
     CategoryModel(
-      id: json['id'] as String,
+      id: json['_id'] as String,
       name: json['name'] as String,
-      nameAr: json['nameAr'] as String,
+      nameAr: json['nameAr'] as String?,
       description: json['description'] as String?,
       descriptionAr: json['descriptionAr'] as String?,
       image: json['image'] as String?,
-      productsCount: (json['productsCount'] as num?)?.toInt() ?? 0,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      productsCount: (json['productsCount'] as num?)?.toInt(),
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$CategoryModelToJson(CategoryModel instance) =>
     <String, dynamic>{
-      'id': instance.id,
       'name': instance.name,
       'nameAr': instance.nameAr,
       'description': instance.description,
       'descriptionAr': instance.descriptionAr,
       'image': instance.image,
       'productsCount': instance.productsCount,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'createdAt': instance.createdAt?.toIso8601String(),
+      '_id': instance.id,
     };

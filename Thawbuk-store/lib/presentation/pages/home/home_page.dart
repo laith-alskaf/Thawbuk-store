@@ -5,9 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/product/product_bloc.dart';
 import '../../bloc/cart/cart_bloc.dart';
+import '../../bloc/category/category_bloc.dart';
+import '../../bloc/category/category_event.dart';
+import '../../bloc/category/category_state.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/user_entity.dart';
 import '../../../domain/entities/product_entity.dart';
+import '../../widgets/products/product_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -22,6 +26,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     context.read<ProductBloc>().add(GetProductsEvent());
     context.read<CartBloc>().add(GetCartEvent());
+    context.read<CategoryBloc>().add(GetCategoriesEvent());
   }
 
   @override
@@ -277,13 +282,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCategoriesSection() {
-    final categories = [
-      {'title': 'رجالي', 'icon': Icons.man, 'category': 'men'},
-      {'title': 'نسائي', 'icon': Icons.woman, 'category': 'women'},
-      {'title': 'أطفال', 'icon': Icons.child_care, 'category': 'kids'},
-      {'title': 'إكسسوارات', 'icon': Icons.watch, 'category': 'accessories'},
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -296,49 +294,61 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 16),
         SizedBox(
           height: 100,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: categories.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return GestureDetector(
-                onTap: () {
-                  context.read<ProductBloc>().add(
-                    GetProductsByCategoryEvent(category['category'] as String),
-                  );
-                  context.push('/products');
-                },
-                child: Container(
-                  width: 80,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.primary.withOpacity(0.2),
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        category['icon'] as IconData,
-                        size: 32,
-                        color: AppColors.primary,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        category['title'] as String,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+          child: BlocBuilder<CategoryBloc, CategoryState>(
+            builder: (context, state) {
+              if (state is CategoryLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is CategoriesLoaded) {
+                return ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: state.categories.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final category = state.categories[index];
+                    return GestureDetector(
+                      onTap: () {
+                        context.push('/products?category=${category.id}');
+                      },
+                      child: Container(
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.primary.withOpacity(0.2),
+                          ),
                         ),
-                        textAlign: TextAlign.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.category, // Default icon
+                              size: 32,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              category.displayName,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-              );
+                    );
+                  },
+                );
+              } else if (state is CategoryError) {
+                return Center(child: Text(state.message));
+              } else {
+                return const Center(child: Text('لا توجد تصنيفات'));
+              }
             },
           ),
         ),
@@ -365,103 +375,28 @@ class _HomePageState extends State<HomePage> {
       itemCount: products.length > 4 ? 4 : products.length, // Show only 4 on home
       itemBuilder: (context, index) {
         final product = products[index];
-        return _buildProductCard(product);
+        return ProductCard(
+          product: product,
+          onTap: () => context.push('/product/${product.id}'),
+          onAddToCart: () {
+            context.read<CartBloc>().add(
+                  AddToCartEvent(
+                    productId: product.id,
+                    quantity: 1,
+                  ),
+                );
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('تم إضافة المنتج للسلة'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
+          onToggleWishlist: () {
+            // TODO: Implement wishlist functionality
+          },
+        );
       },
-    );
-  }
-
-  Widget _buildProductCard(ProductEntity product) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => context.push('/product/${product.id}'),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product Image
-            Expanded(
-              flex: 3,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.lightGrey,
-                  image: product.images.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(product.images.first),
-                          fit: BoxFit.cover,
-                          onError: (_, __) {},
-                        )
-                      : null,
-                ),
-                child: product.images.isEmpty
-                    ? const Icon(
-                        Icons.image,
-                        size: 48,
-                        color: AppColors.grey,
-                      )
-                    : null,
-              ),
-            ),
-            
-            // Product Info
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      product.displayName,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${product.price.toStringAsFixed(2)} ريال',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        
-                        IconButton(
-                          icon: const Icon(Icons.add_shopping_cart),
-                          iconSize: 20,
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          onPressed: () {
-                            context.read<CartBloc>().add(
-                              AddToCartEvent(
-                                productId: product.id,
-                                quantity: 1,
-                              ),
-                            );
-                            
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('تم إضافة المنتج للسلة'),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

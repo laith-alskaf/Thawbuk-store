@@ -14,6 +14,8 @@ const publicProductRoutes = (productController: ProductController): Router => {
 
     router.get("/search", validateSearchProduct, productController.searchProducts.bind(productController));
 
+    router.get("/filter", productController.filterProducts.bind(productController));
+
     router.get("/byCategory/:categoryId", validateGetProductByCategoryId, productController.getProductsByCategoryId.bind(productController));
 
     router.get("/:productId", productController.getSingleProduct.bind(productController));
@@ -22,4 +24,3 @@ const publicProductRoutes = (productController: ProductController): Router => {
 
 }
 export default publicProductRoutes;
-

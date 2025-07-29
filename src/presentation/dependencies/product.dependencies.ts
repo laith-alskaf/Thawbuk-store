@@ -5,6 +5,7 @@ import { ProductRepository } from '../../domain/repository/product.repository';
 import {
     GetProductByIdUseCase,
     GetProductsByCategoryIdUseCase,
+    GetFilteredProductsUseCase,
     GetProductsByUserIdUseCase,
     DeleteProductUseCase,
     CreateProductUseCase,
@@ -32,6 +33,7 @@ export const ProductDependencies = ({
     // Use Cases
     const getProductByIdUseCase = new GetProductByIdUseCase(productRepository);
     const getProductsByCategoryIdUseCase = new GetProductsByCategoryIdUseCase(productRepository);
+    const getFilteredProductsUseCase = new GetFilteredProductsUseCase(productRepository);
     const getProductsByUserIdUseCase = new GetProductsByUserIdUseCase(productRepository);
     const deleteProductUseCase = new DeleteProductUseCase(productRepository);
     const createProductUseCase = new CreateProductUseCase(productRepository, uuidGeneratorService,newProductNotification,uploudImageService);
@@ -42,6 +44,7 @@ export const ProductDependencies = ({
     const productController: ProductController = new ProductController(
         getProductByIdUseCase,
         getProductsByCategoryIdUseCase,
+        getFilteredProductsUseCase,
         getProductsByUserIdUseCase,
         deleteProductUseCase,
         createProductUseCase,

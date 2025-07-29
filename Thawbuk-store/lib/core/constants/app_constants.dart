@@ -5,7 +5,7 @@ class AppConstants {
   
   // الشبكة
   // static const String baseUrl = 'http://localhost:5000/api'; // للاختبار المحلي
-  static const String baseUrl = 'https://Thawbuk.vercel.app/api'; // للإنتاج
+  static const String baseUrl = 'https://thawbuk.vercel.app/api'; // للإنتاج
   static const int connectTimeoutMs = 30000;
   static const int receiveTimeoutMs = 30000;
   

@@ -18,8 +18,8 @@ export class CreateProductUseCase {
     ) { }
     execute = async (productDTO: Partial<CreateProductDTO>, req: Request): Promise<void> => {
         const existing = await this.productRepository.allProduct(1, 1, { name: productDTO.name });
-        if (existing) {
-            new BadRequestError('Product name already exist');
+        if (existing && existing.products.length > 0) {
+            throw new BadRequestError('Product name already exist');
         }
         const uuid = this.uuidGeneratorService.generate()
         const product = {
@@ -35,8 +35,7 @@ export class CreateProductUseCase {
         });
 
         if (!urlsImages || urlsImages.length === 0) {
-            new BadRequestError(Messages.PRODUCT.VALIDATION.PRODUCT_VALIDATION.IMAGE_URI_INVALID_EN);
-            return;
+            throw new BadRequestError(Messages.PRODUCT.VALIDATION.PRODUCT_VALIDATION.IMAGE_URI_INVALID_EN);
         }
         product.images = urlsImages;
         const newProduct: IProduct = await this.productRepository.create(product);

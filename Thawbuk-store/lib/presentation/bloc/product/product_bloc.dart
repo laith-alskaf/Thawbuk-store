@@ -7,6 +7,11 @@ import '../../../domain/usecases/product/get_products_usecase.dart';
 import '../../../domain/usecases/product/get_product_by_id_usecase.dart';
 import '../../../domain/usecases/product/search_products_usecase.dart';
 import '../../../domain/usecases/product/get_products_by_category_usecase.dart';
+import '../../../domain/usecases/product/get_filtered_products_usecase.dart';
+import '../../../domain/usecases/product/create_product_usecase.dart';
+import '../../../domain/usecases/product/update_product_usecase.dart';
+import '../../../domain/usecases/product/delete_product_usecase.dart';
+import '../../../domain/usecases/product/get_my_products_usecase.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
 
@@ -19,6 +24,8 @@ abstract class ProductEvent extends Equatable {
 }
 
 class GetProductsEvent extends ProductEvent {}
+
+class GetMyProductsEvent extends ProductEvent {}
 
 class GetProductByIdEvent extends ProductEvent {
   final String productId;
@@ -45,6 +52,37 @@ class GetProductsByCategoryEvent extends ProductEvent {
 
   @override
   List<Object?> get props => [category];
+}
+
+class GetFilteredProductsEvent extends ProductEvent {
+  final String? category;
+  final String? searchQuery;
+  final List<String>? sizes;
+  final List<String>? colors;
+  final double? minPrice;
+  final double? maxPrice;
+  final String? sortBy;
+
+  const GetFilteredProductsEvent({
+    this.category,
+    this.searchQuery,
+    this.sizes,
+    this.colors,
+    this.minPrice,
+    this.maxPrice,
+    this.sortBy,
+  });
+
+  @override
+  List<Object?> get props => [
+        category,
+        searchQuery,
+        sizes,
+        colors,
+        minPrice,
+        maxPrice,
+        sortBy,
+      ];
 }
 
 class CreateProductEvent extends ProductEvent {
@@ -211,18 +249,30 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final GetProductByIdUseCase getProductByIdUseCase;
   final SearchProductsUseCase searchProductsUseCase;
   final GetProductsByCategoryUseCase getProductsByCategoryUseCase;
+  final GetFilteredProductsUseCase getFilteredProductsUseCase;
+  final CreateProductUseCase createProductUseCase;
+  final UpdateProductUseCase updateProductUseCase;
+  final DeleteProductUseCase deleteProductUseCase;
+  final GetMyProductsUseCase getMyProductsUseCase;
 
   ProductBloc({
     required this.getProductsUseCase,
+    required this.getMyProductsUseCase,
     required this.getProductByIdUseCase,
     required this.searchProductsUseCase,
     required this.getProductsByCategoryUseCase,
+    required this.getFilteredProductsUseCase,
+    required this.createProductUseCase,
+    required this.updateProductUseCase,
+    required this.deleteProductUseCase,
   }) : super(ProductInitial()) {
     
     on<GetProductsEvent>(_onGetProducts);
+    on<GetMyProductsEvent>(_onGetMyProducts);
     on<GetProductByIdEvent>(_onGetProductById);
     on<SearchProductsEvent>(_onSearchProducts);
     on<GetProductsByCategoryEvent>(_onGetProductsByCategory);
+    on<GetFilteredProductsEvent>(_onGetFilteredProducts);
     on<CreateProductEvent>(_onCreateProduct);
     on<UpdateProductEvent>(_onUpdateProduct);
     on<DeleteProductEvent>(_onDeleteProduct);
@@ -239,6 +289,28 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     result.fold(
       (failure) {
         String message = 'حدث خطأ أثناء تحميل المنتجات';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(ProductError(message));
+      },
+      (products) => emit(ProductsLoaded(products)),
+    );
+  }
+
+  Future<void> _onGetMyProducts(
+    GetMyProductsEvent event,
+    Emitter<ProductState> emit,
+  ) async {
+    emit(ProductLoading());
+
+    final result = await getMyProductsUseCase(NoParams());
+
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء تحميل منتجاتك';
         if (failure is ServerFailure) {
           message = failure.message;
         } else if (failure is NetworkFailure) {
@@ -318,34 +390,71 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     );
   }
 
+  Future<void> _onGetFilteredProducts(
+    GetFilteredProductsEvent event,
+    Emitter<ProductState> emit,
+  ) async {
+    emit(ProductLoading());
+
+    final result = await getFilteredProductsUseCase(
+      GetFilteredProductsParams(
+        category: event.category,
+        searchQuery: event.searchQuery,
+        sizes: event.sizes,
+        colors: event.colors,
+        minPrice: event.minPrice,
+        maxPrice: event.maxPrice,
+        sortBy: event.sortBy,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء تحميل المنتجات';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(ProductError(message));
+      },
+      (products) => emit(ProductsLoaded(products)),
+    );
+  }
+
   Future<void> _onCreateProduct(
     CreateProductEvent event,
     Emitter<ProductState> emit,
   ) async {
     emit(ProductLoading());
 
-    // TODO: Implement product creation with API
-    // For now, simulate success
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Create mock product
-    final product = ProductEntity(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: event.name,
-      nameAr: event.nameAr,
-      description: event.description,
-      descriptionAr: event.descriptionAr,
-      price: event.price,
-      category: event.category,
-      images: [], // Will be populated after upload
-      sizes: event.sizes,
-      colors: event.colors,
-      inStock: true,
-      quantity: event.quantity,
-      createdAt: DateTime.now(),
+    final result = await createProductUseCase(
+      CreateProductParams(
+        name: event.name,
+        nameAr: event.nameAr,
+        description: event.description,
+        descriptionAr: event.descriptionAr,
+        price: event.price,
+        category: event.category,
+        sizes: event.sizes,
+        colors: event.colors,
+        quantity: event.quantity,
+        images: event.images,
+      ),
     );
 
-    emit(ProductCreated(product));
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء إنشاء المنتج';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(ProductError(message));
+      },
+      (product) => emit(ProductCreated(product)),
+    );
   }
 
   Future<void> _onUpdateProduct(
@@ -354,28 +463,34 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   ) async {
     emit(ProductLoading());
 
-    // TODO: Implement product update with API
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Create mock updated product
-    final product = ProductEntity(
-      id: event.productId,
-      name: event.name,
-      nameAr: event.nameAr,
-      description: event.description,
-      descriptionAr: event.descriptionAr,
-      price: event.price,
-      category: event.category,
-      images: [],
-      sizes: event.sizes,
-      colors: event.colors,
-      inStock: true,
-      quantity: event.quantity,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+    final result = await updateProductUseCase(
+      UpdateProductParams(
+        productId: event.productId,
+        name: event.name,
+        nameAr: event.nameAr,
+        description: event.description,
+        descriptionAr: event.descriptionAr,
+        price: event.price,
+        category: event.category,
+        sizes: event.sizes,
+        colors: event.colors,
+        quantity: event.quantity,
+        images: event.images,
+      ),
     );
 
-    emit(ProductUpdated(product));
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء تحديث المنتج';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(ProductError(message));
+      },
+      (product) => emit(ProductUpdated(product)),
+    );
   }
 
   Future<void> _onDeleteProduct(
@@ -384,12 +499,22 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   ) async {
     emit(ProductLoading());
 
-    // TODO: Implement product deletion with API
-    await Future.delayed(const Duration(seconds: 1));
+    final result = await deleteProductUseCase(DeleteProductParams(event.productId));
 
-    emit(ProductDeleted(event.productId));
-    
-    // Refresh products list
-    add(GetProductsEvent());
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء حذف المنتج';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(ProductError(message));
+      },
+      (_) {
+        emit(ProductDeleted(event.productId));
+        add(GetProductsEvent());
+      },
+    );
   }
 }

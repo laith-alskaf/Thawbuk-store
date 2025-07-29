@@ -5,28 +5,51 @@ part 'product_model.g.dart';
 
 @JsonSerializable()
 class ProductModel extends ProductEntity {
-  const ProductModel({
-    required super.id,
-    required super.name,
-    required super.nameAr,
-    required super.description,
-    required super.descriptionAr,
-    required super.price,
-    required super.category,
-    required super.images,
-    required super.sizes,
-    required super.colors,
-    required super.inStock,
-    required super.quantity,
-    required super.createdAt,
-    super.updatedAt,
-    super.rating,
-    super.reviewsCount,
-  });
+  @JsonKey(name: '_id')
+  final String id;
 
-  factory ProductModel.fromJson(Map<String, dynamic> json) {
-    return _$ProductModelFromJson(json);
-  }
+  const ProductModel({
+    required this.id,
+    required String name,
+    String? nameAr,
+    String? description,
+    String? descriptionAr,
+    required double price,
+    required String categoryId,
+    String? createdBy,
+    required List<String> images,
+    List<String>? sizes,
+    List<String>? colors,
+    required int stock,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    double? rating,
+    int? reviewsCount,
+    String? brand,
+    Map<String, int>? ageRange,
+  }) : super(
+          id: id,
+          name: name,
+          nameAr: nameAr,
+          description: description,
+          descriptionAr: descriptionAr,
+          price: price,
+          categoryId: categoryId,
+          createdBy: createdBy,
+          images: images,
+          sizes: sizes,
+          colors: colors,
+          stock: stock,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+          rating: rating,
+          reviewsCount: reviewsCount,
+          brand: brand,
+          ageRange: ageRange,
+        );
+
+  factory ProductModel.fromJson(Map<String, dynamic> json) =>
+      _$ProductModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProductModelToJson(this);
 
@@ -38,16 +61,18 @@ class ProductModel extends ProductEntity {
       description: description,
       descriptionAr: descriptionAr,
       price: price,
-      category: category,
+      categoryId: categoryId,
+      createdBy: createdBy,
       images: images,
       sizes: sizes,
       colors: colors,
-      inStock: inStock,
-      quantity: quantity,
+      stock: stock,
       createdAt: createdAt,
       updatedAt: updatedAt,
       rating: rating,
       reviewsCount: reviewsCount,
+      brand: brand,
+      ageRange: ageRange,
     );
   }
 }

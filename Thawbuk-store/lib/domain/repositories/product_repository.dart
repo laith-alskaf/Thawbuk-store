@@ -1,18 +1,16 @@
-import 'package:dartz/dartz.dart';
 import 'dart:io';
-
+import 'package:dartz/dartz.dart';
+import '../../../core/errors/failures.dart';
 import '../entities/product_entity.dart';
-import '../../core/errors/failures.dart';
+import '../usecases/product/get_filtered_products_usecase.dart';
 
 abstract class ProductRepository {
+  Future<Either<Failure, List<ProductEntity>>> getFilteredProducts(
+      GetFilteredProductsParams params);
   Future<Either<Failure, List<ProductEntity>>> getProducts();
-
-  Future<Either<Failure, ProductEntity>> getProductById(String id);
-
+  Future<Either<Failure, ProductEntity>> getProductById(String productId);
   Future<Either<Failure, List<ProductEntity>>> searchProducts(String query);
-
   Future<Either<Failure, List<ProductEntity>>> getProductsByCategory(String category);
-
   Future<Either<Failure, ProductEntity>> createProduct({
     required String name,
     required String nameAr,
@@ -25,9 +23,8 @@ abstract class ProductRepository {
     required int quantity,
     required List<File> images,
   });
-
   Future<Either<Failure, ProductEntity>> updateProduct({
-    required String id,
+    required String productId,
     required String name,
     required String nameAr,
     required String description,
@@ -39,6 +36,6 @@ abstract class ProductRepository {
     required int quantity,
     required List<File> images,
   });
-
-  Future<Either<Failure, void>> deleteProduct(String id);
+  Future<Either<Failure, void>> deleteProduct(String productId);
+  Future<Either<Failure, List<ProductEntity>>> getMyProducts();
 }

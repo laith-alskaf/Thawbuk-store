@@ -4,6 +4,7 @@ import { Messages, StatusCodes } from '../config/constant';
 import {
     GetProductByIdUseCase,
     GetProductsByCategoryIdUseCase,
+    GetFilteredProductsUseCase,
     GetProductsByUserIdUseCase,
     DeleteProductUseCase,
     CreateProductUseCase,
@@ -18,6 +19,7 @@ export class ProductController {
     constructor(
         private readonly getProductByIdUseCase: GetProductByIdUseCase,
         private readonly getProductsByCategoryIdUseCase: GetProductsByCategoryIdUseCase,
+        private readonly getFilteredProductsUseCase: GetFilteredProductsUseCase,
         private readonly getProductsByUserIdUseCase: GetProductsByUserIdUseCase,
         private readonly deleteProductUseCase: DeleteProductUseCase,
         private readonly createProductUseCase: CreateProductUseCase,
@@ -38,10 +40,12 @@ export class ProductController {
                 statusCode: StatusCodes.OK,
                 message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
                 body: {
-                    currentPage: peginationProductDTO.page,
-                    totalPages: Math.ceil(total / peginationProductDTO.limit),
-                    totalItems: total,
-                    products: productData,
+                    data: {
+                        currentPage: peginationProductDTO.page,
+                        totalPages: Math.ceil(total / peginationProductDTO.limit),
+                        totalItems: total,
+                        products: productData,
+                    }
                 }
             }).send();
 
@@ -101,7 +105,7 @@ export class ProductController {
                 statusCode: StatusCodes.OK,
                 message: Messages.PRODUCT.UPDATE_SUCCESS_EN,
                 body: {
-                    product: updatedProduct
+                    data: updatedProduct
                 }
             }).send();
 
@@ -119,7 +123,7 @@ export class ProductController {
                 statusCode: StatusCodes.OK,
                 message: Messages.PRODUCT.GET_SUCCESS_EN,
                 body: {
-                    product: prodcut
+                    data: prodcut
                 }
             }).send();
 
@@ -137,7 +141,44 @@ export class ProductController {
                 statusCode: StatusCodes.OK,
                 message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
                 body: {
-                    products: prodcuts
+                    data: prodcuts
+                }
+            }).send();
+
+        } catch (error: any) {
+            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_PRODUCTS_EN);
+        }
+    }
+
+    async filterProducts(req: Request, res: Response): Promise<void> {
+        try {
+            const {
+                category,
+                searchQuery,
+                sizes,
+                colors,
+                minPrice,
+                maxPrice,
+                sortBy,
+            } = req.query;
+
+            const params = {
+                category: category as string | undefined,
+                searchQuery: searchQuery as string | undefined,
+                sizes: sizes ? (sizes as string).split(',') : undefined,
+                colors: colors ? (colors as string).split(',') : undefined,
+                minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
+                maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
+                sortBy: sortBy as string | undefined,
+            };
+
+            const products = await this.getFilteredProductsUseCase.execute(params);
+            new ApplicationResponse(res, {
+                success: true,
+                statusCode: StatusCodes.OK,
+                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
+                body: {
+                    data: products
                 }
             }).send();
 
@@ -165,8 +206,10 @@ export class ProductController {
                 statusCode: StatusCodes.OK,
                 message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
                 body: {
-                    total: prodcuts.total,
-                    products: prodcuts.productData,
+                    data: {
+                        total: prodcuts.total,
+                        products: prodcuts.productData,
+                    }
                 }
             }).send();
 
@@ -194,10 +237,12 @@ export class ProductController {
                 statusCode: StatusCodes.OK,
                 message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
                 body: {
-                    currentPage: getProductsByUserIdDTO.peginationProduct.page,
-                    totalPages: Math.ceil(total / getProductsByUserIdDTO.peginationProduct.limit),
-                    totalItems: total,
-                    products: productData,
+                    data: {
+                        currentPage: getProductsByUserIdDTO.peginationProduct.page,
+                        totalPages: Math.ceil(total / getProductsByUserIdDTO.peginationProduct.limit),
+                        totalItems: total,
+                        products: productData,
+                    }
                 }
             }).send();
 

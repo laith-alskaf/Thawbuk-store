@@ -29,7 +29,7 @@ export class CategoryController {
                 success: true,
                 statusCode: StatusCodes.OK,
                 message: Messages.CATEGORY.GET_ALL_SUCCESS_EN,
-                body: { categories: category }
+                body: { data: category }
             }).send();
 
 
@@ -81,7 +81,7 @@ export class CategoryController {
                 statusCode: StatusCodes.OK,
                 message: Messages.CATEGORY.UPDATE_SUCCESS_EN,
                 body: {
-                    category: updatedCategory
+                    data: updatedCategory
                 }
             }).send();
         } catch (error: any) {
@@ -98,7 +98,7 @@ export class CategoryController {
                 statusCode: StatusCodes.OK,
                 message: Messages.CATEGORY.GET_SUCCESS_EN,
                 body: {
-                    category: category
+                    data: category
                 }
             }).send();
 

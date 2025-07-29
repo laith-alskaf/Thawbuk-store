@@ -15,4 +15,6 @@ abstract class AuthRepository {
   Future<bool> isUserLoggedIn();
 
   Future<Either<Failure, String?>> getToken();
+
+  Future<Either<Failure, void>> verifyEmail(String email, String code);
 }

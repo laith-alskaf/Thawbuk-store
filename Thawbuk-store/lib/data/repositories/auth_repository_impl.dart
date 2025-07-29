@@ -103,8 +103,22 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final token = await localDataSource.getToken();
       return Right(token);
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
+    } on CacheException {
+      return const Left(CacheFailure('Failed to get token'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> verifyEmail(String email, String code) async {
+    if (await networkInfo.isConnected) {
+      try {
+        await remoteDataSource.verifyEmail(email, code);
+        return const Right(null);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      }
+    } else {
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
 }

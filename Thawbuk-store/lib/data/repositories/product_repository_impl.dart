@@ -6,8 +6,8 @@ import 'package:thawbuk_store/domain/entities/product_entity.dart';
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
-import '../../domain/entities/product.dart';
 import '../../domain/repositories/product_repository.dart';
+import '../../domain/usecases/product/get_filtered_products_usecase.dart';
 import '../datasources/product_remote_data_source.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
@@ -18,6 +18,24 @@ class ProductRepositoryImpl implements ProductRepository {
     required this.remoteDataSource,
     required this.networkInfo,
   });
+
+  @override
+  Future<Either<Failure, List<ProductEntity>>> getFilteredProducts(
+      GetFilteredProductsParams params) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final productModels =
+            await remoteDataSource.getFilteredProducts(params);
+        final products =
+            productModels.map((model) => model.toEntity()).toList();
+        return Right(products);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      }
+    } else {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+  }
 
   @override
   Future<Either<Failure, List<ProductEntity>>> getProducts() async {
@@ -97,12 +115,23 @@ class ProductRepositoryImpl implements ProductRepository {
       required int quantity,
       required List<String> sizes}) async {
     if (await networkInfo.isConnected) {
-      // try {
-      //   final productModel = await remoteDataSource.createProduct(productData);
-      //   return Right(productModel.toEntity());
-      // } on ServerException catch (e) {
-      return Left(ServerFailure('e.message'));
-      // }
+      try {
+        final productModel = await remoteDataSource.createProduct({
+          'name': name,
+          'nameAr': nameAr,
+          'description': description,
+          'descriptionAr': descriptionAr,
+          'price': price,
+          'category': category,
+          'sizes': sizes,
+          'colors': colors,
+          'quantity': quantity,
+          'images': images,
+        });
+        return Right(productModel.toEntity());
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      }
     } else {
       return const Left(NetworkFailure('No internet connection'));
     }
@@ -114,7 +143,7 @@ class ProductRepositoryImpl implements ProductRepository {
       required List<String> colors,
       required String description,
       required String descriptionAr,
-      required String id,
+      required String productId,
       required List<File> images,
       required String name,
       required String nameAr,
@@ -122,13 +151,23 @@ class ProductRepositoryImpl implements ProductRepository {
       required int quantity,
       required List<String> sizes}) async {
     if (await networkInfo.isConnected) {
-      // try {
-      //   final productModel =
-      //       await remoteDataSource.updateProduct(id, productData);
-      //   return Right(productModel.toEntity());
-      // } on ServerException catch (e) {
-        return Left(ServerFailure('e.message'));
-      // }
+      try {
+        final productModel = await remoteDataSource.updateProduct(productId, {
+          'name': name,
+          'nameAr': nameAr,
+          'description': description,
+          'descriptionAr': descriptionAr,
+          'price': price,
+          'category': category,
+          'sizes': sizes,
+          'colors': colors,
+          'quantity': quantity,
+          'images': images,
+        });
+        return Right(productModel.toEntity());
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      }
     } else {
       return const Left(NetworkFailure('No internet connection'));
     }
@@ -140,6 +179,21 @@ class ProductRepositoryImpl implements ProductRepository {
       try {
         await remoteDataSource.deleteProduct(id);
         return const Right(null);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      }
+    } else {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ProductEntity>>> getMyProducts() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final productModels = await remoteDataSource.getMyProducts();
+        final products = productModels.map((model) => model.toEntity()).toList();
+        return Right(products);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }

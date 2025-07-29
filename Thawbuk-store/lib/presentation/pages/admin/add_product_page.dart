@@ -10,9 +10,15 @@ import '../../widgets/shared/custom_card.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../bloc/category/category_bloc.dart';
+import '../../bloc/category/category_event.dart';
+import '../../bloc/category/category_state.dart';
+import '../../../domain/entities/category_entity.dart';
+import '../../../domain/entities/product_entity.dart';
 
 class AddProductPage extends StatefulWidget {
-  const AddProductPage({Key? key}) : super(key: key);
+  final ProductEntity? product;
+  const AddProductPage({Key? key, this.product}) : super(key: key);
 
   @override
   State<AddProductPage> createState() => _AddProductPageState();
@@ -20,6 +26,7 @@ class AddProductPage extends StatefulWidget {
 
 class _AddProductPageState extends State<AddProductPage> {
   final _formKey = GlobalKey<FormState>();
+  bool get _isEditMode => widget.product != null;
   
   // Controllers
   final _nameController = TextEditingController();
@@ -36,7 +43,6 @@ class _AddProductPageState extends State<AddProductPage> {
   final List<File> _selectedImages = [];
 
   // Available options
-  final List<String> _categories = ['الثياب التقليدية', 'الثياب العصرية', 'الأحذية', 'الإكسسوارات'];
   final List<String> _sizes = ['صغير', 'متوسط', 'كبير', 'كبير جداً'];
   final List<String> _colors = ['أبيض', 'أسود', 'أزرق', 'أحمر', 'أخضر', 'بني', 'رمادي'];
 
@@ -52,10 +58,28 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    context.read<CategoryBloc>().add(GetCategoriesEvent());
+    if (_isEditMode) {
+      _nameController.text = widget.product!.name;
+      _nameArController.text = widget.product!.nameAr ?? '';
+      _descriptionController.text = widget.product!.description ?? '';
+      _descriptionArController.text = widget.product!.descriptionAr ?? '';
+      _priceController.text = widget.product!.price.toString();
+      _quantityController.text = widget.product!.stock.toString();
+      _selectedCategory = widget.product!.categoryId;
+      _selectedSizes.addAll(widget.product!.sizes ?? []);
+      _selectedColors.addAll(widget.product!.colors ?? []);
+      // Note: Images are not handled here as they are files and need to be re-picked.
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('إضافة منتج جديد'),
+        title: Text(_isEditMode ? 'تعديل المنتج' : 'إضافة منتج جديد'),
         actions: [
           TextButton(
             onPressed: _resetForm,
@@ -68,10 +92,10 @@ class _AddProductPageState extends State<AddProductPage> {
       ),
       body: BlocListener<ProductBloc, ProductState>(
         listener: (context, state) {
-          if (state is ProductCreated) {
+          if (state is ProductCreated || state is ProductUpdated) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('تم إضافة المنتج بنجاح'),
+              SnackBar(
+                content: Text(_isEditMode ? 'تم تعديل المنتج بنجاح' : 'تم إضافة المنتج بنجاح'),
                 backgroundColor: AppColors.success,
               ),
             );
@@ -265,33 +289,40 @@ class _AddProductPageState extends State<AddProductPage> {
           ),
           const SizedBox(height: 16),
           
-          DropdownButtonFormField<String>(
-            value: _selectedCategory,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: AppColors.lightGrey,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-                borderSide: BorderSide.none,
-              ),
-              hintText: 'اختر الفئة',
-            ),
-            items: _categories.map((category) {
-              return DropdownMenuItem(
-                value: category,
-                child: Text(category),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                _selectedCategory = value;
-              });
-            },
-            validator: (value) {
-              if (value == null) {
-                return 'الفئة مطلوبة';
+          BlocBuilder<CategoryBloc, CategoryState>(
+            builder: (context, state) {
+              if (state is CategoriesLoaded) {
+                return DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.lightGrey,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                      borderSide: BorderSide.none,
+                    ),
+                    hintText: 'اختر الفئة',
+                  ),
+                  items: state.categories.map((category) {
+                    return DropdownMenuItem(
+                      value: category.id,
+                      child: Text(category.displayName),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'الفئة مطلوبة';
+                    }
+                    return null;
+                  },
+                );
               }
-              return null;
+              return const Center(child: CircularProgressIndicator());
             },
           ),
         ],
@@ -445,10 +476,10 @@ class _AddProductPageState extends State<AddProductPage> {
         return Column(
           children: [
             CustomButton(
-              text: 'إضافة المنتج',
+              text: _isEditMode ? 'حفظ التعديلات' : 'إضافة المنتج',
               // isFullWidth: true,
               isLoading: state is ProductLoading,
-              onPressed: state is ProductLoading ? null : _addProduct,
+              onPressed: state is ProductLoading ? null : _submitForm,
             ),
             
             const SizedBox(height: 12),
@@ -480,7 +511,7 @@ class _AddProductPageState extends State<AddProductPage> {
     });
   }
 
-  void _addProduct() {
+  void _submitForm() {
     if (_formKey.currentState?.validate() ?? false) {
       if (_selectedSizes.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -502,20 +533,38 @@ class _AddProductPageState extends State<AddProductPage> {
         return;
       }
 
-      context.read<ProductBloc>().add(
-        CreateProductEvent(
-          name: _nameController.text.trim(),
-          nameAr: _nameArController.text.trim(),
-          description: _descriptionController.text.trim(),
-          descriptionAr: _descriptionArController.text.trim(),
-          price: double.parse(_priceController.text),
-          category: _selectedCategory!,
-          sizes: _selectedSizes,
-          colors: _selectedColors,
-          quantity: int.parse(_quantityController.text),
-          images: _selectedImages,
-        ),
-      );
+      if (_isEditMode) {
+        context.read<ProductBloc>().add(
+          UpdateProductEvent(
+            productId: widget.product!.id,
+            name: _nameController.text.trim(),
+            nameAr: _nameArController.text.trim(),
+            description: _descriptionController.text.trim(),
+            descriptionAr: _descriptionArController.text.trim(),
+            price: double.parse(_priceController.text),
+            category: _selectedCategory!,
+            sizes: _selectedSizes,
+            colors: _selectedColors,
+            quantity: int.parse(_quantityController.text),
+            images: _selectedImages,
+          ),
+        );
+      } else {
+        context.read<ProductBloc>().add(
+          CreateProductEvent(
+            name: _nameController.text.trim(),
+            nameAr: _nameArController.text.trim(),
+            description: _descriptionController.text.trim(),
+            descriptionAr: _descriptionArController.text.trim(),
+            price: double.parse(_priceController.text),
+            category: _selectedCategory!,
+            sizes: _selectedSizes,
+            colors: _selectedColors,
+            quantity: int.parse(_quantityController.text),
+            images: _selectedImages,
+          ),
+        );
+      }
     }
   }
 
