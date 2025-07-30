@@ -55,8 +55,10 @@ class HttpClient {
         body: body != null ? jsonEncode(body) : null,
       );
 
-      print(url);
-      print(response.body);
+      print('POST URL: $url');
+      print('POST Body: ${jsonEncode(body)}');
+      print('Response Status: ${response.statusCode}');
+      print('Response Body: ${response.body}');
       return _handleResponse(response);
     } catch (e) {
       throw ServerException('POST request failed: ${e.toString()}');
@@ -126,15 +128,39 @@ class HttpClient {
       sharedPreferences.remove(AppConstants.tokenKey);
       throw UnauthorizedException('Token expired or invalid');
     } else if (statusCode >= 400 && statusCode < 500) {
-      final errorBody = response.body.isNotEmpty 
-          ? jsonDecode(response.body)
-          : {'message': 'Client error occurred'};
-      throw ClientException(errorBody['message'] ?? 'Client error');
+      try {
+        final errorBody = response.body.isNotEmpty 
+            ? jsonDecode(response.body)
+            : {'message': 'Client error occurred'};
+        
+        // استخراج الرسالة من البنية المختلفة للاستجابة
+        String errorMessage = 'Client error';
+        if (errorBody is Map<String, dynamic>) {
+          errorMessage = errorBody['message'] ?? 
+                        errorBody['error'] ?? 
+                        errorBody['details'] ?? 
+                        'Client error occurred';
+        }
+        throw ClientException(errorMessage);
+      } catch (e) {
+        throw ClientException('خطأ في البيانات المرسلة');
+      }
     } else if (statusCode >= 500) {
-      final errorBody = response.body.isNotEmpty 
-          ? jsonDecode(response.body)
-          : {'message': 'Server error occurred'};
-      throw ServerException(errorBody['message'] ?? 'Server error');
+      try {
+        final errorBody = response.body.isNotEmpty 
+            ? jsonDecode(response.body)
+            : {'message': 'Server error occurred'};
+        
+        String errorMessage = 'Server error';
+        if (errorBody is Map<String, dynamic>) {
+          errorMessage = errorBody['message'] ?? 
+                        errorBody['error'] ?? 
+                        'Server error occurred';
+        }
+        throw ServerException(errorMessage);
+      } catch (e) {
+        throw ServerException('خطأ في الخادم');
+      }
     }
     
     throw ServerException('Unexpected status code: $statusCode');

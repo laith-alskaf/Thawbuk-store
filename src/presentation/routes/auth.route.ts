@@ -23,6 +23,8 @@ const authRoutes = (authController: AuthController): Router => {
 
     router.post("/verify-email", validateVerifyEmail, authController.verifyEmail.bind(authController));
 
+    router.post("/resend-verification", validateForgotPass, authController.resendVerification.bind(authController));
+
     router.post("/logout", authController.logout.bind(authController));
     return router;
 };

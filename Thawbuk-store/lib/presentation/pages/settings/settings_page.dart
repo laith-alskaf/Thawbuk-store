@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/theme/theme_cubit.dart';
 import '../../widgets/shared/custom_card.dart';
-import '../../widgets/shared/custom_button.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 

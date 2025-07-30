@@ -20,8 +20,8 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
     try {
       final response = await httpClient.get('/category');
       print(response);
-      if (response['body']['categories'] is List) {
-        return (response['body']['categories'] as List)
+      if (response['body']['data'] is List) {
+        return (response['body']['data'] as List)
             .map((json) => CategoryModel.fromJson(json as Map<String, dynamic>))
             .toList();
       }

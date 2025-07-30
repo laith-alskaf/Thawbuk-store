@@ -9,6 +9,8 @@ import '../../bloc/category/category_bloc.dart';
 import '../../bloc/category/category_event.dart';
 import '../../bloc/category/category_state.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/navigation/navigation_helper.dart';
+import '../../../core/guards/auth_guard.dart';
 import '../../../domain/entities/user_entity.dart';
 import '../../../domain/entities/product_entity.dart';
 import '../../widgets/products/product_card.dart';
@@ -65,7 +67,7 @@ class _HomePageState extends State<HomePage> {
             shadowColor: Colors.grey.withOpacity(0.3),
             centerTitle: false,
             actions: [
-              // Cart Icon
+              // Cart Icon - محمي بالتحقق من تسجيل الدخول
               BlocBuilder<CartBloc, CartState>(
                 builder: (context, cartState) {
                   int itemCount = 0;
@@ -75,91 +77,16 @@ class _HomePageState extends State<HomePage> {
 
                   return Badge(
                     label: Text(itemCount.toString()),
-                    isLabelVisible: itemCount > 0,
+                    isLabelVisible: itemCount > 0 && AuthGuard.isAuthenticated(context),
                     child: IconButton(
-                      icon: const Icon(Icons.shopping_bag), // أيقونة حقيبة تسوق أوضح
-                      onPressed: () => context.push('/cart'),
+                      icon: const Icon(Icons.shopping_bag),
+                      onPressed: () => NavigationHelper.goToCart(context),
                     ),
                   );
                 },
               ),
-              // Profile Menu
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  switch (value) {
-                    case 'profile':
-                      context.push('/profile');
-                      break;
-                    case 'settings':
-                      context.push('/settings');
-                      break;
-                    case 'orders':
-                      context.push('/orders');
-                      break;
-                    case 'admin':
-                      context.push('/admin/dashboard');
-                      break;
-                    case 'logout':
-                      context.read<AuthBloc>().add(LogoutEvent());
-                      break;
-                  }
-                },
-                itemBuilder: (context) {
-                  final items = <PopupMenuEntry<String>>[
-                    const PopupMenuItem(
-                      value: 'profile',
-                      child: ListTile(
-                        leading: Icon(Icons.account_circle), // أيقونة حساب أوضح
-                        title: Text('الملف الشخصي'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'settings',
-                      child: ListTile(
-                        leading: Icon(Icons.tune), // أيقونة إعدادات أوضح
-                        title: Text('الإعدادات'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'orders',
-                      child: ListTile(
-                        leading: Icon(Icons.list_alt), // أيقونة قائمة أوضح للطلبات
-                        title: Text('طلباتي'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ];
-
-                  // Add admin menu for owners
-                  if (authState is AuthAuthenticated && authState.user.isOwner) {
-                    items.add(
-                      const PopupMenuItem(
-                        value: 'admin',
-                        child: ListTile(
-                          leading: Icon(Icons.dashboard), // أيقونة لوحة تحكم أوضح
-                          title: Text('لوحة الإدارة'),
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                    );
-                  }
-
-                  items.add(
-                    const PopupMenuItem(
-                      value: 'logout',
-                      child: ListTile(
-                        leading: Icon(Icons.exit_to_app), // أيقونة خروج أوضح
-                        title: Text('تسجيل الخروج'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  );
-
-                  return items;
-                },
-              ),
+              // Profile Menu - يظهر بناءً على حالة تسجيل الدخول
+              _buildProfileMenu(context, authState),
             ],
           ),
           body: RefreshIndicator(
@@ -379,24 +306,148 @@ class _HomePageState extends State<HomePage> {
           product: product,
           onTap: () => context.push('/product/${product.id}'),
           onAddToCart: () {
-            context.read<CartBloc>().add(
-                  AddToCartEvent(
-                    productId: product.id,
-                    quantity: 1,
-                  ),
-                );
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('تم إضافة المنتج للسلة'),
-                duration: Duration(seconds: 2),
-              ),
-            );
+            // التحقق من تسجيل الدخول قبل الإضافة للسلة
+            if (NavigationHelper.addToCart(context)) {
+              context.read<CartBloc>().add(
+                    AddToCartEvent(
+                      productId: product.id,
+                      quantity: 1,
+                    ),
+                  );
+              NavigationHelper.showSuccessMessage(context, 'تم إضافة المنتج للسلة');
+            }
           },
           onToggleWishlist: () {
-            // TODO: Implement wishlist functionality
+            // التحقق من تسجيل الدخول قبل الإضافة للمفضلة
+            NavigationHelper.addToFavorites(context);
           },
         );
       },
     );
+  }
+
+  /// بناء قائمة الملف الشخصي بناءً على حالة تسجيل الدخول
+  Widget _buildProfileMenu(BuildContext context, AuthState authState) {
+    if (authState is AuthAuthenticated) {
+      // المستخدم مسجل دخول - عرض القائمة الكاملة
+      return PopupMenuButton<String>(
+        onSelected: (value) {
+          switch (value) {
+            case 'profile':
+              NavigationHelper.goToProfile(context);
+              break;
+            case 'orders':
+              NavigationHelper.goToOrders(context);
+              break;
+            case 'favorites':
+              NavigationHelper.goToFavorites(context);
+              break;
+            case 'settings':
+              context.push('/settings');
+              break;
+            case 'admin':
+              context.push('/admin/dashboard');
+              break;
+            case 'logout':
+              NavigationHelper.logout(context);
+              break;
+          }
+        },
+        itemBuilder: (context) {
+          final items = <PopupMenuEntry<String>>[
+            const PopupMenuItem(
+              value: 'profile',
+              child: ListTile(
+                leading: Icon(Icons.account_circle),
+                title: Text('الملف الشخصي'),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'orders',
+              child: ListTile(
+                leading: Icon(Icons.list_alt),
+                title: Text('طلباتي'),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'favorites',
+              child: ListTile(
+                leading: Icon(Icons.favorite),
+                title: Text('المفضلة'),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'settings',
+              child: ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('الإعدادات'),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ];
+
+          // إضافة قائمة الإدارة للمالكين
+          if (authState.user.role == 'admin' || authState.user.role == 'superAdmin') {
+            items.add(
+              const PopupMenuItem(
+                value: 'admin',
+                child: ListTile(
+                  leading: Icon(Icons.dashboard),
+                  title: Text('لوحة الإدارة'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            );
+          }
+
+          items.add(
+            const PopupMenuItem(
+              value: 'logout',
+              child: ListTile(
+                leading: Icon(Icons.exit_to_app, color: Colors.red),
+                title: Text('تسجيل الخروج', style: TextStyle(color: Colors.red)),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          );
+
+          return items;
+        },
+        child: CircleAvatar(
+          backgroundColor: AppColors.primary.withOpacity(0.1),
+          child: Text(
+            authState.user.name?.substring(0, 1).toUpperCase() ?? 'U',
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      );
+    } else {
+      // المستخدم غير مسجل دخول - عرض أزرار تسجيل الدخول والتسجيل
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextButton(
+            onPressed: () => NavigationHelper.goToLogin(context),
+            child: const Text('دخول'),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: () => NavigationHelper.goToRegister(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+            child: const Text('تسجيل'),
+          ),
+        ],
+      );
+    }
   }
 }

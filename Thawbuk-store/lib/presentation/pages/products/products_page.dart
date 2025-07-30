@@ -32,8 +32,10 @@ class _ProductsPageState extends State<ProductsPage>
     with SingleTickerProviderStateMixin {
   
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  bool _showScrollToTop = false;
   
   ViewMode _viewMode = ViewMode.grid;
   SortType _sortType = SortType.newest;
@@ -62,6 +64,9 @@ class _ProductsPageState extends State<ProductsPage>
       curve: Curves.easeInOut,
     ));
     
+    // Listen to scroll changes
+    _scrollController.addListener(_onScroll);
+    
     print('ProductsPage initState - Category: ${widget.category}');
     _loadProducts();
     _animationController.forward();
@@ -70,6 +75,7 @@ class _ProductsPageState extends State<ProductsPage>
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -314,6 +320,7 @@ class _ProductsPageState extends State<ProductsPage>
 
   Widget _buildGridView(List<ProductEntity> products) {
     return GridView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -338,6 +345,7 @@ class _ProductsPageState extends State<ProductsPage>
 
   Widget _buildListView(List<ProductEntity> products) {
     return ListView.separated(
+      controller: _scrollController,
       padding: const EdgeInsets.all(16),
       itemCount: products.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -357,11 +365,13 @@ class _ProductsPageState extends State<ProductsPage>
   }
 
   Widget? _buildScrollToTopFAB() {
+    if (!_showScrollToTop) return null;
+    
     return FloatingActionButton(
       mini: true,
-      onPressed: () {
-        // Scroll to top logic would go here
-      },
+      onPressed: _scrollToTop,
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.white,
       child: const Icon(Icons.keyboard_arrow_up),
     );
   }
@@ -485,6 +495,30 @@ class _ProductsPageState extends State<ProductsPage>
           borderRadius: BorderRadius.circular(10),
         ),
       ),
+    );
+  }
+
+  void _onScroll() {
+    if (_scrollController.offset >= 200) {
+      if (!_showScrollToTop) {
+        setState(() {
+          _showScrollToTop = true;
+        });
+      }
+    } else {
+      if (_showScrollToTop) {
+        setState(() {
+          _showScrollToTop = false;
+        });
+      }
+    }
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
     );
   }
 }

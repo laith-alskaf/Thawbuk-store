@@ -1,9 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../constants/app_constants.dart';
 import '../network/http_client.dart';
 import '../network/network_info.dart';
+import '../services/fcm_service.dart';
 
 // Data Sources
 import '../../data/datasources/auth_remote_data_source.dart';
@@ -15,6 +14,7 @@ import '../../data/datasources/cart_local_data_source.dart';
 import '../../data/datasources/order_remote_data_source.dart';
 import '../../data/datasources/user_remote_data_source.dart';
 import '../../data/datasources/user_local_data_source.dart';
+import '../../data/datasources/store_remote_data_source.dart';
 
 // Repositories
 import '../../data/repositories/auth_repository_impl.dart';
@@ -23,6 +23,7 @@ import '../../data/repositories/category_repository_impl.dart';
 import '../../data/repositories/cart_repository_impl.dart';
 import '../../data/repositories/order_repository_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
+import '../../data/repositories/store_repository_impl.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/product_repository.dart';
@@ -30,12 +31,14 @@ import '../../domain/repositories/category_repository.dart';
 import '../../domain/repositories/cart_repository.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../../domain/repositories/user_repository.dart';
+import '../../domain/repositories/store_repository.dart';
 
 // Use Cases
 import '../../domain/usecases/auth/login_usecase.dart';
 import '../../domain/usecases/auth/register_usecase.dart';
 import '../../domain/usecases/auth/logout_usecase.dart';
 import '../../domain/usecases/auth/verify_email_usecase.dart';
+import '../../domain/usecases/auth/resend_verification_usecase.dart';
 import '../../domain/usecases/product/get_products_usecase.dart';
 import '../../domain/usecases/product/get_product_by_id_usecase.dart';
 import '../../domain/usecases/product/search_products_usecase.dart';
@@ -53,6 +56,8 @@ import '../../domain/usecases/cart/clear_cart_usecase.dart';
 import '../../domain/usecases/order/get_orders_usecase.dart';
 import '../../domain/usecases/order/create_order_usecase.dart';
 import '../../domain/usecases/category/get_categories_usecase.dart';
+import '../../domain/usecases/store/get_store_profile_usecase.dart';
+import '../../domain/usecases/store/get_store_products_usecase.dart';
 
 // Blocs
 import '../../presentation/bloc/auth/auth_bloc.dart';
@@ -61,6 +66,7 @@ import '../../presentation/bloc/cart/cart_bloc.dart';
 import '../../presentation/bloc/order/order_bloc.dart';
 import '../../presentation/bloc/category/category_bloc.dart';
 import '../../presentation/bloc/theme/theme_cubit.dart';
+import '../../presentation/bloc/store/store_bloc.dart';
 
 // Navigation
 import '../../presentation/navigation/app_router.dart';
@@ -74,6 +80,9 @@ Future<void> configureDependencies() async {
 
   // Core
   getIt.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl());
+  
+  // Services
+  getIt.registerLazySingleton(() => FCMService());
   
   // HTTP Client setup
   getIt.registerLazySingleton(() => HttpClient(getIt<SharedPreferences>()));
@@ -105,6 +114,9 @@ Future<void> configureDependencies() async {
   );
   getIt.registerLazySingleton<UserLocalDataSource>(
     () => UserLocalDataSourceImpl(getIt()),
+  );
+  getIt.registerLazySingleton<StoreRemoteDataSource>(
+    () => StoreRemoteDataSourceImpl(getIt()),
   );
 
   // Repositories
@@ -147,12 +159,19 @@ Future<void> configureDependencies() async {
       networkInfo: getIt(),
     ),
   );
+  getIt.registerLazySingleton<StoreRepository>(
+    () => StoreRepositoryImpl(
+      remoteDataSource: getIt(),
+      networkInfo: getIt(),
+    ),
+  );
 
   // Use cases
   getIt.registerLazySingleton(() => LoginUseCase(getIt()));
   getIt.registerLazySingleton(() => RegisterUseCase(getIt()));
   getIt.registerLazySingleton(() => LogoutUseCase(getIt()));
   getIt.registerLazySingleton(() => VerifyEmailUseCase(getIt()));
+  getIt.registerLazySingleton(() => ResendVerificationUseCase(getIt()));
   getIt.registerLazySingleton(() => GetProductsUseCase(getIt()));
   getIt.registerLazySingleton(() => GetProductByIdUseCase(getIt()));
   getIt.registerLazySingleton(() => SearchProductsUseCase(getIt()));
@@ -170,6 +189,8 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => GetOrdersUseCase(getIt()));
   getIt.registerLazySingleton(() => CreateOrderUseCase(getIt()));
   getIt.registerLazySingleton(() => GetCategoriesUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetStoreProfileUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetStoreProductsUseCase(getIt()));
 
   // Blocs
   getIt.registerFactory(() => AuthBloc(
@@ -178,6 +199,7 @@ Future<void> configureDependencies() async {
     logoutUseCase: getIt(),
     authRepository: getIt(),
     verifyEmailUseCase: getIt(),
+    resendVerificationUseCase: getIt(),
   ));
   
   getIt.registerFactory(() => ProductBloc(
@@ -206,6 +228,11 @@ Future<void> configureDependencies() async {
   ));
 
   getIt.registerFactory(() => CategoryBloc(getIt()));
+  
+  getIt.registerFactory(() => StoreBloc(
+    getStoreProfileUseCase: getIt(),
+    getStoreProductsUseCase: getIt(),
+  ));
   
   getIt.registerLazySingleton(() => ThemeCubit());
 

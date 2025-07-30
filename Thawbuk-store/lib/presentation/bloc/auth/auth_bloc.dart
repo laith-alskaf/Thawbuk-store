@@ -6,6 +6,7 @@ import '../../../domain/usecases/auth/login_usecase.dart';
 import '../../../domain/usecases/auth/register_usecase.dart';
 import '../../../domain/usecases/auth/logout_usecase.dart';
 import '../../../domain/usecases/auth/verify_email_usecase.dart';
+import '../../../domain/usecases/auth/resend_verification_usecase.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
@@ -47,13 +48,22 @@ class RegisterEvent extends AuthEvent {
 class LogoutEvent extends AuthEvent {}
 
 class VerifyEmailEvent extends AuthEvent {
-  final String email;
   final String code;
+  final String? email;
 
-  const VerifyEmailEvent(this.email, this.code);
+  const VerifyEmailEvent({required this.code, this.email});
 
   @override
-  List<Object> get props => [email, code];
+  List<Object> get props => [code];
+}
+
+class ResendVerificationCodeEvent extends AuthEvent {
+  final String email;
+
+  const ResendVerificationCodeEvent({required this.email});
+
+  @override
+  List<Object> get props => [email];
 }
 
 class ContinueAsGuestEvent extends AuthEvent {}
@@ -83,7 +93,16 @@ class AuthUnauthenticated extends AuthState {}
 
 class AuthGuest extends AuthState {}
 
-class AuthVerified extends AuthState {}
+class AuthEmailVerified extends AuthState {}
+
+class AuthRegistrationSuccess extends AuthState {
+  final String email;
+
+  const AuthRegistrationSuccess({required this.email});
+
+  @override
+  List<Object?> get props => [email];
+}
 
 class AuthError extends AuthState {
   final String message;
@@ -101,6 +120,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LogoutUseCase logoutUseCase;
   final AuthRepository authRepository;
   final VerifyEmailUseCase verifyEmailUseCase;
+  final ResendVerificationUseCase resendVerificationUseCase;
 
   AuthBloc({
     required this.loginUseCase,
@@ -108,6 +128,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.logoutUseCase,
     required this.authRepository,
     required this.verifyEmailUseCase,
+    required this.resendVerificationUseCase,
   }) : super(AuthInitial()) {
     
     on<CheckAuthStatusEvent>(_onCheckAuthStatus);
@@ -115,6 +136,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterEvent>(_onRegister);
     on<LogoutEvent>(_onLogout);
     on<VerifyEmailEvent>(_onVerifyEmail);
+    on<ResendVerificationCodeEvent>(_onResendVerificationCode);
     on<ContinueAsGuestEvent>(_onContinueAsGuest);
 
     // Check auth status on startup
@@ -186,7 +208,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
         emit(AuthError(message));
       },
-      (user) => emit(AuthAuthenticated(user)),
+      (success) => emit(AuthRegistrationSuccess(email: event.userData['email'])),
     );
   }
 
@@ -196,12 +218,45 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
 
-    final result = await logoutUseCase(NoParams());
+    try {
+      // تنظيف البيانات المحلية أولاً
+      await _clearLocalData();
+      
+      // ثم استدعاء logout من الخادم
+      final result = await logoutUseCase(NoParams());
 
-    result.fold(
-      (failure) => emit(AuthError('حدث خطأ أثناء تسجيل الخروج')),
-      (_) => emit(AuthUnauthenticated()),
-    );
+      result.fold(
+        (failure) {
+          // حتى لو فشل logout من الخادم، نظف البيانات المحلية
+          emit(AuthUnauthenticated());
+        },
+        (_) => emit(AuthUnauthenticated()),
+      );
+    } catch (e) {
+      // في حالة أي خطأ، تأكد من تنظيف البيانات
+      await _clearLocalData();
+      emit(AuthUnauthenticated());
+    }
+  }
+
+  /// تنظيف جميع البيانات المحلية
+  Future<void> _clearLocalData() async {
+    try {
+      // مسح التوكن والبيانات المحفوظة
+      await authRepository.logout();
+      
+      // تنظيف إضافي للبيانات:
+      // TODO: إضافة تنظيف بيانات السلة
+      // TODO: إضافة تنظيف بيانات المفضلة
+      // TODO: إضافة تنظيف الكاش
+      
+      // إرسال إشعار لباقي الـ BLoCs لتنظيف بياناتها
+      // يمكن استخدام EventBus أو Stream للتواصل بين BLoCs
+      
+    } catch (e) {
+      // تجاهل الأخطاء في التنظيف - المهم هو تسجيل الخروج
+      print('Error clearing local data: $e');
+    }
   }
 
   Future<void> _onVerifyEmail(
@@ -211,7 +266,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     final result = await verifyEmailUseCase(VerifyEmailParams(
-      email: event.email,
       code: event.code,
     ));
 
@@ -225,7 +279,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
         emit(AuthError(message));
       },
-      (_) => emit(AuthVerified()),
+      (_) => emit(AuthEmailVerified()),
+    );
+  }
+
+  Future<void> _onResendVerificationCode(
+    ResendVerificationCodeEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    
+    final result = await resendVerificationUseCase(
+      ResendVerificationParams(email: event.email),
+    );
+    
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء إعادة إرسال الرمز';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(AuthError(message));
+      },
+      (_) => emit(AuthRegistrationSuccess(email: event.email)),
     );
   }
 

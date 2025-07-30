@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -9,6 +10,7 @@ import '../../../domain/usecases/cart/remove_from_cart_usecase.dart';
 import '../../../domain/usecases/cart/clear_cart_usecase.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
+import '../../../core/events/app_events.dart';
 
 // Events
 abstract class CartEvent extends Equatable {
@@ -127,6 +129,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   final UpdateCartUseCase updateCartUseCase;
   final RemoveFromCartUseCase removeFromCartUseCase;
   final ClearCartUseCase clearCartUseCase;
+  
+  late StreamSubscription _eventSubscription;
 
   CartBloc({
     required this.getCartUseCase,
@@ -140,6 +144,19 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     on<UpdateCartItemEvent>(_onUpdateCartItem);
     on<RemoveFromCartEvent>(_onRemoveFromCart);
     on<ClearCartEvent>(_onClearCart);
+    
+    // الاستماع لأحداث التنظيف
+    _eventSubscription = EventBus.events.listen((event) {
+      if (event is ClearCartEvent || event is AppLogoutEvent) {
+        add(ClearCartEvent());
+      }
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _eventSubscription.cancel();
+    return super.close();
   }
 
   Future<void> _onGetCart(

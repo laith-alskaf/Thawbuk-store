@@ -20,7 +20,7 @@ export class ChangePasswordUseCase {
         user.otpCodeExpires = new Date("00");
         user.otpCode = '';
         this.userRepository.update(user._id, user);
-        this.mailService.send(user.email, "Password Reset Successful", PASSWORD_RESET_SUCCESS_TEMPLATE);
+        this.mailService.send(user.email, "تم تغيير كلمة المرور بنجاح - متجر ثوبك", PASSWORD_RESET_SUCCESS_TEMPLATE);
 
     }
 }

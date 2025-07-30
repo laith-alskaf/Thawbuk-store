@@ -33,7 +33,7 @@ class VerifyEmailPage extends StatelessWidget {
             const SizedBox(height: 16),
             BlocConsumer<AuthBloc, AuthState>(
               listener: (context, state) {
-                if (state is AuthVerified) {
+                if (state is AuthEmailVerified) {
                   context.go('/login');
                 }
                 if (state is AuthError) {
@@ -49,7 +49,7 @@ class VerifyEmailPage extends StatelessWidget {
                 return CustomButton(
                   onPressed: () {
                     final code = codeController.text;
-                    context.read<AuthBloc>().add(VerifyEmailEvent(email, code));
+                    context.read<AuthBloc>().add(VerifyEmailEvent(code:  code,email: email));
                   },
                   text: 'Verify',
                 );

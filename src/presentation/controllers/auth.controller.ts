@@ -8,6 +8,7 @@ import {
   ChangePasswordUseCase,
   ForgotPasswordUseCase,
 } from "../../application/use-cases/auth";
+import { ResendVerificationUseCase } from "../../application/use-cases/auth/resend-verification.usecase";
 import { ApplicationResponse } from '../../application/response/application-resposne';
 import { BadRequestError } from '../../application/errors/application-error';
 
@@ -20,6 +21,7 @@ export class AuthController {
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly verifyEmailUseCase: VerifyEmailUseCase,
     private readonly changePasswordUseCase: ChangePasswordUseCase,
+    private readonly resendVerificationUseCase: ResendVerificationUseCase,
   ) { }
 
 
@@ -111,6 +113,20 @@ export class AuthController {
         success: true,
         statusCode: StatusCodes.OK,
         message: Messages.AUTH.RESET_PASSWORD_SUCCESS_EN
+      }).send();
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
+  }
+
+  async resendVerification(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+      await this.resendVerificationUseCase.execute(email);
+      new ApplicationResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: "تم إعادة إرسال رمز التحقق بنجاح"
       }).send();
     } catch (error: any) {
       throw new BadRequestError(error.message);

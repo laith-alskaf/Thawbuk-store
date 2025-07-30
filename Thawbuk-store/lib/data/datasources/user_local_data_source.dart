@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/errors/exceptions.dart';
-import '../models/user_model.dart';
+
 import '../models/product_model.dart';
 import 'dart:convert';
 

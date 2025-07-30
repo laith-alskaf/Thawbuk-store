@@ -6,13 +6,13 @@ import '../../../core/usecases/usecase.dart';
 import '../../entities/user_entity.dart';
 import '../../repositories/auth_repository.dart';
 
-class RegisterUseCase implements UseCase<UserEntity, RegisterParams> {
+class RegisterUseCase implements UseCase<void, RegisterParams> {
   final AuthRepository repository;
 
   RegisterUseCase(this.repository);
 
   @override
-  Future<Either<Failure, UserEntity>> call(RegisterParams params) async {
+  Future<Either<Failure, void>> call(RegisterParams params) async {
     return await repository.register(params.userData);
   }
 }

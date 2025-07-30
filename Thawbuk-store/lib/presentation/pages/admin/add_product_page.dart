@@ -2,18 +2,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../bloc/product/product_bloc.dart';
 import '../../widgets/shared/custom_button.dart';
 import '../../widgets/shared/custom_text_field.dart';
 import '../../widgets/shared/custom_card.dart';
-import '../../widgets/shared/loading_widget.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../bloc/category/category_bloc.dart';
 import '../../bloc/category/category_event.dart';
 import '../../bloc/category/category_state.dart';
-import '../../../domain/entities/category_entity.dart';
 import '../../../domain/entities/product_entity.dart';
 
 class AddProductPage extends StatefulWidget {

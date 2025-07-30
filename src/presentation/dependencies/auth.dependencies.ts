@@ -6,6 +6,7 @@ import {
     ChangePasswordUseCase,
     ForgotPasswordUseCase,
 } from '../../application/use-cases/auth';
+import { ResendVerificationUseCase } from '../../application/use-cases/auth/resend-verification.usecase';
 
 // Repository
 import { UserRepository } from '../../domain/repository/user.repository';
@@ -67,12 +68,20 @@ export const AuthDependencies = ({
         encryptionService,
         emailService
     );
+
+    const resendVerificationUseCase = new ResendVerificationUseCase(
+        userRepository,
+        emailService,
+        otpGeneratorService
+    );
+
     const authController: AuthController = new AuthController(
         registerUseCase,
         loginUseCase,
         forgotPasswordUseCase,
         verifiyEmailUseCase,
-        changePasswordUseCase
+        changePasswordUseCase,
+        resendVerificationUseCase
     );
 
 

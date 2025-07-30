@@ -35,12 +35,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> register(Map<String, dynamic> userData) async {
+  Future<Either<Failure, void>> register(Map<String, dynamic> userData) async {
     if (await networkInfo.isConnected) {
       try {
-        final userModel = await remoteDataSource.register(userData);
-        await localDataSource.cacheUser(userModel);
-        return Right(userModel.toEntity());
+        await remoteDataSource.register(userData);
+        return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }
@@ -109,10 +108,24 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> verifyEmail(String email, String code) async {
+  Future<Either<Failure, void>> verifyEmail(String code) async {
     if (await networkInfo.isConnected) {
       try {
-        await remoteDataSource.verifyEmail(email, code);
+        await remoteDataSource.verifyEmail(code);
+        return const Right(null);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      }
+    } else {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resendVerificationCode(String email) async {
+    if (await networkInfo.isConnected) {
+      try {
+        await remoteDataSource.resendVerificationCode(email);
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));

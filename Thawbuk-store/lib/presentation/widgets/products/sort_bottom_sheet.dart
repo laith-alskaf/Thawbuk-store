@@ -99,6 +99,9 @@ class _SortBottomSheetState extends State<SortBottomSheet>
 
   Widget _buildBottomSheet() {
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.8,
+      ),
       decoration: const BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.only(
@@ -110,8 +113,16 @@ class _SortBottomSheetState extends State<SortBottomSheet>
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeader(),
-          _buildSortOptions(),
-          const SizedBox(height: 20),
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildSortOptions(),
+                  const SizedBox(height: 12),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -119,7 +130,7 @@ class _SortBottomSheetState extends State<SortBottomSheet>
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: const BorderRadius.only(
@@ -181,8 +192,8 @@ class _SortBottomSheetState extends State<SortBottomSheet>
             onTap: () => _selectSort(option.type),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.white,
                 borderRadius: BorderRadius.circular(16),

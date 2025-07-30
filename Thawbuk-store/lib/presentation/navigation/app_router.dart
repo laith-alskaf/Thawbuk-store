@@ -6,17 +6,22 @@ import '../bloc/auth/auth_bloc.dart';
 import '../pages/splash/splash_page.dart';
 import '../pages/auth/login_page.dart';
 import '../pages/auth/register_page.dart';
-import '../pages/auth/verify_email_page.dart';
+import '../pages/auth/email_verification_page.dart';
+import '../pages/main/main_layout.dart';
 import '../pages/home/home_page.dart';
 import '../pages/products/products_page.dart';
 import '../pages/products/product_detail_page.dart';
 import '../pages/cart/cart_page.dart';
 import '../pages/orders/orders_page.dart';
 import '../pages/profile/profile_page.dart';
+import '../pages/favorites/favorites_page.dart';
 import '../pages/settings/settings_page.dart';
 import '../pages/admin/add_product_page.dart';
 import '../pages/admin/admin_products_page.dart';
+import '../pages/store/store_profile_page.dart';
 import '../pages/admin/admin_dashboard_page.dart';
+import '../bloc/store/store_bloc.dart';
+import '../../core/di/dependency_injection.dart';
 
 class AppRouter {
   late final GoRouter router;
@@ -48,7 +53,7 @@ class AppRouter {
           name: 'verify-email',
           builder: (context, state) {
             final email = state.pathParameters['email']!;
-            return VerifyEmailPage(email: email);
+            return EmailVerificationPage(email: email);
           },
         ),
 
@@ -56,17 +61,14 @@ class AppRouter {
         GoRoute(
           path: '/home',
           name: 'home',
-          builder: (context, state) => const HomePage(),
+          builder: (context, state) => const MainLayout(initialIndex: 0),
         ),
 
         // Products
         GoRoute(
           path: '/products',
           name: 'products',
-          builder: (context, state) {
-            final category = state.uri.queryParameters['category'];
-            return ProductsPage(category: category);
-          },
+          builder: (context, state) => const MainLayout(initialIndex: 1),
         ),
         GoRoute(
           path: '/product/:id',
@@ -77,11 +79,31 @@ class AppRouter {
           },
         ),
 
+        // Store Profile
+        GoRoute(
+          path: '/store/:id',
+          name: 'store-profile',
+          builder: (context, state) {
+            final storeId = state.pathParameters['id']!;
+            return BlocProvider(
+              create: (context) => getIt<StoreBloc>(),
+              child: StoreProfilePage(storeId: storeId),
+            );
+          },
+        ),
+
         // Cart
         GoRoute(
           path: '/cart',
           name: 'cart',
-          builder: (context, state) => const CartPage(),
+          builder: (context, state) => const MainLayout(initialIndex: 2),
+        ),
+
+        // Favorites
+        GoRoute(
+          path: '/favorites',
+          name: 'favorites',
+          builder: (context, state) => const MainLayout(initialIndex: 3),
         ),
 
         // Orders
@@ -95,7 +117,7 @@ class AppRouter {
         GoRoute(
           path: '/profile',
           name: 'profile',
-          builder: (context, state) => const ProfilePage(),
+          builder: (context, state) => const MainLayout(initialIndex: 4),
         ),
 
         // Settings

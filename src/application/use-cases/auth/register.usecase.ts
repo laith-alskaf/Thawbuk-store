@@ -41,9 +41,9 @@ export class RegisterUseCase {
             _id: this.uuidGeneratorService.generate(),
             otpCode: otpCode,
             otpCodeExpires: this.otpCodeExpiresAt,
-            isEmailVerified: true // Automatically verify user for testing
+            isEmailVerified: false // Require email verification
         };
         await this.userRepository.create(user);
-        // await this.emailService.send(registerData.email, 'Verify your email', VERIFICATION_EMAIL_TEMPLATE.replace("verificationCode", otpCode))
+        await this.emailService.send(registerData.email, 'تأكيد البريد الإلكتروني - متجر ثوبك', VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", otpCode))
     }
 }

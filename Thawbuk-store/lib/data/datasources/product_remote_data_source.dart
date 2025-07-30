@@ -64,8 +64,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     try {
       final response = await httpClient.get('/product');
        print(response);
-      if (response['body']['products'] is List) {
-        return (response['body']['products'] as List)
+      if (response['body']['data']['products'] is List) {
+        return (response['body']['data']['products'] as List)
             .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
             .toList();
       }
@@ -83,8 +83,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     
       print(response);
       
-      if (response['body']['product'] != null) {
-        final jsonData = response['body']['product'] as Map<String, dynamic>;
+      if (response['body']['data']['product'] != null) {
+        final jsonData = response['body']['data']['product'] as Map<String, dynamic>;
       
         try {
           final product = ProductModel.fromJson(jsonData);
@@ -107,8 +107,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     try {
       final response = await httpClient.get('/product/search?q=$query');
                print(response);
-      if (response['body']['products'] is List) {
-        return (response['body']['products'] as List)
+      if (response['body']['data']['products'] is List) {
+        return (response['body']['data']['products'] as List)
             .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
             .toList();
       }
@@ -122,11 +122,18 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> getProductsByCategory(String category) async {
     try {
-      final response = await httpClient.get('/product/byCategory?category=$category');
-      print('getProductsByCategory response: $response');
+      // Use filter endpoint with category parameter since byCategory endpoint is not working
+      final response = await httpClient.get('/product/filter', queryParameters: {'category': category});
+      print('getProductsByCategory (using filter) response: $response');
       
       if (response['body'] != null && response['body']['data'] is List) {
-        final products = (response['body']['data'] as List)
+        final allProducts = (response['body']['data'] as List);
+        // Filter products by category on client side as backup
+        final categoryProducts = allProducts.where((product) => 
+          product['categoryId'] == category
+        ).toList();
+        
+        final products = categoryProducts
             .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
             .toList();
         print('Found ${products.length} products for category: $category');
