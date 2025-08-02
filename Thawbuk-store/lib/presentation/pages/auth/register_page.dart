@@ -406,21 +406,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _handleRegister() async {
     if (_formKey.currentState!.validate()) {
-      // الحصول على FCM Token
-      final fcmService = FCMService();
-      await fcmService.initialize();
-      final fcmToken = fcmService.fcmToken;
-
       final userData = <String, dynamic>{
         'email': _emailController.text.trim(),
         'password': _passwordController.text,
         'role': _selectedRole,
       };
-
-      // إضافة FCM Token إذا كان متوفراً
-      if (fcmToken != null) {
-        userData['fcmToken'] = fcmToken;
-      }
 
       // إضافة البيانات المطلوبة حسب نوع الحساب
       if (_selectedRole == 'customer') {

@@ -8,6 +8,8 @@ import '../../../domain/usecases/auth/logout_usecase.dart';
 import '../../../domain/usecases/auth/verify_email_usecase.dart';
 import '../../../domain/usecases/auth/resend_verification_usecase.dart';
 import '../../../domain/repositories/auth_repository.dart';
+import '../../../domain/repositories/user_repository.dart';
+import '../../../core/services/fcm_service.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
 
@@ -143,6 +145,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUseCase registerUseCase;
   final LogoutUseCase logoutUseCase;
   final AuthRepository authRepository;
+  final UserRepository userRepository;
+  final FCMService fcmService;
   final VerifyEmailUseCase verifyEmailUseCase;
   final ResendVerificationUseCase resendVerificationUseCase;
 
@@ -151,6 +155,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.registerUseCase,
     required this.logoutUseCase,
     required this.authRepository,
+    required this.userRepository,
+    required this.fcmService,
     required this.verifyEmailUseCase,
     required this.resendVerificationUseCase,
   }) : super(AuthInitial()) {
@@ -208,7 +214,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
         emit(AuthError(message));
       },
-      (user) => emit(AuthAuthenticated(user)),
+      (user) async {
+        // After successful login, initialize FCM and update the token
+        try {
+          await fcmService.initialize();
+          final token = fcmService.fcmToken;
+          if (token != null) {
+            // We use the user repository to update the user's profile with the new token
+            await userRepository.updateProfile({'fcmToken': token});
+          }
+        } catch (e) {
+          // Non-critical error, so we don't block the login.
+          // Log this for debugging.
+          print('FCM Token update failed: $e');
+        }
+        emit(AuthAuthenticated(user));
+      },
     );
   }
 

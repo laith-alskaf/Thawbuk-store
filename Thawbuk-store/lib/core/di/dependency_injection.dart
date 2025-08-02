@@ -185,6 +185,8 @@ Future<void> configureDependencies() async {
     registerUseCase: getIt(),
     logoutUseCase: getIt(),
     authRepository: getIt(),
+    userRepository: getIt(),
+    fcmService: getIt(),
     verifyEmailUseCase: getIt(),
     resendVerificationUseCase: getIt(),
   ));
