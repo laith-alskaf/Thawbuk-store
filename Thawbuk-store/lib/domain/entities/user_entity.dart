@@ -43,6 +43,7 @@ class UserEntity extends Equatable {
   bool get isSuperAdmin => role == UserRole.superAdmin;
   bool get isAdmin => role == UserRole.admin;
   bool get isCustomer => role == UserRole.customer;
+  bool get isOwner => isAdmin || isSuperAdmin;
 
   @override
   List<Object?> get props => [
