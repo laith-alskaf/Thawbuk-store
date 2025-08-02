@@ -23,15 +23,25 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserEntity>> login(String email, String password) async {
     if (await networkInfo.isConnected) {
       try {
-        final response = await remoteDataSource.login(email, password);
-        final userModel = UserModel.fromJson(response['userInfo']);
-        final token = response['token'] as String;
+        // 1. Get the raw map response from the data source
+        final responseMap = await remoteDataSource.login(email, password);
 
-        // The repository now correctly handles caching
-        await localDataSource.saveToken(token);
-        await localDataSource.cacheUser(userModel);
+        // 2. Parse the map into our new AuthResponseModel
+        final authResponse = AuthResponseModel.fromJson(responseMap);
 
-        return Right(userModel.toEntity());
+        // 3. Save the token to local storage
+        await localDataSource.saveToken(authResponse.token);
+
+        // 4. Convert the UserInfoModel to a UserEntity
+        final userEntity = authResponse.userInfo.toEntity();
+
+        // Note: Caching the full user profile might be desired here, but the login
+        // endpoint only returns partial data. We will cache the full profile later
+        // when we fetch it from a dedicated '/user/me' endpoint.
+
+        // 5. Return the UserEntity
+        return Right(userEntity);
+
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }

@@ -5,8 +5,11 @@ part 'category_model.g.dart';
 
 @JsonSerializable()
 class CategoryModel extends CategoryEntity {
+  @JsonKey(name: '_id')
+  final String id;
+
   const CategoryModel({
-    required super.id,
+    required this.id,
     required super.name,
     required super.image,
     super.nameAr,

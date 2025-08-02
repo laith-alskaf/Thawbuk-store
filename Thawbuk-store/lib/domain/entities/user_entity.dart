@@ -18,7 +18,6 @@ class UserEntity extends Equatable {
   final List<ChildEntity>? children;
   final AddressEntity? address;
   final String? fcmToken;
-  final bool isEmailVerified;
   final String? otpCode;
   final DateTime? otpCodeExpires;
 
@@ -37,7 +36,6 @@ class UserEntity extends Equatable {
     this.children,
     this.address,
     this.fcmToken,
-    required this.isEmailVerified,
     this.otpCode,
     this.otpCodeExpires,
   });

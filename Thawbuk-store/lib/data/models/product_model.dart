@@ -18,61 +18,43 @@ class AgeRangeModel extends AgeRangeEntity {
 
 @JsonSerializable(explicitToJson: true)
 class ProductModel extends ProductEntity {
+
+  @JsonKey(name: '_id')
+  final String id;
+
   @override
   @JsonKey(name: 'ageRange')
   final AgeRangeModel? ageRange;
 
   const ProductModel({
     required this.id,
-    required String name,
-    String? nameAr,
-    String? description,
-    String? descriptionAr,
-    required double price,
-    required String categoryId,
-    String? createdBy,
-    required List<String> images,
-    List<String>? sizes,
-    List<String>? colors,
-    required int stock,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    double? rating,
-    int? reviewsCount,
-    String? brand,
-    Map<String, int>? ageRange,
-    int? favoritesCount,
-    int? viewsCount,
-    bool? isActive,
-  }) : super(
-          id: id,
-          name: name,
-          nameAr: nameAr,
-          description: description,
-          descriptionAr: descriptionAr,
-          price: price,
-          categoryId: categoryId,
-          createdBy: createdBy,
-          images: images,
-          sizes: sizes,
-          colors: colors,
-          stock: stock,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-          rating: rating,
-          reviewsCount: reviewsCount,
-          brand: brand,
-          ageRange: ageRange,
-          favoritesCount: favoritesCount,
-          viewsCount: viewsCount,
-          isActive: isActive,
-        );
->>>>>>> main
+    required super.name,
+    super.nameAr,
+    super.description,
+    super.descriptionAr,
+    required super.price,
+    required super.categoryId,
+    super.createdBy,
+    required super.images,
+    super.sizes,
+    super.colors,
+    required super.stock,
+    super.createdAt,
+    super.updatedAt,
+    super.rating,
+    super.reviewsCount,
+    super.brand,
+    this.ageRange,
+    super.favoritesCount,
+    super.viewsCount,
+    super.isActive,
+  }) : super(id: id, ageRange: ageRange);
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
       _$ProductModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProductModelToJson(this);
+
   ProductEntity toEntity() {
     return ProductEntity(
       id: id,
@@ -92,7 +74,7 @@ class ProductModel extends ProductEntity {
       rating: rating,
       reviewsCount: reviewsCount,
       brand: brand,
-      ageRange: ageRange,
+      ageRange: ageRange?.toEntity(),
       favoritesCount: favoritesCount,
       viewsCount: viewsCount,
       isActive: isActive,

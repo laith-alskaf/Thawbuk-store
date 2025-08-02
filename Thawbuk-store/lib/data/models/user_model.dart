@@ -96,100 +96,28 @@ class UserModel extends UserEntity {
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
+  // Note: toEntity method might need to be implemented if you need to map from data model to domain entity.
+  // For now, it's commented out as the entity structure is not fully defined in the provided snippet.
+  /*
   UserEntity toEntity() {
     return UserEntity(
       id: id,
       email: email,
       name: name,
-      phone: phone,
       role: role,
+      isEmailVerified: isEmailVerified,
       createdAt: createdAt,
       lastLoginAt: lastLoginAt,
       profileImage: profileImage,
       company: company?.toEntity(),
       age: age,
       gender: gender,
-      children: children?.map((c) => (c as ChildModel).toEntity()).toList(),
-      address: (address as AddressModel?)?.toEntity(),
+      children: children?.map((c) => c.toEntity()).toList(),
+      address: address?.toEntity(),
       fcmToken: fcmToken,
-      isEmailVerified: isEmailVerified,
       otpCode: otpCode,
       otpCodeExpires: otpCodeExpires,
     );
   }
-}
-
-@JsonSerializable(explicitToJson: true)
-class CompanyModel extends CompanyEntity {
-  const CompanyModel({
-    required super.name,
-    required super.address,
-    super.logo,
-    super.description,
-  });
-
-  factory CompanyModel.fromJson(Map<String, dynamic> json) {
-    return _$CompanyModelFromJson(json);
-  }
-
-  Map<String, dynamic> toJson() => _$CompanyModelToJson(this);
-
-  CompanyEntity toEntity() {
-    return CompanyEntity(
-      name: name,
-      address: address,
-      logo: logo,
-      description: description,
-    );
-  }
-}
-
-@JsonSerializable(explicitToJson: true)
-class ChildModel extends ChildEntity {
-  const ChildModel({
-    required super.name,
-    required super.age,
-    required super.gender,
-  });
-
-  factory ChildModel.fromJson(Map<String, dynamic> json) {
-    return _$ChildModelFromJson(json);
-  }
-
-  Map<String, dynamic> toJson() => _$ChildModelToJson(this);
-
-  ChildEntity toEntity() {
-    return ChildEntity(
-      name: name,
-      age: age,
-      gender: gender,
-    );
-  }
-}
-
-@JsonSerializable(explicitToJson: true)
-class AddressModel extends AddressEntity {
-  const AddressModel({
-    required super.street,
-    required super.city,
-    required super.state,
-    required super.country,
-    super.postalCode,
-  });
-
-  factory AddressModel.fromJson(Map<String, dynamic> json) {
-    return _$AddressModelFromJson(json);
-  }
-
-  Map<String, dynamic> toJson() => _$AddressModelToJson(this);
-
-  AddressEntity toEntity() {
-    return AddressEntity(
-      street: street,
-      city: city,
-      state: state,
-      country: country,
-      postalCode: postalCode,
-    );
-  }
+  */
 }

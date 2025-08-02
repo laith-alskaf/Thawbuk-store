@@ -17,41 +17,38 @@ class ProductEntity extends Equatable {
   final String id;
   final String name;
   final String? nameAr;
-  final String description;
+  final String? description;
   final String? descriptionAr;
   final double price;
   final String categoryId;
-  final String createdBy;
+  final String? createdBy;
   final List<String> images;
-  final List<String> sizes;
-  final List<String> colors;
+  final List<String>? sizes;
+  final List<String>? colors;
   final int stock;
   final String? brand;
   final AgeRangeEntity? ageRange;
   final double? rating;
   final int? reviewsCount;
-  final String? brand;
-  final Map<String, int>? ageRange;
-  // خصائص إضافية من Backend
   final int? favoritesCount;
   final int? viewsCount;
   final bool? isActive;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const ProductEntity({
     required this.id,
     required this.name,
-    required this.description,
+    this.nameAr,
+    this.description,
+    this.descriptionAr,
     required this.price,
     required this.categoryId,
-    required this.createdBy,
+    this.createdBy,
     required this.images,
-    required this.sizes,
-    required this.colors,
+    this.sizes,
+    this.colors,
     required this.stock,
-    required this.createdAt,
-    required this.updatedAt,
-    this.nameAr,
-    this.descriptionAr,
     this.brand,
     this.ageRange,
     this.rating,
@@ -59,7 +56,8 @@ class ProductEntity extends Equatable {
     this.favoritesCount,
     this.viewsCount,
     this.isActive,
-
+    this.createdAt,
+    this.updatedAt,
   });
 
   String get displayName => nameAr?.isNotEmpty == true ? nameAr! : name;

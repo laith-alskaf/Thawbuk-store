@@ -7,17 +7,37 @@ import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
 import '../../domain/repositories/product_repository.dart';
+import '../../domain/entities/category_entity.dart';
 import '../../domain/usecases/product/get_filtered_products_usecase.dart';
+import '../datasources/category_remote_data_source.dart';
 import '../datasources/product_remote_data_source.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
-  final ProductRemoteDataSource remoteDataSource;
+  final ProductRemoteDataSource productRemoteDataSource;
+  final CategoryRemoteDataSource categoryRemoteDataSource;
   final NetworkInfo networkInfo;
 
   ProductRepositoryImpl({
-    required this.remoteDataSource,
+    required this.productRemoteDataSource,
+    required this.categoryRemoteDataSource,
     required this.networkInfo,
   });
+
+  @override
+  Future<Either<Failure, List<CategoryEntity>>> getCategories() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final categoryModels = await categoryRemoteDataSource.getCategories();
+        final categories =
+            categoryModels.map((model) => model.toEntity()).toList();
+        return Right(categories);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      }
+    } else {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+  }
 
   @override
   Future<Either<Failure, List<ProductEntity>>> getFilteredProducts(
@@ -25,7 +45,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (await networkInfo.isConnected) {
       try {
         final productModels =
-            await remoteDataSource.getFilteredProducts(params);
+            await productRemoteDataSource.getFilteredProducts(params);
         final products =
             productModels.map((model) => model.toEntity()).toList();
         return Right(products);
@@ -41,7 +61,7 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<Failure, List<ProductEntity>>> getProducts() async {
     if (await networkInfo.isConnected) {
       try {
-        final productModels = await remoteDataSource.getProducts();
+        final productModels = await productRemoteDataSource.getProducts();
         final products =
             productModels.map((model) => model.toEntity()).toList();
         return Right(products);
@@ -57,7 +77,7 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<Failure, ProductEntity>> getProductById(String id) async {
     if (await networkInfo.isConnected) {
       try {
-        final productModel = await remoteDataSource.getProductById(id);
+        final productModel = await productRemoteDataSource.getProductById(id);
         return Right(productModel.toEntity());
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
@@ -72,7 +92,7 @@ class ProductRepositoryImpl implements ProductRepository {
       String query) async {
     if (await networkInfo.isConnected) {
       try {
-        final productModels = await remoteDataSource.searchProducts(query);
+        final productModels = await productRemoteDataSource.searchProducts(query);
         final products =
             productModels.map((model) => model.toEntity()).toList();
         return Right(products);
@@ -90,7 +110,7 @@ class ProductRepositoryImpl implements ProductRepository {
     if (await networkInfo.isConnected) {
       try {
         final productModels =
-            await remoteDataSource.getProductsByCategory(category);
+            await productRemoteDataSource.getProductsByCategory(category);
         final products =
             productModels.map((model) => model.toEntity()).toList();
         return Right(products);
@@ -116,7 +136,7 @@ class ProductRepositoryImpl implements ProductRepository {
       required List<String> sizes}) async {
     if (await networkInfo.isConnected) {
       try {
-        final productModel = await remoteDataSource.createProduct({
+        final productModel = await productRemoteDataSource.createProduct({
           'name': name,
           'nameAr': nameAr,
           'description': description,
@@ -152,7 +172,7 @@ class ProductRepositoryImpl implements ProductRepository {
       required List<String> sizes}) async {
     if (await networkInfo.isConnected) {
       try {
-        final productModel = await remoteDataSource.updateProduct(productId, {
+        final productModel = await productRemoteDataSource.updateProduct(productId, {
           'name': name,
           'nameAr': nameAr,
           'description': description,
@@ -177,7 +197,7 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<Failure, void>> deleteProduct(String id) async {
     if (await networkInfo.isConnected) {
       try {
-        await remoteDataSource.deleteProduct(id);
+        await productRemoteDataSource.deleteProduct(id);
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
@@ -191,7 +211,7 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<Failure, List<ProductEntity>>> getMyProducts() async {
     if (await networkInfo.isConnected) {
       try {
-        final productModels = await remoteDataSource.getMyProducts();
+        final productModels = await productRemoteDataSource.getMyProducts();
         final products = productModels.map((model) => model.toEntity()).toList();
         return Right(products);
       } on ServerException catch (e) {

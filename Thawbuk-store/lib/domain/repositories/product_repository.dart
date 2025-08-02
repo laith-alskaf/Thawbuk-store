@@ -2,9 +2,11 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import '../../../core/errors/failures.dart';
 import '../entities/product_entity.dart';
+import '../entities/category_entity.dart';
 import '../usecases/product/get_filtered_products_usecase.dart';
 
 abstract class ProductRepository {
+  Future<Either<Failure, List<CategoryEntity>>> getCategories();
   Future<Either<Failure, List<ProductEntity>>> getFilteredProducts(
       GetFilteredProductsParams params);
   Future<Either<Failure, List<ProductEntity>>> getProducts();

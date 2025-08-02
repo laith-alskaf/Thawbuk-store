@@ -207,7 +207,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message = 'تحقق من اتصال الإنترنت';
         }
         emit(AuthError(message));
-        emit(AuthUnauthenticated());
       },
       (user) => emit(AuthAuthenticated(user)),
     );
@@ -232,7 +231,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message = 'تحقق من اتصال الإنترنت';
         }
         emit(AuthError(message));
-        emit(AuthUnauthenticated());
       },
       (success) => emit(AuthRegistrationSuccess(email: event.userData['email'])),
     );
@@ -304,7 +302,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message = 'تحقق من اتصال الإنترنت';
         }
         emit(AuthError(message));
-        emit(AuthUnauthenticated());
       },
       (_) async {
         // After verification, fetch user data to log them in

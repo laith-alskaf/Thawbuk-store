@@ -131,7 +131,8 @@ Future<void> configureDependencies() async {
   );
   getIt.registerLazySingleton<ProductRepository>(
     () => ProductRepositoryImpl(
-      remoteDataSource: getIt(),
+      productRemoteDataSource: getIt(),
+      categoryRemoteDataSource: getIt(),
       networkInfo: getIt(),
     ),
   );
