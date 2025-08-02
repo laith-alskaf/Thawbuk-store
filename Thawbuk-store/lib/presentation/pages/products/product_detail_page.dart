@@ -6,9 +6,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../bloc/product/product_bloc.dart';
 import '../../bloc/store/store_bloc.dart';
+import '../../bloc/wishlist/wishlist_bloc.dart';
 import '../../../core/di/dependency_injection.dart';
 import '../../../domain/entities/product_entity.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/navigation/navigation_helper.dart';
 import '../../widgets/shared/custom_button.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -39,6 +41,27 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.black,
         elevation: 1,
+        actions: [
+          BlocBuilder<WishlistBloc, WishlistState>(
+            builder: (context, state) {
+              final isWishlisted = state is WishlistLoaded &&
+                  state.wishlist.productIds.contains(widget.productId);
+              return IconButton(
+                icon: Icon(
+                  isWishlisted ? Icons.favorite : Icons.favorite_border,
+                  color: isWishlisted ? AppColors.error : AppColors.grey,
+                ),
+                onPressed: () {
+                  if (NavigationHelper.addToFavorites(context)) {
+                    context
+                        .read<WishlistBloc>()
+                        .add(ToggleWishlistItem(widget.productId));
+                  }
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: BlocProvider<StoreBloc>(
         create: (context) => getIt<StoreBloc>(),

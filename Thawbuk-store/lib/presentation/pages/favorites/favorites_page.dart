@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/guards/auth_guard.dart';
 import '../../bloc/auth/auth_bloc.dart';
+import '../../bloc/wishlist/wishlist_bloc.dart';
 import '../../widgets/shared/custom_button.dart';
+import '../../widgets/products/product_card.dart';
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({Key? key}) : super(key: key);
@@ -24,33 +27,51 @@ class FavoritesPage extends StatelessWidget {
             foregroundColor: AppColors.black,
             elevation: 1,
           ),
-          body: const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.favorite_border,
-                  size: 80,
-                  color: AppColors.grey,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'لا توجد منتجات مفضلة',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: AppColors.grey,
+          body: BlocBuilder<WishlistBloc, WishlistState>(
+            builder: (context, state) {
+              if (state is WishlistLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is WishlistError) {
+                return Center(child: Text(state.message));
+              } else if (state is WishlistLoaded) {
+                final products = state.wishlist.products;
+                if (products.isEmpty) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.favorite_border, size: 80, color: AppColors.grey),
+                        SizedBox(height: 16),
+                        Text('قائمة المفضلة فارغة', style: TextStyle(fontSize: 18, color: AppColors.grey)),
+                      ],
+                    ),
+                  );
+                }
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
                   ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'ابدأ بإضافة منتجات إلى قائمة المفضلة',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.grey,
-                  ),
-                ),
-              ],
-            ),
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    final product = products[index];
+                    return ProductCard(
+                      product: product,
+                      isWishlisted: true,
+                      onTap: () => context.push('/product/${product.id}'),
+                      onAddToCart: () {},
+                      onToggleWishlist: () {
+                        context.read<WishlistBloc>().add(ToggleWishlistItem(product.id));
+                      },
+                    );
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
         );
       },

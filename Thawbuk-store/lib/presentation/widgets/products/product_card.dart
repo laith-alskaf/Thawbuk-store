@@ -11,6 +11,7 @@ class ProductCard extends StatefulWidget {
   final VoidCallback onTap;
   final VoidCallback onAddToCart;
   final VoidCallback onToggleWishlist;
+  final bool isWishlisted;
 
   const ProductCard({
     Key? key,
@@ -19,6 +20,7 @@ class ProductCard extends StatefulWidget {
     required this.onTap,
     required this.onAddToCart,
     required this.onToggleWishlist,
+    this.isWishlisted = false,
   }) : super(key: key);
 
   @override
@@ -32,7 +34,6 @@ class _ProductCardState extends State<ProductCard>
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
   
-  bool _isWishlisted = false;
   bool _isAddingToCart = false;
 
   @override
@@ -221,12 +222,7 @@ class _ProductCardState extends State<ProductCard>
 
   Widget _buildWishlistButton() {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isWishlisted = !_isWishlisted;
-        });
-        widget.onToggleWishlist();
-      },
+      onTap: widget.onToggleWishlist,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(8),
@@ -242,8 +238,8 @@ class _ProductCardState extends State<ProductCard>
           ],
         ),
         child: Icon(
-          _isWishlisted ? Icons.favorite : Icons.favorite_outline,
-          color: _isWishlisted ? AppColors.error : AppColors.grey,
+          widget.isWishlisted ? Icons.favorite : Icons.favorite_outline,
+          color: widget.isWishlisted ? AppColors.error : AppColors.grey,
           size: 18,
         ),
       ),

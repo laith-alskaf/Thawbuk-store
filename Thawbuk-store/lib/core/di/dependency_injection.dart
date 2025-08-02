@@ -13,6 +13,7 @@ import '../../data/datasources/category_remote_data_source.dart';
 import '../../data/datasources/user_remote_data_source.dart';
 import '../../data/datasources/user_local_data_source.dart';
 import '../../data/datasources/store_remote_data_source.dart';
+import '../../data/datasources/wishlist_remote_data_source.dart';
 
 // Repositories
 import '../../data/repositories/auth_repository_impl.dart';
@@ -20,12 +21,14 @@ import '../../data/repositories/product_repository_impl.dart';
 import '../../data/repositories/category_repository_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
 import '../../data/repositories/store_repository_impl.dart';
+import '../../data/repositories/wishlist_repository_impl.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../domain/repositories/store_repository.dart';
+import '../../domain/repositories/wishlist_repository.dart';
 
 // Use Cases
 import '../../domain/usecases/auth/login_usecase.dart';
@@ -45,6 +48,8 @@ import '../../domain/usecases/product/get_my_products_usecase.dart';
 import '../../domain/usecases/category/get_categories_usecase.dart';
 import '../../domain/usecases/store/get_store_profile_usecase.dart';
 import '../../domain/usecases/store/get_store_products_usecase.dart';
+import '../../domain/usecases/wishlist/get_wishlist_usecase.dart';
+import '../../domain/usecases/wishlist/toggle_wishlist_usecase.dart';
 
 // Blocs
 import '../../presentation/bloc/auth/auth_bloc.dart';
@@ -52,6 +57,7 @@ import '../../presentation/bloc/product/product_bloc.dart';
 import '../../presentation/bloc/category/category_bloc.dart';
 import '../../presentation/bloc/theme/theme_cubit.dart';
 import '../../presentation/bloc/store/store_bloc.dart';
+import '../../presentation/bloc/wishlist/wishlist_bloc.dart';
 
 // Navigation
 import '../../presentation/navigation/app_router.dart';
@@ -95,6 +101,9 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<StoreRemoteDataSource>(
     () => StoreRemoteDataSourceImpl(getIt()),
   );
+  getIt.registerLazySingleton<WishlistRemoteDataSource>(
+    () => WishlistRemoteDataSourceImpl(getIt()),
+  );
 
   // Repositories
   getIt.registerLazySingleton<AuthRepository>(
@@ -130,6 +139,12 @@ Future<void> configureDependencies() async {
       networkInfo: getIt(),
     ),
   );
+  getIt.registerLazySingleton<WishlistRepository>(
+    () => WishlistRepositoryImpl(
+      remoteDataSource: getIt(),
+      networkInfo: getIt(),
+    ),
+  );
 
   // Use cases
   getIt.registerLazySingleton(() => LoginUseCase(getIt()));
@@ -149,6 +164,8 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => GetCategoriesUseCase(getIt()));
   getIt.registerLazySingleton(() => GetStoreProfileUseCase(getIt()));
   getIt.registerLazySingleton(() => GetStoreProductsUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetWishlistUseCase(getIt()));
+  getIt.registerLazySingleton(() => ToggleWishlistUseCase(getIt()));
 
   // Blocs
   getIt.registerFactory(() => AuthBloc(
@@ -179,6 +196,11 @@ Future<void> configureDependencies() async {
     getStoreProductsUseCase: getIt(),
   ));
   
+  getIt.registerFactory(() => WishlistBloc(
+    getWishlistUseCase: getIt(),
+    toggleWishlistUseCase: getIt(),
+  ));
+
   getIt.registerLazySingleton(() => ThemeCubit());
 
   // Navigation

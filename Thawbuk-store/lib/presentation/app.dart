@@ -7,6 +7,7 @@ import 'bloc/product/product_bloc.dart';
 import 'bloc/category/category_bloc.dart';
 import 'bloc/theme/theme_cubit.dart';
 import 'navigation/app_router.dart';
+import 'bloc/wishlist/wishlist_bloc.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -26,6 +27,9 @@ class App extends StatelessWidget {
         ),
         BlocProvider<ThemeCubit>(
           create: (_) => getIt<ThemeCubit>(),
+        ),
+        BlocProvider<WishlistBloc>(
+          create: (_) => getIt<WishlistBloc>()..add(GetWishlist()),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(

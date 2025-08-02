@@ -103,14 +103,21 @@ class _HomePageState extends State<HomePage> {
 
                   // Products Grid
                   BlocBuilder<ProductBloc, ProductState>(
-                    builder: (context, state) {
-                      if (state is ProductLoading) {
+                    builder: (context, productState) {
+                      if (productState is ProductLoading) {
                         return const Center(
                           child: CircularProgressIndicator(),
                         );
-                      } else if (state is ProductsLoaded) {
-                        return _buildProductsGrid(state.products);
-                      } else if (state is ProductError) {
+                      } else if (productState is ProductsLoaded) {
+                        return BlocBuilder<WishlistBloc, WishlistState>(
+                          builder: (context, wishlistState) {
+                            final wishlistIds = wishlistState is WishlistLoaded
+                                ? wishlistState.wishlist.productIds
+                                : <String>[];
+                            return _buildProductsGrid(productState.products, wishlistIds);
+                          },
+                        );
+                      } else if (productState is ProductError) {
                         return Center(
                           child: Column(
                             children: [
@@ -121,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                state.message,
+                                productState.message,
                                 style: TextStyle(color: Colors.grey[600]),
                                 textAlign: TextAlign.center,
                               ),
@@ -264,7 +271,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildProductsGrid(List<ProductEntity> products) {
+  Widget _buildProductsGrid(List<ProductEntity> products, List<String> wishlistIds) {
     if (products.isEmpty) {
       return const Center(
         child: Text('لا توجد منتجات'),
@@ -283,13 +290,16 @@ class _HomePageState extends State<HomePage> {
       itemCount: products.length > 4 ? 4 : products.length, // Show only 4 on home
       itemBuilder: (context, index) {
         final product = products[index];
+        final isWishlisted = wishlistIds.contains(product.id);
         return ProductCard(
           product: product,
+          isWishlisted: isWishlisted,
           onTap: () => context.push('/product/${product.id}'),
           onAddToCart: () {},
           onToggleWishlist: () {
-            // التحقق من تسجيل الدخول قبل الإضافة للمفضلة
-            NavigationHelper.addToFavorites(context);
+            if (NavigationHelper.addToFavorites(context)) {
+              context.read<WishlistBloc>().add(ToggleWishlistItem(product.id));
+            }
           },
         );
       },
