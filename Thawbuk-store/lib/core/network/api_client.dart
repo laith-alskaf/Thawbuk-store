@@ -1,114 +1,218 @@
-// import '../../data/models/user_model.dart';
-// import '../../data/models/product_model.dart';
-// import '../../data/models/category_model.dart';
-// import '../../data/models/cart_model.dart';
-// import '../../data/models/order_model.dart';
-//
-// part 'api_client.g.dart';
-//
-// @RestApi()
-// abstract class ApiClient {
-//   factory ApiClient(Dio dio, {String baseUrl}) = _ApiClient;
-//
-//   // Auth endpoints
-//   @POST('/auth/register')
-//   Future<UserModel> register(@Body() Map<String, dynamic> userData);
-//
-//   @POST('/auth/login')
-//   Future<UserModel> login(@Body() Map<String, dynamic> credentials);
-//
-//   @POST('/auth/logout')
-//   Future<void> logout();
-//
-//   @GET('/user/me')
-//   Future<UserModel> getCurrentUser();
-//
-//   // Product endpoints
-//   @GET('/product')
-//   Future<List<ProductModel>> getProducts();
-//
-//   @GET('/product/{id}')
-//   Future<ProductModel> getProductById(@Path() String id);
-//
-//   @POST('/user/product')
-//   Future<ProductModel> createProduct(@Body() Map<String, dynamic> productData);
-//
-//   @PUT('/user/product/{id}')
-//   Future<ProductModel> updateProduct(
-//     @Path() String id,
-//     @Body() Map<String, dynamic> productData,
-//   );
-//
-//   @DELETE('/user/product/{id}')
-//   Future<void> deleteProduct(@Path() String id);
-//
-//   @GET('/product/search')
-//   Future<List<ProductModel>> searchProducts(@Query('q') String query);
-//
-//   @GET('/product/byCategory')
-//   Future<List<ProductModel>> getProductsByCategory(@Query('category') String category);
-//
-//   // Category endpoints
-//   @GET('/category')
-//   Future<List<CategoryModel>> getCategories();
-//
-//   @GET('/category/{id}')
-//   Future<CategoryModel> getCategoryById(@Path() String id);
-//
-//   @POST('/user/category')
-//   Future<CategoryModel> createCategory(@Body() Map<String, dynamic> categoryData);
-//
-//   @PUT('/user/category/{id}')
-//   Future<CategoryModel> updateCategory(
-//     @Path() String id,
-//     @Body() Map<String, dynamic> categoryData,
-//   );
-//
-//   @DELETE('/user/category/{id}')
-//   Future<void> deleteCategory(@Path() String id);
-//
-//   // Cart endpoints
-//   @GET('/user/cart')
-//   Future<CartModel> getCart();
-//
-//   @POST('/user/cart/add')
-//   Future<CartModel> addToCart(@Body() Map<String, dynamic> cartData);
-//
-//   @PUT('/user/cart/update')
-//   Future<CartModel> updateCartItem(@Body() Map<String, dynamic> updateData);
-//
-//   @DELETE('/user/cart/remove/{productId}')
-//   Future<CartModel> removeFromCart(@Path() String productId);
-//
-//   @DELETE('/user/cart/clear')
-//   Future<void> clearCart();
-//
-//   // Order endpoints
-//   @GET('/user/order')
-//   Future<List<OrderModel>> getOrders();
-//
-//   @GET('/user/order/{id}')
-//   Future<OrderModel> getOrderById(@Path() String id);
-//
-//   @POST('/user/order')
-//   Future<OrderModel> createOrder(@Body() Map<String, dynamic> orderData);
-//
-//   @PUT('/user/order/{id}/status')
-//   Future<OrderModel> updateOrderStatus(
-//     @Path() String id,
-//     @Body() Map<String, dynamic> statusData,
-//   );
-//
-//   @DELETE('/user/order/{id}')
-//   Future<void> cancelOrder(@Path() String id);
-//
-//   // Wishlist endpoints
-//   @GET('/user/wishlist')
-//   Future<List<ProductModel>> getWishlist();
-//
-//   @POST('/user/wishlist')
-//   Future<void> addToWishlist(@Body() Map<String, dynamic> wishlistData);
-//
-//   @DELETE('/user/wishlist/{productId}')
-//   Future<void> removeFromWishlist(@Path() String productId);
-// }
+import 'package:dio/dio.dart';
+import '../constants/app_constants.dart';
+import '../errors/exceptions.dart';
+
+class ApiClient {
+  final Dio _dio;
+  
+  ApiClient() : _dio = Dio() {
+    _dio.options.baseUrl = AppConstants.baseUrl;
+    _dio.options.connectTimeout = const Duration(seconds: 30);
+    _dio.options.receiveTimeout = const Duration(seconds: 30);
+    
+    // إضافة Interceptors
+    _dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+    ));
+  }
+  
+  // تحديث التوكن
+  void updateToken(String? token) {
+    if (token != null) {
+      _dio.options.headers['Authorization'] = 'Bearer $token';
+    } else {
+      _dio.options.headers.remove('Authorization');
+    }
+  }
+  
+  // Auth endpoints
+  Future<Response> register(Map<String, dynamic> userData) async {
+    try {
+      return await _dio.post('/auth/register', data: userData);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> login(Map<String, dynamic> credentials) async {
+    try {
+      return await _dio.post('/auth/login', data: credentials);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> logout() async {
+    try {
+      return await _dio.post('/auth/logout');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> getCurrentUser() async {
+    try {
+      return await _dio.get('/user/me');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+  // Product endpoints
+  Future<Response> getProducts({Map<String, dynamic>? queryParameters}) async {
+    try {
+      return await _dio.get('/public/products', queryParameters: queryParameters);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> getProductById(String id) async {
+    try {
+      return await _dio.get('/public/products/$id');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> searchProducts(String query) async {
+    try {
+      return await _dio.get('/public/products/search', queryParameters: {'q': query});
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> getProductsByCategory(String categoryId) async {
+    try {
+      return await _dio.get('/public/products/byCategory/$categoryId');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> filterProducts(Map<String, dynamic> filters) async {
+    try {
+      return await _dio.get('/public/products/filter', queryParameters: filters);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+  // Category endpoints
+  Future<Response> getCategories() async {
+    try {
+      return await _dio.get('/public/categories');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+  // Cart endpoints
+  Future<Response> getCart() async {
+    try {
+      return await _dio.get('/cart');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> addToCart(Map<String, dynamic> cartData) async {
+    try {
+      return await _dio.post('/cart/add', data: cartData);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> updateCartItem(Map<String, dynamic> updateData) async {
+    try {
+      return await _dio.put('/cart/update', data: updateData);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> removeFromCart(String productId) async {
+    try {
+      return await _dio.delete('/cart/remove/$productId');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> clearCart() async {
+    try {
+      return await _dio.delete('/cart/clear');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+  // Wishlist endpoints
+  Future<Response> getWishlist() async {
+    try {
+      return await _dio.get('/wishlist');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> addToWishlist(Map<String, dynamic> wishlistData) async {
+    try {
+      return await _dio.post('/wishlist', data: wishlistData);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> toggleWishlist(Map<String, dynamic> toggleData) async {
+    try {
+      return await _dio.post('/wishlist/toggle', data: toggleData);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> removeFromWishlist(String productId) async {
+    try {
+      return await _dio.delete('/wishlist/product', data: {'productId': productId});
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Response> clearWishlist() async {
+    try {
+      return await _dio.delete('/wishlist/all-product');
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+  // معالجة الأخطاء
+  Exception _handleError(dynamic error) {
+    if (error is DioException) {
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return NetworkException('انتهت مهلة الاتصال');
+        case DioExceptionType.badResponse:
+          final statusCode = error.response?.statusCode;
+          if (statusCode == 401) {
+            return UnauthorizedException('غير مصرح لك بالوصول');
+          } else if (statusCode == 404) {
+            return NotFoundException('المورد غير موجود');
+          } else if (statusCode! >= 500) {
+            return ServerException('خطأ في الخادم');
+          } else {
+            return ClientException('خطأ في البيانات المرسلة');
+          }
+        case DioExceptionType.cancel:
+          return NetworkException('تم إلغاء الطلب');
+        case DioExceptionType.unknown:
+          return NetworkException('خطأ في الشبكة');
+        default:
+          return ServerException('خطأ غير معروف');
+      }
+    }
+    return ServerException(error.toString());
+  }
+}

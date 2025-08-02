@@ -3,12 +3,19 @@ export interface IAddress {
   city: string;
 }
 
+export interface ISocialLinks {
+  facebook?: string;
+  instagram?: string;
+  whatsapp?: string;
+}
+
 export interface ICompanyDetails {
   companyName: string;
   companyDescription?: string;
   companyAddress: IAddress;
   companyPhone: string;
   companyLogo?: string;
+  socialLinks?: ISocialLinks;
 }
 
 export interface IChild {

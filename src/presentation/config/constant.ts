@@ -18,6 +18,7 @@ export const StatusCodes = {
     NOT_FOUND: 404,            // المورد غير موجود
     CONFLICT: 409,             // تعارض (مثل تكرار البيانات)
     UNPROCESSABLE_ENTITY: 422, // بيانات غير صالحة للمعالجة
+    TOO_MANY_REQUESTS: 429,    // تم تجاوز الحد المسموح من الطلبات
 
     // رموز أخطاء الخادم (5xx)
     INTERNAL_SERVER_ERROR: 500, // خطأ داخلي في الخادم

@@ -45,5 +45,21 @@ export const AUTH = {
     UNAUTHORIZED_ACCESS_EN: 'Unauthorized access',
 
     AUTHENTICATION_REQUIRED: "المصادقة مطلوبة.",
-    AUTHENTICATION_REQUIRED_EN: "Authentication required."
+    AUTHENTICATION_REQUIRED_EN: "Authentication required.",
+
+    // Role and Permission Messages
+    ROLE_NOT_ASSIGNED: "لم يتم تعيين دور للمستخدم.",
+    ROLE_NOT_ASSIGNED_EN: "No role assigned to user.",
+
+    INSUFFICIENT_PERMISSIONS: "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+    INSUFFICIENT_PERMISSIONS_EN: "You don't have permission to perform this action.",
+
+    ADMIN_ONLY: "هذا الإجراء متاح للمديرين فقط.",
+    ADMIN_ONLY_EN: "This action is available to administrators only.",
+
+    OWNER_OR_ADMIN_ONLY: "يمكن لصاحب المورد أو المدير فقط تنفيذ هذا الإجراء.",
+    OWNER_OR_ADMIN_ONLY_EN: "Only the resource owner or administrator can perform this action.",
+
+    ACCESS_DENIED: "تم رفض الوصول.",
+    ACCESS_DENIED_EN: "Access denied."
 };

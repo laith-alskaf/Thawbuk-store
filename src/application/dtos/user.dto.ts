@@ -1,4 +1,4 @@
-import { IAddress, IChild, ICompanyDetails } from "../../domain/entity/user";
+import { IAddress, IChild, ICompanyDetails, ISocialLinks } from "../../domain/entity/user";
 
 export interface RegisterDTO {
     email: string,
@@ -45,4 +45,10 @@ export interface UserInfoDTO {
 export interface SecretTokenDTO {
     token: string,
     age: string,
+}
+
+export interface UpdateSocialLinksDTO {
+    facebook?: string;
+    instagram?: string;
+    whatsapp?: string;
 }

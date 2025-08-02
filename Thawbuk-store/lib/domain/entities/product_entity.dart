@@ -30,8 +30,12 @@ class ProductEntity extends Equatable {
   final AgeRangeEntity? ageRange;
   final double? rating;
   final int? reviewsCount;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String? brand;
+  final Map<String, int>? ageRange;
+  // خصائص إضافية من Backend
+  final int? favoritesCount;
+  final int? viewsCount;
+  final bool? isActive;
 
   const ProductEntity({
     required this.id,
@@ -52,6 +56,10 @@ class ProductEntity extends Equatable {
     this.ageRange,
     this.rating,
     this.reviewsCount,
+    this.favoritesCount,
+    this.viewsCount,
+    this.isActive,
+
   });
 
   String get displayName => nameAr?.isNotEmpty == true ? nameAr! : name;
@@ -80,5 +88,8 @@ class ProductEntity extends Equatable {
         reviewsCount,
         createdAt,
         updatedAt,
+        favoritesCount,
+        viewsCount,
+        isActive,
       ];
 }

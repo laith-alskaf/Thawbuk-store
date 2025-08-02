@@ -26,6 +26,15 @@ export const PRODUCT = {
     NO_RESULTS: "لم يتم العثور على نتائج مطابقة.",
     NO_RESULTS_EN: "No matching results found.",
 
+    CREATE_FAILED: "فشل في إنشاء المنتج.",
+    CREATE_FAILED_EN: "Failed to create product.",
+
+    UPDATE_FAILED: "فشل في تحديث المنتج.",
+    UPDATE_FAILED_EN: "Failed to update product.",
+
+    DELETE_FAILED: "فشل في حذف المنتج.",
+    DELETE_FAILED_EN: "Failed to delete product.",
+
     VALIDATION: {
         PRODUCT_VALIDATION: {
             TITLE_REQUIRED: "عنوان المنتج مطلوب",

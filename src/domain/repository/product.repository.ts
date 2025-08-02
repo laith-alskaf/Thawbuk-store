@@ -9,4 +9,6 @@ export interface ProductRepository {
     findByUserId(page: number, limit: number, filter: any): Promise<{ products: IProduct[], total: number } | null>;
     update(productId: string, productData: Partial<IProduct>): Promise<IProduct | null>;
     delete(id: string): Promise<void>;
+    incrementFavoritesCount(productId: string): Promise<void>;
+    decrementFavoritesCount(productId: string): Promise<void>;
 }

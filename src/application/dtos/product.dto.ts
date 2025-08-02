@@ -14,13 +14,14 @@ export interface CreateProductDTO {
     stock: number;
     brand?: string;
     ageRange?: IAgeRange;
+    isActive?: boolean;
 }
 
 
 export interface UpdateProductDTO {
     productId: string,
-    product: ProductInfoDTO,
-    updatedAt: Date
+    product: Partial<ProductInfoDTO>,
+    updatedAt?: Date
 }
 export interface ProductInfoDTO {
     _id: string,
@@ -38,6 +39,9 @@ export interface ProductInfoDTO {
     ageRange?: IAgeRange;
     rating?: number;
     reviewsCount?: number;
+    favoritesCount?: number;
+    viewsCount?: number;
+    isActive?: boolean;
 }
 export interface PeginationProductDTO {
     limit: number | 10,
