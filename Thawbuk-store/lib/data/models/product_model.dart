@@ -3,10 +3,24 @@ import '../../domain/entities/product_entity.dart';
 
 part 'product_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
+class AgeRangeModel extends AgeRangeEntity {
+  const AgeRangeModel({
+    required super.minAge,
+    required super.maxAge,
+  });
+
+  factory AgeRangeModel.fromJson(Map<String, dynamic> json) =>
+      _$AgeRangeModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AgeRangeModelToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
 class ProductModel extends ProductEntity {
-  @JsonKey(name: '_id')
-  final String id;
+  @override
+  @JsonKey(name: 'ageRange')
+  final AgeRangeModel? ageRange;
 
   const ProductModel({
     required this.id,
@@ -53,12 +67,12 @@ class ProductModel extends ProductEntity {
           viewsCount: viewsCount,
           isActive: isActive,
         );
+>>>>>>> main
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
       _$ProductModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProductModelToJson(this);
-
   ProductEntity toEntity() {
     return ProductEntity(
       id: id,

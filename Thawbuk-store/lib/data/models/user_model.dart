@@ -3,23 +3,81 @@ import '../../domain/entities/user_entity.dart';
 
 part 'user_model.g.dart';
 
+// --- Models ---
+
+@JsonSerializable(explicitToJson: true)
+class AddressModel extends AddressEntity {
+  const AddressModel({
+    super.street,
+    super.city,
+    super.state,
+    super.country,
+    super.postalCode,
+    super.phone,
+    super.fullName,
+  });
+
+  factory AddressModel.fromJson(Map<String, dynamic> json) =>
+      _$AddressModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AddressModelToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class CompanyModel extends CompanyEntity {
+  @override
+  final AddressModel? companyAddress;
+
+  const CompanyModel({
+    required super.companyName,
+    super.companyDescription,
+    this.companyAddress,
+    super.companyPhone,
+    super.companyLogo,
+  }) : super(companyAddress: companyAddress);
+
+  factory CompanyModel.fromJson(Map<String, dynamic> json) =>
+      _$CompanyModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CompanyModelToJson(this);
+}
+
+@JsonSerializable()
+class ChildModel extends ChildEntity {
+  const ChildModel({
+    required super.age,
+    required super.gender,
+  });
+
+  factory ChildModel.fromJson(Map<String, dynamic> json) =>
+      _$ChildModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ChildModelToJson(this);
+}
+
 @JsonSerializable(explicitToJson: true)
 class UserModel extends UserEntity {
+
   @JsonKey(name: '_id')
   @override
   final String id;
   
   @JsonKey(name: 'companyDetails')
   @override
-  final CompanyModel? company;
+  final AddressModel? address;
+  @override
+  @JsonKey(name: 'companyDetails')
+  final CompanyModel? companyDetails;
+  @override
+  final List<ChildModel>? children;
 
   const UserModel({
     required this.id,
     required super.email,
-    required super.name,
-    super.phone,
     required super.role,
+    required super.isEmailVerified,
     required super.createdAt,
+    super.name,
     super.lastLoginAt,
     super.profileImage,
     this.company,
@@ -33,9 +91,8 @@ class UserModel extends UserEntity {
     super.otpCodeExpires,
   }) : super(id: id, company: company);
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return _$UserModelFromJson(json);
-  }
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 

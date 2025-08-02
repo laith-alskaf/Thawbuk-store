@@ -5,9 +5,9 @@ enum UserRole { customer, admin, superAdmin }
 class UserEntity extends Equatable {
   final String id;
   final String email;
-  final String name;
-  final String? phone;
+  final String? name;
   final UserRole role;
+  final bool isEmailVerified;
   final DateTime createdAt;
   final DateTime? lastLoginAt;
   final String? profileImage;
@@ -25,10 +25,10 @@ class UserEntity extends Equatable {
   const UserEntity({
     required this.id,
     required this.email,
-    required this.name,
-    this.phone,
     required this.role,
+    required this.isEmailVerified,
     required this.createdAt,
+    this.name,
     this.lastLoginAt,
     this.profileImage,
     this.company,
@@ -51,8 +51,8 @@ class UserEntity extends Equatable {
         id,
         email,
         name,
-        phone,
         role,
+        isEmailVerified,
         createdAt,
         lastLoginAt,
         profileImage,

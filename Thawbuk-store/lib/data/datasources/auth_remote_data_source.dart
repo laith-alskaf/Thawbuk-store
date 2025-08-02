@@ -4,7 +4,7 @@ import '../../core/network/http_client.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login(String email, String password);
+  Future<Map<String, dynamic>> login(String email, String password);
 
   Future<void> register(Map<String, dynamic> userData);
 
@@ -22,19 +22,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this.httpClient);
 
   @override
-  Future<UserModel> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await httpClient.post('/auth/login', body: {
         'email': email,
         'password': password,
       });
-
-      if (response['body']['token'] != null) {
-        await httpClient.sharedPreferences
-            .setString('auth_token', response['body']['token']);
-      }
-
-      return UserModel.fromJson(response['body']['userInfo'] ?? response);
+      // The repository is now responsible for handling the token and user
+      return response['body'];
     } catch (e) {
       throw ServerException('Login failed: ${e.toString()}');
     }
