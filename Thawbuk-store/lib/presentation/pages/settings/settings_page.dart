@@ -200,7 +200,7 @@ class SettingsPage extends StatelessWidget {
           _buildSettingTile(
             context,
             'تواصل مع المطور',
-            'ليث الأسكف', // Placeholder
+            'Laith Alaskaf',
             Icons.code,
             () => _showSupportDialog(context),
           ),
@@ -229,50 +229,30 @@ class SettingsPage extends StatelessWidget {
   // دوال إطلاق التطبيقات الخارجية
   void _launchWhatsApp(BuildContext context) async {
     const phoneNumber = '+963982055788';
-    const message = 'مرحباً، أريد التواصل معك بخصوص تطبيق ثوبك';
-    final url = Uri.parse('https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}');
-    
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        _showErrorDialog(context, 'لا يمكن فتح واتس آب');
-      }
-    } catch (e) {
-      _showErrorDialog(context, 'حدث خطأ أثناء فتح واتس آب');
-    }
+    final url = Uri.parse('https://wa.me/$phoneNumber');
+    _launchUrl(context, url, 'واتس آب');
   }
 
-  void _launchTelegram(BuildContext context) async {
-    const username = 'Laith041';
-    final url = Uri.parse('https://t.me/$username');
-    
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        _showErrorDialog(context, 'لا يمكن فتح تليجرام');
-      }
-    } catch (e) {
-      _showErrorDialog(context, 'حدث خطأ أثناء فتح تليجرام');
-    }
+  void _launchLinkedIn(BuildContext context) async {
+    const url = 'https://www.linkedin.com/in/laith-alskaf-10a4b4339';
+    _launchUrl(context, Uri.parse(url), 'لينكد إن');
   }
 
   void _launchEmail(BuildContext context) async {
     const email = 'laithalskaf@gmail.com';
-    const subject = 'استفسار حول تطبيق ثوبك';
-    const body = 'مرحباً ليث،\n\nأريد التواصل معك بخصوص تطبيق ثوبك.\n\nشكراً';
-    
-    final url = Uri.parse('mailto:$email?subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}');
-    
+    final url = Uri.parse('mailto:$email');
+    _launchUrl(context, url, 'البريد الإلكتروني');
+  }
+
+  Future<void> _launchUrl(BuildContext context, Uri url, String appName) async {
     try {
       if (await canLaunchUrl(url)) {
-        await launchUrl(url);
+        await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
-        _showErrorDialog(context, 'لا يمكن فتح تطبيق البريد الإلكتروني');
+        _showErrorDialog(context, 'لا يمكن فتح $appName');
       }
     } catch (e) {
-      _showErrorDialog(context, 'حدث خطأ أثناء فتح البريد الإلكتروني');
+      _showErrorDialog(context, 'حدث خطأ أثناء فتح $appName');
     }
   }
 
@@ -402,10 +382,10 @@ class SettingsPage extends StatelessWidget {
               TextButton.icon(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _launchTelegram(context);
+                  _launchLinkedIn(context);
                 },
-                icon: const Icon(Icons.telegram, color: AppColors.info),
-                label: const Text('تليجرام'),
+                icon: const Icon(Icons.link, color: AppColors.info),
+                label: const Text('LinkedIn'),
                 style: TextButton.styleFrom(
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.zero,
