@@ -4,35 +4,29 @@ import {
     GetWishlistUseCase,
     RemoveAllProductfromWishlistUseCase,
     RemoveProductFromWishlistUseCase,
-    AddProductToWishlistUseCase,
-    ToggleWishlistUseCase
+    AddProductToWishlistUseCase
 } from "../../application/use-cases/wishlist";
-import { ProductRepository } from '../../domain/repository/product.repository';
 import { WishlistRepository } from '../../domain/repository/wishlist.repository';
 
 interface WishlistDependenciesType {
     wishlistRepository: WishlistRepository;
-    productRepository: ProductRepository;
 }
 
 export const WishlistDependencies = ({
     wishlistRepository,
-    productRepository,
 }: WishlistDependenciesType): WishlistController => {
 
     // Use Cases
-    const addProductToWishlistUseCase = new AddProductToWishlistUseCase(wishlistRepository, productRepository);
+    const addProductToWishlistUseCase = new AddProductToWishlistUseCase(wishlistRepository);
     const getWishlistUseCase = new GetWishlistUseCase(wishlistRepository);
     const removeAllProductfromWishlistUseCase = new RemoveAllProductfromWishlistUseCase(wishlistRepository);
-    const removeProductFromWishlistUseCase = new RemoveProductFromWishlistUseCase(wishlistRepository, productRepository);
-    const toggleWishlistUseCase = new ToggleWishlistUseCase(wishlistRepository, productRepository);
+    const removeProductFromWishlistUseCase = new RemoveProductFromWishlistUseCase(wishlistRepository);
 
     const wishlistController: WishlistController = new WishlistController(
         addProductToWishlistUseCase,
         getWishlistUseCase,
         removeAllProductfromWishlistUseCase,
-        removeProductFromWishlistUseCase,
-        toggleWishlistUseCase
+        removeProductFromWishlistUseCase
     );
 
 

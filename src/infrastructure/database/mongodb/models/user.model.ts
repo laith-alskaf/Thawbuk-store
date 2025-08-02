@@ -29,39 +29,10 @@ const userSchema = new Schema<UserDocument>({
         companyAddress: {
             street: { type: String },
             city: { type: String , required: function () { return this.role === 'admin'; }},
-            country: { type: String, default: 'سوريا' },
+            country: { type: String },
         },
         companyPhone: { type: String },
         companyLogo: { type: String, match: [/^https?:\/\/.+/] },
-        socialLinks: {
-            facebook: { 
-                type: String, 
-                validate: {
-                    validator: function(v: string) {
-                        return !v || /^https?:\/\/(www\.)?facebook\.com\/.+/.test(v);
-                    },
-                    message: 'رابط فيسبوك غير صحيح'
-                }
-            },
-            instagram: { 
-                type: String,
-                validate: {
-                    validator: function(v: string) {
-                        return !v || /^https?:\/\/(www\.)?instagram\.com\/.+/.test(v);
-                    },
-                    message: 'رابط انستغرام غير صحيح'
-                }
-            },
-            whatsapp: { 
-                type: String,
-                validate: {
-                    validator: function(v: string) {
-                        return !v || /^https?:\/\/(wa\.me|api\.whatsapp\.com)\/.+/.test(v);
-                    },
-                    message: 'رابط واتساب غير صحيح'
-                }
-            },
-        },
     },
     address: {
         street: { type: String },

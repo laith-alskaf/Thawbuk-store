@@ -20,9 +20,6 @@ export interface IProduct {
   ageRange?: IAgeRange;
   rating?: number;
   reviewsCount?: number;
-  favoritesCount?: number;
-  viewsCount?: number;
-  isActive?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,9 +42,6 @@ export class ProductMapper {
       descriptionAr: product.descriptionAr,
       rating: product.rating,
       reviewsCount: product.reviewsCount,
-      favoritesCount: product.favoritesCount,
-      viewsCount: product.viewsCount,
-      isActive: product.isActive,
     };
   }
 }

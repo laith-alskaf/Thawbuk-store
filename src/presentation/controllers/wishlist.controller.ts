@@ -5,7 +5,6 @@ import {
     RemoveProductFromWishlistUseCase,
     GetWishlistUseCase,
     AddProductToWishlistUseCase,
-    ToggleWishlistUseCase,
 } from "../../application/use-cases/wishlist";
 import { ApplicationResponse } from "../../application/response/application-resposne";
 import { BadRequestError } from "../../application/errors/application-error";
@@ -16,7 +15,6 @@ export class WishlistController {
         private readonly getWishlistUseCase: GetWishlistUseCase,
         private readonly removeAllProductfromWishlistUseCase: RemoveAllProductfromWishlistUseCase,
         private readonly removeProductFromWishlistUseCase: RemoveProductFromWishlistUseCase,
-        private readonly toggleWishlistUseCase: ToggleWishlistUseCase,
     ) { }
 
     async getWishlist(req: Request, res: Response): Promise<void> {
@@ -37,7 +35,7 @@ export class WishlistController {
 
     async addProdutcToWishlist(req: Request, res: Response): Promise<void> {
         try {
-            const { productId } = req.body;
+            const { productId } = req.params;
             console.log(productId);
             const userId = req.user.id;
             await this.addProductToWishlistUseCase.execute(userId, productId);
@@ -53,7 +51,7 @@ export class WishlistController {
 
     async removeProdutcFromWishlist(req: Request, res: Response): Promise<void> {
         try {
-            const { productId } = req.body;
+            const { productId } = req.params;
             const userId = req.user?.id;
             await this.removeProductFromWishlistUseCase.execute(userId, productId);
             new ApplicationResponse(res, {
@@ -79,21 +77,5 @@ export class WishlistController {
             throw new BadRequestError(error.message);
         }
 
-    }
-
-    async toggleProductInWishlist(req: Request, res: Response): Promise<void> {
-        try {
-            const { productId } = req.body;
-            const userId = req.user.id;
-            const result = await this.toggleWishlistUseCase.execute(userId, productId);
-            new ApplicationResponse(res, {
-                success: true,
-                statusCode: StatusCodes.OK,
-                message: "Toggled successfully",
-                body: result
-            }).send();
-        } catch (error: any) {
-            throw new BadRequestError(error.message);
-        }
     }
 }

@@ -23,14 +23,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserEntity>> login(String email, String password) async {
     if (await networkInfo.isConnected) {
       try {
-        final response = await remoteDataSource.login(email, password);
-        final userModel = UserModel.fromJson(response['userInfo']);
-        final token = response['token'] as String;
-
-        // The repository now correctly handles caching
-        await localDataSource.saveToken(token);
+        final userModel = await remoteDataSource.login(email, password);
         await localDataSource.cacheUser(userModel);
-
         return Right(userModel.toEntity());
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));

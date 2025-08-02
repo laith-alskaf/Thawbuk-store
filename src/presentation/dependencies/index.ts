@@ -17,7 +17,6 @@ import { OrderRepository } from '../../infrastructure/repositories/order.reposit
 // Controllers Dependencies
 import { AuthDependencies } from './auth.dependencies';
 import { ProductDependencies } from './product.dependencies';
-import { EnhancedProductDependencies } from './enhanced-product.dependencies';
 import { CategoryDependencies } from './category.dependencies';
 import { WishlistDependencies } from './wishlist.dependencies';
 import { CartDependencies } from './cart.dependencies';
@@ -26,7 +25,6 @@ import { MongoWishlistRepository } from '../../infrastructure/repositories/mongo
 import { UserDependencies } from './user.depednencies';
 import { NewProductNotification } from '../../infrastructure/srevices/notif-new-product';
 import { CloudImageService } from '../../infrastructure/srevices/cloud-image.service';
-import { InMemoryCacheService } from '../../infrastructure/cache/memory-cache.service';
 
 
 export const setupDependencies = () => {
@@ -52,7 +50,6 @@ export const setupDependencies = () => {
     const emailService = new NodemailerGmailService(CONFIG.GMAIL_USER!, CONFIG.GMAIL_PASS!);
     const newProductNotification = new NewProductNotification();
     const uploudImageService = new CloudImageService();
-    const cacheService = new InMemoryCacheService(10000); // Max 10,000 cache entries
 
     //Controllers
 
@@ -66,21 +63,12 @@ export const setupDependencies = () => {
         uuidGeneratorService: uuidGeneratorService,
     });
 
-    //2- Product (Original)
+    //2- Product
     const productController = ProductDependencies({
         productRepository: prodcutRepository,
         uuidGeneratorService: uuidGeneratorService,
         newProductNotification: newProductNotification,
         uploudImageService: uploudImageService
-    });
-
-    //2.1- Enhanced Product
-    const enhancedProductController = EnhancedProductDependencies({
-        productRepository: prodcutRepository,
-        uuidGeneratorService: uuidGeneratorService,
-        newProductNotification: newProductNotification,
-        uploadImageService: uploudImageService,
-        cacheService: cacheService
     });
 
     //3- Category
@@ -92,8 +80,7 @@ export const setupDependencies = () => {
 
     //3- Wishlist
     const wishlistController = WishlistDependencies({
-        wishlistRepository: wishlistRepository,
-        productRepository: prodcutRepository
+        wishlistRepository: wishlistRepository
     });
 
     //4- User
@@ -118,12 +105,10 @@ export const setupDependencies = () => {
         userRepository,
         authController,
         productController,
-        enhancedProductController,
         categoryController,
         wishlistController,
         userController,
         cartController,
-        orderController,
-        cacheService
+        orderController
     };
 };

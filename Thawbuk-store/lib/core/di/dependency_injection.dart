@@ -1,7 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../network/http_client.dart';
-import '../network/api_client.dart';
 import '../network/network_info.dart';
 import '../services/fcm_service.dart';
 
@@ -87,7 +86,6 @@ Future<void> configureDependencies() async {
   
   // HTTP Client setup
   getIt.registerLazySingleton(() => HttpClient(getIt<SharedPreferences>()));
-  getIt.registerLazySingleton(() => ApiClient());
 
   // Data sources
   getIt.registerLazySingleton<AuthRemoteDataSource>(

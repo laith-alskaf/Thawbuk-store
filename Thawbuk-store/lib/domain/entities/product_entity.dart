@@ -1,17 +1,5 @@
 import 'package:equatable/equatable.dart';
-
-class AgeRangeEntity extends Equatable {
-  final int minAge;
-  final int maxAge;
-
-  const AgeRangeEntity({
-    required this.minAge,
-    required this.maxAge,
-  });
-
-  @override
-  List<Object?> get props => [minAge, maxAge];
-}
+import 'user_entity.dart'; // For AgeRangeEntity
 
 class ProductEntity extends Equatable {
   final String id;
@@ -30,12 +18,8 @@ class ProductEntity extends Equatable {
   final AgeRangeEntity? ageRange;
   final double? rating;
   final int? reviewsCount;
-  final String? brand;
-  final Map<String, int>? ageRange;
-  // خصائص إضافية من Backend
-  final int? favoritesCount;
-  final int? viewsCount;
-  final bool? isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   const ProductEntity({
     required this.id,
@@ -56,10 +40,6 @@ class ProductEntity extends Equatable {
     this.ageRange,
     this.rating,
     this.reviewsCount,
-    this.favoritesCount,
-    this.viewsCount,
-    this.isActive,
-
   });
 
   String get displayName => nameAr?.isNotEmpty == true ? nameAr! : name;
@@ -88,8 +68,5 @@ class ProductEntity extends Equatable {
         reviewsCount,
         createdAt,
         updatedAt,
-        favoritesCount,
-        viewsCount,
-        isActive,
       ];
 }
