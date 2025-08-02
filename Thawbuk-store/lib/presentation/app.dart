@@ -4,9 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import '../core/di/dependency_injection.dart';
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/product/product_bloc.dart';
-import 'bloc/cart/cart_bloc.dart';
 import 'bloc/category/category_bloc.dart';
-import 'bloc/order/order_bloc.dart';
 import 'bloc/theme/theme_cubit.dart';
 import 'navigation/app_router.dart';
 
@@ -22,12 +20,6 @@ class App extends StatelessWidget {
         ),
         BlocProvider<ProductBloc>(
           create: (_) => getIt<ProductBloc>(),
-        ),
-        BlocProvider<CartBloc>(
-          create: (_) => getIt<CartBloc>(),
-        ),
-        BlocProvider<OrderBloc>(
-          create: (_) => getIt<OrderBloc>(),
         ),
         BlocProvider<CategoryBloc>(
           create: (_) => getIt<CategoryBloc>(),

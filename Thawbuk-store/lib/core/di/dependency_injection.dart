@@ -10,9 +10,6 @@ import '../../data/datasources/auth_remote_data_source.dart';
 import '../../data/datasources/auth_local_data_source.dart';
 import '../../data/datasources/product_remote_data_source.dart';
 import '../../data/datasources/category_remote_data_source.dart';
-import '../../data/datasources/cart_remote_data_source.dart';
-import '../../data/datasources/cart_local_data_source.dart';
-import '../../data/datasources/order_remote_data_source.dart';
 import '../../data/datasources/user_remote_data_source.dart';
 import '../../data/datasources/user_local_data_source.dart';
 import '../../data/datasources/store_remote_data_source.dart';
@@ -21,16 +18,12 @@ import '../../data/datasources/store_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../data/repositories/product_repository_impl.dart';
 import '../../data/repositories/category_repository_impl.dart';
-import '../../data/repositories/cart_repository_impl.dart';
-import '../../data/repositories/order_repository_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
 import '../../data/repositories/store_repository_impl.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../domain/repositories/category_repository.dart';
-import '../../domain/repositories/cart_repository.dart';
-import '../../domain/repositories/order_repository.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../domain/repositories/store_repository.dart';
 
@@ -49,13 +42,6 @@ import '../../domain/usecases/product/create_product_usecase.dart';
 import '../../domain/usecases/product/update_product_usecase.dart';
 import '../../domain/usecases/product/delete_product_usecase.dart';
 import '../../domain/usecases/product/get_my_products_usecase.dart';
-import '../../domain/usecases/cart/add_to_cart_usecase.dart';
-import '../../domain/usecases/cart/get_cart_usecase.dart';
-import '../../domain/usecases/cart/update_cart_usecase.dart';
-import '../../domain/usecases/cart/remove_from_cart_usecase.dart';
-import '../../domain/usecases/cart/clear_cart_usecase.dart';
-import '../../domain/usecases/order/get_orders_usecase.dart';
-import '../../domain/usecases/order/create_order_usecase.dart';
 import '../../domain/usecases/category/get_categories_usecase.dart';
 import '../../domain/usecases/store/get_store_profile_usecase.dart';
 import '../../domain/usecases/store/get_store_products_usecase.dart';
@@ -63,8 +49,6 @@ import '../../domain/usecases/store/get_store_products_usecase.dart';
 // Blocs
 import '../../presentation/bloc/auth/auth_bloc.dart';
 import '../../presentation/bloc/product/product_bloc.dart';
-import '../../presentation/bloc/cart/cart_bloc.dart';
-import '../../presentation/bloc/order/order_bloc.dart';
 import '../../presentation/bloc/category/category_bloc.dart';
 import '../../presentation/bloc/theme/theme_cubit.dart';
 import '../../presentation/bloc/store/store_bloc.dart';
@@ -102,15 +86,6 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<CategoryRemoteDataSource>(
     () => CategoryRemoteDataSourceImpl(getIt()),
   );
-  getIt.registerLazySingleton<CartRemoteDataSource>(
-    () => CartRemoteDataSourceImpl(getIt()),
-  );
-  getIt.registerLazySingleton<CartLocalDataSource>(
-    () => CartLocalDataSourceImpl(getIt()),
-  );
-  getIt.registerLazySingleton<OrderRemoteDataSource>(
-    () => OrderRemoteDataSourceImpl(getIt()),
-  );
   getIt.registerLazySingleton<UserRemoteDataSource>(
     () => UserRemoteDataSourceImpl(getIt()),
   );
@@ -138,19 +113,6 @@ Future<void> configureDependencies() async {
   );
   getIt.registerLazySingleton<CategoryRepository>(
     () => CategoryRepositoryImpl(
-      remoteDataSource: getIt(),
-      networkInfo: getIt(),
-    ),
-  );
-  getIt.registerLazySingleton<CartRepository>(
-    () => CartRepositoryImpl(
-      remoteDataSource: getIt(),
-      localDataSource: getIt(),
-      networkInfo: getIt(),
-    ),
-  );
-  getIt.registerLazySingleton<OrderRepository>(
-    () => OrderRepositoryImpl(
       remoteDataSource: getIt(),
       networkInfo: getIt(),
     ),
@@ -184,13 +146,6 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => UpdateProductUseCase(getIt()));
   getIt.registerLazySingleton(() => DeleteProductUseCase(getIt()));
   getIt.registerLazySingleton(() => GetMyProductsUseCase(getIt()));
-  getIt.registerLazySingleton(() => AddToCartUseCase(getIt()));
-  getIt.registerLazySingleton(() => GetCartUseCase(getIt()));
-  getIt.registerLazySingleton(() => UpdateCartUseCase(getIt()));
-  getIt.registerLazySingleton(() => RemoveFromCartUseCase(getIt()));
-  getIt.registerLazySingleton(() => ClearCartUseCase(getIt()));
-  getIt.registerLazySingleton(() => GetOrdersUseCase(getIt()));
-  getIt.registerLazySingleton(() => CreateOrderUseCase(getIt()));
   getIt.registerLazySingleton(() => GetCategoriesUseCase(getIt()));
   getIt.registerLazySingleton(() => GetStoreProfileUseCase(getIt()));
   getIt.registerLazySingleton(() => GetStoreProductsUseCase(getIt()));
@@ -217,19 +172,6 @@ Future<void> configureDependencies() async {
     deleteProductUseCase: getIt(),
   ));
   
-  getIt.registerFactory(() => CartBloc(
-    addToCartUseCase: getIt(),
-    getCartUseCase: getIt(),
-    updateCartUseCase: getIt(),
-    removeFromCartUseCase: getIt(),
-    clearCartUseCase: getIt(),
-  ));
-  
-  getIt.registerFactory(() => OrderBloc(
-    getOrdersUseCase: getIt(),
-    createOrderUseCase: getIt(),
-  ));
-
   getIt.registerFactory(() => CategoryBloc(getIt()));
   
   getIt.registerFactory(() => StoreBloc(

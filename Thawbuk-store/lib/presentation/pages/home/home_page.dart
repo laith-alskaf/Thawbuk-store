@@ -27,7 +27,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     context.read<ProductBloc>().add(GetProductsEvent());
-    context.read<CartBloc>().add(GetCartEvent());
     context.read<CategoryBloc>().add(GetCategoriesEvent());
   }
 
@@ -67,24 +66,6 @@ class _HomePageState extends State<HomePage> {
             shadowColor: Colors.grey.withOpacity(0.3),
             centerTitle: false,
             actions: [
-              // Cart Icon - محمي بالتحقق من تسجيل الدخول
-              BlocBuilder<CartBloc, CartState>(
-                builder: (context, cartState) {
-                  int itemCount = 0;
-                  if (cartState is CartLoaded) {
-                    itemCount = cartState.cart.itemsCount;
-                  }
-
-                  return Badge(
-                    label: Text(itemCount.toString()),
-                    isLabelVisible: itemCount > 0 && AuthGuard.isAuthenticated(context),
-                    child: IconButton(
-                      icon: const Icon(Icons.shopping_bag),
-                      onPressed: () => NavigationHelper.goToCart(context),
-                    ),
-                  );
-                },
-              ),
               // Profile Menu - يظهر بناءً على حالة تسجيل الدخول
               _buildProfileMenu(context, authState),
             ],
@@ -305,18 +286,7 @@ class _HomePageState extends State<HomePage> {
         return ProductCard(
           product: product,
           onTap: () => context.push('/product/${product.id}'),
-          onAddToCart: () {
-            // التحقق من تسجيل الدخول قبل الإضافة للسلة
-            if (NavigationHelper.addToCart(context)) {
-              context.read<CartBloc>().add(
-                    AddToCartEvent(
-                      productId: product.id,
-                      quantity: 1,
-                    ),
-                  );
-              NavigationHelper.showSuccessMessage(context, 'تم إضافة المنتج للسلة');
-            }
-          },
+          onAddToCart: () {},
           onToggleWishlist: () {
             // التحقق من تسجيل الدخول قبل الإضافة للمفضلة
             NavigationHelper.addToFavorites(context);

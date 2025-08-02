@@ -11,8 +11,6 @@ import '../pages/main/main_layout.dart';
 import '../pages/home/home_page.dart';
 import '../pages/products/products_page.dart';
 import '../pages/products/product_detail_page.dart';
-import '../pages/cart/cart_page.dart';
-import '../pages/orders/orders_page.dart';
 import '../pages/profile/profile_page.dart';
 import '../pages/favorites/favorites_page.dart';
 import '../pages/settings/settings_page.dart';
@@ -92,25 +90,11 @@ class AppRouter {
           },
         ),
 
-        // Cart
-        GoRoute(
-          path: '/cart',
-          name: 'cart',
-          builder: (context, state) => const MainLayout(initialIndex: 2),
-        ),
-
         // Favorites
         GoRoute(
           path: '/favorites',
           name: 'favorites',
           builder: (context, state) => const MainLayout(initialIndex: 3),
-        ),
-
-        // Orders
-        GoRoute(
-          path: '/orders',
-          name: 'orders',
-          builder: (context, state) => const OrdersPage(),
         ),
 
         // Profile
