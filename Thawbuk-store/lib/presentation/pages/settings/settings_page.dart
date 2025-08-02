@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/theme/theme_cubit.dart';
 import '../../widgets/shared/custom_card.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
+import 'edit_profile_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -43,25 +45,18 @@ class SettingsPage extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // معلومات المطور
-            _buildDeveloperCard(context),
-            
+            _buildSectionTitle(context, 'الحساب'),
+            _buildAccountCard(context),
             const SizedBox(height: 24),
-            
-            // إعدادات التطبيق
+
+            _buildSectionTitle(context, 'التطبيق'),
             _buildAppSettingsCard(context),
-            
             const SizedBox(height: 24),
-            
-            // حول التطبيق
-            _buildAboutCard(context),
-            
-            const SizedBox(height: 24),
-            
-            // التواصل مع المطور
-            _buildContactCard(context),
-            
+
+            _buildSectionTitle(context, 'حول ودعم'),
+            _buildAboutAndSupportCard(context),
             const SizedBox(height: 32),
           ],
         ),
@@ -69,145 +64,68 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDeveloperCard(BuildContext context) {
-    return CustomCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // صورة المطور أو أيقونة
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.primary.withOpacity(0.3),
-                width: 2,
-              ),
-            ),
-            child: const Icon(
-              Icons.code,
-              size: 40,
-              color: AppColors.primary,
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          Text(
-            'تم تطوير التطبيق بواسطة',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.grey,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          Text(
-            'ليث الأسكف',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          Text(
-            'مطور تطبيقات الجوال والويب',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.grey,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // أزرار التواصل
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildContactButton(
-                context,
-                'واتس آب',
-                Icons.phone,
-                AppColors.success,
-                () => _launchWhatsApp(context),
-              ),
-              _buildContactButton(
-                context,
-                'تليجرام',
-                Icons.telegram,
-                AppColors.info,
-                () => _launchTelegram(context),
-              ),
-              _buildContactButton(
-                context,
-                'جيميل',
-                Icons.email,
-                AppColors.error,
-                () => _launchEmail(context),
-              ),
-            ],
-          ),
-        ],
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          color: AppColors.darkGrey,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
-  Widget _buildContactButton(
-    BuildContext context,
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onPressed,
-  ) {
-    return Column(
-      children: [
-        ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: color.withOpacity(0.1),
-            foregroundColor: color,
-            elevation: 0,
-            shape: const CircleBorder(),
-            padding: const EdgeInsets.all(16),
+  Widget _buildAccountCard(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is! AuthAuthenticated) {
+          // Optionally, show a disabled state or hide the card
+          return const SizedBox.shrink();
+        }
+        return CustomCard(
+          child: Column(
+            children: [
+              _buildSettingTile(
+                context,
+                'تعديل الملف الشخصي',
+                'تغيير الاسم، البريد الإلكتروني...',
+                Icons.person_outline,
+                () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => EditProfilePage(user: state.user),
+                    ),
+                  );
+                },
+              ),
+              const Divider(),
+              _buildSettingTile(
+                context,
+                'تغيير كلمة المرور',
+                'تحديث كلمة المرور الخاصة بك',
+                Icons.lock_outline,
+                () {
+                  _showComingSoonSnackBar(context);
+                },
+              ),
+            ],
           ),
-          child: Icon(icon, size: 24),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: color,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 
   Widget _buildAppSettingsCard(BuildContext context) {
     return CustomCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'إعدادات التطبيق',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
           // الوضع المظلم
           BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, themeState) {
               return SwitchListTile(
                 title: const Text('الوضع المظلم'),
-                subtitle: const Text('تبديل بين الوضع الفاتح والمظلم'),
                 value: themeState.isDarkMode,
                 onChanged: (value) {
                   context.read<ThemeCubit>().toggleTheme();
@@ -246,184 +164,45 @@ class SettingsPage extends StatelessWidget {
               _showComingSoonSnackBar(context);
             },
           ),
-          
-          const Divider(),
-          
-          // مسح الكاش
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAboutAndSupportCard(BuildContext context) {
+    return CustomCard(
+      child: Column(
+        children: [
           _buildSettingTile(
             context,
-            'مسح ذاكرة التخزين المؤقت',
-            'تحرير مساحة تخزين',
-            Icons.cleaning_services_outlined,
-            () {
-              _showClearCacheDialog(context);
-            },
+            'عن ثوبك',
+            'معلومات عن التطبيق',
+            Icons.info_outline,
+            () => _showAboutDialog(context),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAboutCard(BuildContext context) {
-    return CustomCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'حول التطبيق',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // معلومات التطبيق
-          Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.storefront,
-                  color: AppColors.white,
-                  size: 30,
-                ),
-              ),
-              
-              const SizedBox(width: 16),
-              
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppConstants.appName,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 4),
-                    
-                    Text(
-                      'الإصدار ${AppConstants.appVersion}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 16),
-          
-          Text(
-            'متجر الألبسة التقليدية والعصرية في سوريا. يوفر تجربة تسوق مميزة مع تشكيلة واسعة من الأزياء عالية الجودة.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              height: 1.5,
-            ),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // أزرار الإجراءات
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    _showPrivacyDialog(context);
-                  },
-                  icon: const Icon(Icons.privacy_tip_outlined),
-                  label: const Text('سياسة الخصوصية'),
-                ),
-              ),
-              
-              const SizedBox(width: 12),
-              
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    _showTermsDialog(context);
-                  },
-                  icon: const Icon(Icons.description_outlined),
-                  label: const Text('الشروط والأحكام'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContactCard(BuildContext context) {
-    return CustomCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'التواصل والدعم',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          _buildContactTile(
+          const Divider(),
+          _buildSettingTile(
             context,
-            'واتس آب',
-            '+963 982 055 788',
-            Icons.phone,
-            AppColors.success,
-            () => _launchWhatsApp(context),
+            'سياسة الخصوصية',
+            'كيف نتعامل مع بياناتك',
+            Icons.privacy_tip_outlined,
+            () => _showPrivacyDialog(context),
           ),
-          
-          const SizedBox(height: 12),
-          
-          _buildContactTile(
+          const Divider(),
+          _buildSettingTile(
             context,
-            'تليجرام',
-            '@Laith041',
-            Icons.telegram,
-            AppColors.info,
-            () => _launchTelegram(context),
+            'شروط الاستخدام',
+            'قواعد استخدام التطبيق',
+            Icons.description_outlined,
+            () => _showTermsDialog(context),
           ),
-          
-          const SizedBox(height: 12),
-          
-          _buildContactTile(
+          const Divider(),
+          _buildSettingTile(
             context,
-            'البريد الإلكتروني',
-            'laithalskaf@gmail.com',
-            Icons.email,
-            AppColors.error,
-            () => _launchEmail(context),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // زر الدعم الفني
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                _showSupportDialog(context);
-              },
-              icon: const Icon(Icons.support_agent),
-              label: const Text('الدعم الفني'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
+            'تواصل مع المطور',
+            'ليث الأسكف', // Placeholder
+            Icons.code,
+            () => _showSupportDialog(context),
           ),
         ],
       ),
@@ -444,40 +223,6 @@ class SettingsPage extends StatelessWidget {
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
-    );
-  }
-
-  Widget _buildContactTile(
-    BuildContext context,
-    String title,
-    String subtitle,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-        ),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: color),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(subtitle),
-        trailing: Icon(
-          Icons.open_in_new,
-          color: color,
-          size: 20,
-        ),
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-      ),
     );
   }
 
