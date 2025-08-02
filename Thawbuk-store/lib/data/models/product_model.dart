@@ -27,6 +27,9 @@ class ProductModel extends ProductEntity {
     int? reviewsCount,
     String? brand,
     Map<String, int>? ageRange,
+    int? favoritesCount,
+    int? viewsCount,
+    bool? isActive,
   }) : super(
           id: id,
           name: name,
@@ -46,6 +49,9 @@ class ProductModel extends ProductEntity {
           reviewsCount: reviewsCount,
           brand: brand,
           ageRange: ageRange,
+          favoritesCount: favoritesCount,
+          viewsCount: viewsCount,
+          isActive: isActive,
         );
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
@@ -73,6 +79,9 @@ class ProductModel extends ProductEntity {
       reviewsCount: reviewsCount,
       brand: brand,
       ageRange: ageRange,
+      favoritesCount: favoritesCount,
+      viewsCount: viewsCount,
+      isActive: isActive,
     );
   }
 }

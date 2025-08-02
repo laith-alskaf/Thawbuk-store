@@ -34,6 +34,9 @@ ProductModel _$ProductModelFromJson(Map<String, dynamic> json) => ProductModel(
       ageRange: (json['ageRange'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, (e as num).toInt()),
       ),
+      favoritesCount: (json['favoritesCount'] as num?)?.toInt(),
+      viewsCount: (json['viewsCount'] as num?)?.toInt(),
+      isActive: json['isActive'] as bool?,
     );
 
 Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>
@@ -55,5 +58,8 @@ Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>
       'reviewsCount': instance.reviewsCount,
       'brand': instance.brand,
       'ageRange': instance.ageRange,
+      'favoritesCount': instance.favoritesCount,
+      'viewsCount': instance.viewsCount,
+      'isActive': instance.isActive,
       '_id': instance.id,
     };

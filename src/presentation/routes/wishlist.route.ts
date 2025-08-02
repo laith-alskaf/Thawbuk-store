@@ -9,9 +9,11 @@ const wishlistRoutes = (wishlistController: WishlistController): Router => {
 
     router.get("/", wishlistController.getWishlist.bind(wishlistController));
 
-    router.post("/:productId", validateWishlistProductId, wishlistProductIdMiddleware(true), wishlistController.addProdutcToWishlist.bind(wishlistController));
+    router.post("/toggle", wishlistController.toggleProductInWishlist.bind(wishlistController));
+
+    router.post("/", validateWishlistProductId, wishlistProductIdMiddleware(true), wishlistController.addProdutcToWishlist.bind(wishlistController));
     
-    router.delete("/product/:productId", validateWishlistProductId, wishlistProductIdMiddleware(false), wishlistController.removeProdutcFromWishlist.bind(wishlistController));
+    router.delete("/product", validateWishlistProductId, wishlistProductIdMiddleware(false), wishlistController.removeProdutcFromWishlist.bind(wishlistController));
     
     router.delete("/all-product", wishlistController.removeAllProdutcFromWishlist.bind(wishlistController));
     

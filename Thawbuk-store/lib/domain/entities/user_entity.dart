@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum UserRole { customer, admin, owner }
+enum UserRole { customer, admin, superAdmin }
 
 class UserEntity extends Equatable {
   final String id;
@@ -12,6 +12,15 @@ class UserEntity extends Equatable {
   final DateTime? lastLoginAt;
   final String? profileImage;
   final CompanyEntity? company;
+  // خصائص إضافية من Backend
+  final int? age;
+  final String? gender; // 'male' | 'female' | 'other'
+  final List<ChildEntity>? children;
+  final AddressEntity? address;
+  final String? fcmToken;
+  final bool isEmailVerified;
+  final String? otpCode;
+  final DateTime? otpCodeExpires;
 
   const UserEntity({
     required this.id,
@@ -23,9 +32,17 @@ class UserEntity extends Equatable {
     this.lastLoginAt,
     this.profileImage,
     this.company,
+    this.age,
+    this.gender,
+    this.children,
+    this.address,
+    this.fcmToken,
+    required this.isEmailVerified,
+    this.otpCode,
+    this.otpCodeExpires,
   });
 
-  bool get isOwner => role == UserRole.owner;
+  bool get isSuperAdmin => role == UserRole.superAdmin;
   bool get isAdmin => role == UserRole.admin;
   bool get isCustomer => role == UserRole.customer;
 
@@ -40,6 +57,14 @@ class UserEntity extends Equatable {
         lastLoginAt,
         profileImage,
         company,
+        age,
+        gender,
+        children,
+        address,
+        fcmToken,
+        isEmailVerified,
+        otpCode,
+        otpCodeExpires,
       ];
 }
 
@@ -58,4 +83,38 @@ class CompanyEntity extends Equatable {
 
   @override
   List<Object?> get props => [name, address, logo, description];
+}
+
+class ChildEntity extends Equatable {
+  final String name;
+  final int age;
+  final String gender;
+
+  const ChildEntity({
+    required this.name,
+    required this.age,
+    required this.gender,
+  });
+
+  @override
+  List<Object?> get props => [name, age, gender];
+}
+
+class AddressEntity extends Equatable {
+  final String street;
+  final String city;
+  final String state;
+  final String country;
+  final String? postalCode;
+
+  const AddressEntity({
+    required this.street,
+    required this.city,
+    required this.state,
+    required this.country,
+    this.postalCode,
+  });
+
+  @override
+  List<Object?> get props => [street, city, state, country, postalCode];
 }

@@ -40,8 +40,26 @@ export const validateGetProductByCategoryId = createValidationMiddleware({
   dataSource: 'params',
 });
 
+// Enhanced validators with better error messages
+export const validatePaginationParams = createValidationMiddleware({
+  schema: paginationSchema,
+  dataSource: 'query'
+});
 
+export const validateEnhancedProduct = createValidationMiddleware({
+  schema: productSchema,
+  dataSource: 'body'
+});
 
+export const validateEnhancedUpdateProduct = createValidationMiddleware({
+  schema: updateProductSchema,
+  dataSource: 'composite'
+});
+
+export const validateEnhancedProductId = createValidationMiddleware({
+  schema: productIdSchema,
+  dataSource: 'params'
+});
 
 
 

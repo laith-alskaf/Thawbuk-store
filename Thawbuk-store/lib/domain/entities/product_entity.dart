@@ -19,6 +19,10 @@ class ProductEntity extends Equatable {
   final int? reviewsCount;
   final String? brand;
   final Map<String, int>? ageRange;
+  // خصائص إضافية من Backend
+  final int? favoritesCount;
+  final int? viewsCount;
+  final bool? isActive;
 
   const ProductEntity({
     required this.id,
@@ -39,6 +43,9 @@ class ProductEntity extends Equatable {
     this.reviewsCount,
     this.brand,
     this.ageRange,
+    this.favoritesCount,
+    this.viewsCount,
+    this.isActive,
   });
 
   String get displayName => nameAr?.isNotEmpty == true ? nameAr! : name;
@@ -66,5 +73,8 @@ class ProductEntity extends Equatable {
         reviewsCount,
         brand,
         ageRange,
+        favoritesCount,
+        viewsCount,
+        isActive,
       ];
 }

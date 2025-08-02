@@ -26,7 +26,10 @@ export class MongoUserRepository implements UserRepository {
   }
 
   update = async (userId: string, userData: Partial<IUser>): Promise<IUser | null> => {
-    return await UserModel.findByIdAndUpdate(userId, { $set: userData }, { new: true }).exec();
+    // Remove sensitive fields that should not be updated by users
+    const { role, _id, createdAt, updatedAt, otpCode, isVerified, ...safeUserData } = userData as any;
+    
+    return await UserModel.findByIdAndUpdate(userId, { $set: safeUserData }, { new: true }).exec();
   }
 
   delete = async (id: string): Promise<void> => {
