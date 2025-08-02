@@ -21,6 +21,8 @@ class AddressModel extends AddressEntity {
       _$AddressModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$AddressModelToJson(this);
+
+  AddressEntity toEntity() => this;
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -40,6 +42,8 @@ class CompanyModel extends CompanyEntity {
       _$CompanyModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$CompanyModelToJson(this);
+
+  CompanyEntity toEntity() => this;
 }
 
 @JsonSerializable()
@@ -53,23 +57,22 @@ class ChildModel extends ChildEntity {
       _$ChildModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChildModelToJson(this);
+
+  ChildEntity toEntity() => this;
 }
 
 @JsonSerializable(explicitToJson: true)
 class UserModel extends UserEntity {
 
   @JsonKey(name: '_id')
-  @override
   final String id;
   
   @JsonKey(name: 'companyDetails')
-  @override
-  final AddressModel? address;
-  @override
-  @JsonKey(name: 'companyDetails')
-  final CompanyModel? companyDetails;
-  @override
-  final List<ChildModel>? children;
+  final CompanyModel? companyModel;
+
+  final AddressModel? addressModel;
+
+  final List<ChildModel>? childrenModel;
 
   const UserModel({
     required this.id,
@@ -80,44 +83,44 @@ class UserModel extends UserEntity {
     super.name,
     super.lastLoginAt,
     super.profileImage,
-    this.company,
+    this.companyModel,
+    this.addressModel,
+    this.childrenModel,
     super.age,
     super.gender,
-    super.children,
-    super.address,
     super.fcmToken,
-    required super.isEmailVerified,
     super.otpCode,
     super.otpCodeExpires,
-  }) : super(id: id, company: company);
+  }) : super(
+    id: id,
+    company: companyModel,
+    address: addressModel,
+    children: childrenModel
+  );
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
-  // Note: toEntity method might need to be implemented if you need to map from data model to domain entity.
-  // For now, it's commented out as the entity structure is not fully defined in the provided snippet.
-  /*
   UserEntity toEntity() {
     return UserEntity(
       id: id,
       email: email,
-      name: name,
       role: role,
       isEmailVerified: isEmailVerified,
       createdAt: createdAt,
+      name: name,
       lastLoginAt: lastLoginAt,
       profileImage: profileImage,
-      company: company?.toEntity(),
+      company: companyModel?.toEntity(),
       age: age,
       gender: gender,
-      children: children?.map((c) => c.toEntity()).toList(),
-      address: address?.toEntity(),
+      children: childrenModel?.map((c) => c.toEntity()).toList(),
+      address: addressModel?.toEntity(),
       fcmToken: fcmToken,
       otpCode: otpCode,
       otpCodeExpires: otpCodeExpires,
     );
   }
-  */
 }

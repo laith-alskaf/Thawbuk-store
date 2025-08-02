@@ -2,73 +2,92 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../bloc/auth/auth_bloc.dart';
 import '../../widgets/shared/custom_card.dart';
 import '../../widgets/shared/custom_button.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/di/dependency_injection.dart';
+import '../../bloc/user/user_bloc.dart';
+import 'edit_profile_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Icon(
-                Icons.account_circle,
-                color: AppColors.primary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'الملف الشخصي',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.black,
-        elevation: 1,
-        shadowColor: Colors.grey.withOpacity(0.3),
-        centerTitle: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined), // أيقونة تعديل أوضح
-            onPressed: () {
-              // TODO: تنفيذ تعديل الملف الشخصي
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('سيتم إضافة تعديل الملف الشخصي قريباً'),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: BlocBuilder<AuthBloc, AuthState>(
+    return BlocProvider(
+      create: (context) => getIt<UserBloc>()..add(GetUserProfile()),
+      child: BlocBuilder<UserBloc, UserState>(
         builder: (context, state) {
-          if (state is AuthLoading) {
-            return const LoadingWidget();
-          }
-          
-          if (state is! AuthAuthenticated) {
-            return const Center(
-              child: Text('يرجى تسجيل الدخول أولاً'),
-            );
-          }
-          
-          return _buildProfileContent(context, state.user);
+          return Scaffold(
+            appBar: AppBar(
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      Icons.account_circle,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'الملف الشخصي',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.black,
+              elevation: 1,
+              shadowColor: Colors.grey.withOpacity(0.3),
+              centerTitle: false,
+              actions: [
+                if (state is UserProfileLoaded)
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: BlocProvider.of<UserBloc>(context),
+                            child: EditProfilePage(user: state.user),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            ),
+            body: Builder(
+              builder: (context) {
+                if (state is UserLoading || state is UserInitial) {
+                  return const LoadingWidget();
+                }
+
+                if (state is UserError) {
+                  return Center(child: Text(state.message));
+                }
+
+                if (state is UserProfileLoaded) {
+                  return _buildProfileContent(context, state.user);
+                }
+
+                return const SizedBox.shrink();
+              },
+            ),
+          );
         },
       ),
     );

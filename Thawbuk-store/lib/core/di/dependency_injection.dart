@@ -50,6 +50,8 @@ import '../../domain/usecases/store/get_store_profile_usecase.dart';
 import '../../domain/usecases/store/get_store_products_usecase.dart';
 import '../../domain/usecases/wishlist/get_wishlist_usecase.dart';
 import '../../domain/usecases/wishlist/toggle_wishlist_usecase.dart';
+import '../../domain/usecases/user/get_user_profile_usecase.dart';
+import '../../domain/usecases/user/update_user_profile_usecase.dart';
 
 // Blocs
 import '../../presentation/bloc/auth/auth_bloc.dart';
@@ -58,6 +60,7 @@ import '../../presentation/bloc/category/category_bloc.dart';
 import '../../presentation/bloc/theme/theme_cubit.dart';
 import '../../presentation/bloc/store/store_bloc.dart';
 import '../../presentation/bloc/wishlist/wishlist_bloc.dart';
+import '../../presentation/bloc/user/user_bloc.dart';
 
 // Navigation
 import '../../presentation/navigation/app_router.dart';
@@ -139,6 +142,13 @@ Future<void> configureDependencies() async {
       networkInfo: getIt(),
     ),
   );
+  getIt.registerLazySingleton<UserRepository>(
+      () => UserRepositoryImpl(
+        remoteDataSource: getIt(),
+        localDataSource: getIt(),
+        networkInfo: getIt(),
+      ),
+  );
   getIt.registerLazySingleton<WishlistRepository>(
     () => WishlistRepositoryImpl(
       remoteDataSource: getIt(),
@@ -166,6 +176,8 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => GetStoreProductsUseCase(getIt()));
   getIt.registerLazySingleton(() => GetWishlistUseCase(getIt()));
   getIt.registerLazySingleton(() => ToggleWishlistUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetUserProfileUseCase(getIt()));
+  getIt.registerLazySingleton(() => UpdateUserProfileUseCase(getIt()));
 
   // Blocs
   getIt.registerFactory(() => AuthBloc(
@@ -199,6 +211,11 @@ Future<void> configureDependencies() async {
   getIt.registerFactory(() => WishlistBloc(
     getWishlistUseCase: getIt(),
     toggleWishlistUseCase: getIt(),
+  ));
+
+  getIt.registerFactory(() => UserBloc(
+    getUserProfileUseCase: getIt(),
+    updateUserProfileUseCase: getIt(),
   ));
 
   getIt.registerLazySingleton(() => ThemeCubit());

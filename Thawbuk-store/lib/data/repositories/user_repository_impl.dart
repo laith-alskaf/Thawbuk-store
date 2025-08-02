@@ -33,107 +33,38 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  // @override
-  Future<Either<Failure, List<ProductEntity>>> getWishlist() async {
-    try {
-      if (await networkInfo.isConnected) {
-        final productModels = await remoteDataSource.getWishlist();
-        final products = productModels.map((model) => model.toEntity()).toList();
-        await localDataSource.cacheWishlist(productModels);
-        return Right(products);
-      } else {
-        // Get from local cache when offline
-        final cachedProducts = await localDataSource.getCachedWishlist();
-        final products = cachedProducts.map((model) => model.toEntity()).toList();
-        return Right(products);
-      }
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
-    }
-  }
-
-  // @override
-  Future<Either<Failure, void>> addToWishlist(String productId) async {
+  @override
+  Future<Either<Failure, UserEntity>> getCurrentUser() async {
     if (await networkInfo.isConnected) {
       try {
-        await remoteDataSource.addToWishlist({productId:productId});
-        return const Right(null);
+        final userModel = await remoteDataSource.getCurrentUser();
+        // Optionally cache the user data here if needed
+        // await localDataSource.cacheUser(userModel);
+        return Right(userModel.toEntity());
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }
     } else {
+      // Optionally load from cache if offline
+      // try {
+      //   final localUser = await localDataSource.getCachedUser();
+      //   return Right(localUser.toEntity());
+      // } on CacheException {
+      //   return Left(CacheFailure('No cached user found.'));
+      // }
       return const Left(NetworkFailure('No internet connection'));
-    }
-  }
-
-  // @override
-  Future<Either<Failure, void>> removeFromWishlist(String productId) async {
-    if (await networkInfo.isConnected) {
-      try {
-        await remoteDataSource.removeFromWishlist(productId);
-        return const Right(null);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(e.message));
-      }
-    } else {
-      return const Left(NetworkFailure('No internet connection'));
-    }
-  }
-
-  // @override
-  Future<Either<Failure, String>> getLanguage() async {
-    try {
-      final language = await localDataSource.getLanguage();
-      return Right(language ?? 'ar');
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
     }
   }
 
   @override
   Future<Either<Failure, void>> updateLanguage(String language) async {
-    try {
-      await localDataSource.setLanguage(language);
-      return const Right(null);
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
-    }
-  }
-
-  @override
-  Future<Either<Failure, String>> getThemeMode() async {
-    try {
-      final themeMode = await localDataSource.getThemeMode();
-      return Right(themeMode ?? 'light');
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> setThemeMode(String themeMode) async {
-    try {
-      await localDataSource.setThemeMode(themeMode);
-      return const Right(null);
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
-    }
-  }
-  @override
-  Future<Either<Failure, void>> updateFcmToken(String token) async {
-    // try {
-      // await localDataSource.setThemeMode(token);
-      return const Right(null);
-    // } on CacheException catch (e) {
-      // return Left(CacheFailure(e.message));
-    // }
+    // This logic should be moved to a SettingsRepository
+    return const Right(null);
   }
   
   @override
-  Future<Either<Failure, UserEntity>> getCurrentUser() {
-    // TODO: implement getCurrentUser
-    throw UnimplementedError();
+  Future<Either<Failure, void>> updateFcmToken(String token) async {
+    // This logic might involve a remote call in the future
+    return const Right(null);
   }
 }

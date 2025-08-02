@@ -6,9 +6,6 @@ import '../models/product_model.dart';
 abstract class UserRemoteDataSource {
   Future<UserModel> getCurrentUser();
   Future<UserModel> updateProfile(Map<String, dynamic> userData);
-  Future<List<ProductModel>> getWishlist();
-  Future<void> addToWishlist(Map<String, dynamic> wishlistData);
-  Future<void> removeFromWishlist(String productId);
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
@@ -43,46 +40,6 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       }
     } catch (e) {
       throw ServerException('Failed to update profile: ${e.toString()}');
-    }
-  }
-
-  @override
-  Future<List<ProductModel>> getWishlist() async {
-    try {
-      final response = await httpClient.get('/user/wishlist');
-      
-      if (response['data'] is List) {
-        return (response['data'] as List)
-            .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
-            .toList();
-      }
-      // else if (response is List) {
-      //   return response
-      //       .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
-      //       .toList();
-      // }
-      
-      throw ServerException('Invalid response format for wishlist');
-    } catch (e) {
-      throw ServerException('Failed to get wishlist: ${e.toString()}');
-    }
-  }
-
-  @override
-  Future<void> addToWishlist(Map<String, dynamic> wishlistData) async {
-    try {
-      await httpClient.post('/user/wishlist', body: wishlistData);
-    } catch (e) {
-      throw ServerException('Failed to add to wishlist: ${e.toString()}');
-    }
-  }
-
-  @override
-  Future<void> removeFromWishlist(String productId) async {
-    try {
-      await httpClient.deleteVoid('/user/wishlist/$productId');
-    } catch (e) {
-      throw ServerException('Failed to remove from wishlist: ${e.toString()}');
     }
   }
 }
