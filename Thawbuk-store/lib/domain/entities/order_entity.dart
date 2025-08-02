@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'cart_entity.dart';
+import 'user_entity.dart'; // For AddressEntity
 
 enum OrderStatus {
   pending,
@@ -7,26 +8,19 @@ enum OrderStatus {
   processing,
   shipped,
   delivered,
-  cancelled
+  cancelled,
 }
 
-extension OrderStatusExtension on OrderStatus {
-  String get statusText {
-    switch (this) {
-      case OrderStatus.pending:
-        return 'في الانتظار';
-      case OrderStatus.confirmed:
-        return 'مؤكد';
-      case OrderStatus.processing:
-        return 'جاري التحضير';
-      case OrderStatus.shipped:
-        return 'تم الشحن';
-      case OrderStatus.delivered:
-        return 'تم التسليم';
-      case OrderStatus.cancelled:
-        return 'ملغى';
-    }
-  }
+enum PaymentMethod {
+  cash,
+  card,
+  online,
+}
+
+enum PaymentStatus {
+  pending,
+  paid,
+  failed,
 }
 
 class OrderEntity extends Equatable {
@@ -36,6 +30,9 @@ class OrderEntity extends Equatable {
   final double totalAmount;
   final OrderStatus status;
   final AddressEntity shippingAddress;
+  final PaymentMethod paymentMethod;
+  final PaymentStatus paymentStatus;
+  final String orderNumber;
   final String? notes;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -48,6 +45,9 @@ class OrderEntity extends Equatable {
     required this.totalAmount,
     required this.status,
     required this.shippingAddress,
+    required this.paymentMethod,
+    required this.paymentStatus,
+    required this.orderNumber,
     this.notes,
     required this.createdAt,
     this.updatedAt,
@@ -62,42 +62,12 @@ class OrderEntity extends Equatable {
         totalAmount,
         status,
         shippingAddress,
+        paymentMethod,
+        paymentStatus,
+        orderNumber,
         notes,
         createdAt,
         updatedAt,
         deliveredAt,
-      ];
-}
-
-class AddressEntity extends Equatable {
-  final String fullName;
-  final String phone;
-  final String street;
-  final String city;
-  final String state;
-  final String country;
-  final String? postalCode;
-
-  const AddressEntity({
-    required this.fullName,
-    required this.phone,
-    required this.street,
-    required this.city,
-    required this.state,
-    required this.country,
-    this.postalCode,
-  });
-
-  String get fullAddress => '$street, $city, $state, $country';
-
-  @override
-  List<Object?> get props => [
-        fullName,
-        phone,
-        street,
-        city,
-        state,
-        country,
-        postalCode,
       ];
 }

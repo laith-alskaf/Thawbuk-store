@@ -3,76 +3,48 @@ import '../../domain/entities/product_entity.dart';
 
 part 'product_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
+class AgeRangeModel extends AgeRangeEntity {
+  const AgeRangeModel({
+    required super.minAge,
+    required super.maxAge,
+  });
+
+  factory AgeRangeModel.fromJson(Map<String, dynamic> json) =>
+      _$AgeRangeModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AgeRangeModelToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
 class ProductModel extends ProductEntity {
-  @JsonKey(name: '_id')
-  final String id;
+  @override
+  @JsonKey(name: 'ageRange')
+  final AgeRangeModel? ageRange;
 
   const ProductModel({
-    required this.id,
-    required String name,
-    String? nameAr,
-    String? description,
-    String? descriptionAr,
-    required double price,
-    required String categoryId,
-    String? createdBy,
-    required List<String> images,
-    List<String>? sizes,
-    List<String>? colors,
-    required int stock,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    double? rating,
-    int? reviewsCount,
-    String? brand,
-    Map<String, int>? ageRange,
-  }) : super(
-          id: id,
-          name: name,
-          nameAr: nameAr,
-          description: description,
-          descriptionAr: descriptionAr,
-          price: price,
-          categoryId: categoryId,
-          createdBy: createdBy,
-          images: images,
-          sizes: sizes,
-          colors: colors,
-          stock: stock,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-          rating: rating,
-          reviewsCount: reviewsCount,
-          brand: brand,
-          ageRange: ageRange,
-        );
+    required super.id,
+    required super.name,
+    required super.description,
+    required super.price,
+    required super.categoryId,
+    required super.createdBy,
+    required super.images,
+    required super.sizes,
+    required super.colors,
+    required super.stock,
+    required super.createdAt,
+    required super.updatedAt,
+    super.nameAr,
+    super.descriptionAr,
+    super.brand,
+    this.ageRange,
+    super.rating,
+    super.reviewsCount,
+  }) : super(ageRange: ageRange);
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
       _$ProductModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProductModelToJson(this);
-
-  ProductEntity toEntity() {
-    return ProductEntity(
-      id: id,
-      name: name,
-      nameAr: nameAr,
-      description: description,
-      descriptionAr: descriptionAr,
-      price: price,
-      categoryId: categoryId,
-      createdBy: createdBy,
-      images: images,
-      sizes: sizes,
-      colors: colors,
-      stock: stock,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-      rating: rating,
-      reviewsCount: reviewsCount,
-      brand: brand,
-      ageRange: ageRange,
-    );
-  }
 }

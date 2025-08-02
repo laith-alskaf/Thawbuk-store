@@ -6,6 +6,7 @@ class CartEntity extends Equatable {
   final String userId;
   final List<CartItemEntity> items;
   final double totalAmount;
+  final int totalItems;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -14,11 +15,11 @@ class CartEntity extends Equatable {
     required this.userId,
     required this.items,
     required this.totalAmount,
+    required this.totalItems,
     required this.createdAt,
     required this.updatedAt,
   });
 
-  int get itemsCount => items.fold(0, (sum, item) => sum + item.quantity);
   bool get isEmpty => items.isEmpty;
 
   @override
@@ -27,6 +28,7 @@ class CartEntity extends Equatable {
         userId,
         items,
         totalAmount,
+        totalItems,
         createdAt,
         updatedAt,
       ];
@@ -47,11 +49,12 @@ class CartItemEntity extends Equatable {
     required this.productId,
     required this.product,
     required this.quantity,
-    this.selectedSize,
-    this.selectedColor,
     required this.unitPrice,
     required this.totalPrice,
+    this.selectedSize,
+    this.selectedColor,
   });
+
   @override
   List<Object?> get props => [
         id,

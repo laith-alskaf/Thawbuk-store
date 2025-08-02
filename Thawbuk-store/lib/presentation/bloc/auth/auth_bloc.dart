@@ -68,6 +68,21 @@ class ResendVerificationCodeEvent extends AuthEvent {
 
 class ContinueAsGuestEvent extends AuthEvent {}
 
+class ForgotPasswordEvent extends AuthEvent {
+  final String email;
+  const ForgotPasswordEvent(this.email);
+  @override
+  List<Object> get props => [email];
+}
+
+class ResetPasswordEvent extends AuthEvent {
+  final String token;
+  final String newPassword;
+  const ResetPasswordEvent(this.token, this.newPassword);
+  @override
+  List<Object> get props => [token, newPassword];
+}
+
 // States
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -112,6 +127,15 @@ class AuthError extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
+class ForgotPasswordSuccess extends AuthState {
+  final String message;
+  const ForgotPasswordSuccess(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+class ResetPasswordSuccess extends AuthState {}
 
 // BLoC
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -183,6 +207,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message = 'تحقق من اتصال الإنترنت';
         }
         emit(AuthError(message));
+        emit(AuthUnauthenticated());
       },
       (user) => emit(AuthAuthenticated(user)),
     );
@@ -207,6 +232,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message = 'تحقق من اتصال الإنترنت';
         }
         emit(AuthError(message));
+        emit(AuthUnauthenticated());
       },
       (success) => emit(AuthRegistrationSuccess(email: event.userData['email'])),
     );
@@ -278,8 +304,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           message = 'تحقق من اتصال الإنترنت';
         }
         emit(AuthError(message));
+        emit(AuthUnauthenticated());
       },
-      (_) => emit(AuthEmailVerified()),
+      (_) async {
+        // After verification, fetch user data to log them in
+        final userResult = await authRepository.getCurrentUser();
+        userResult.fold(
+          (failure) => emit(AuthUnauthenticated()),
+          (user) => emit(AuthAuthenticated(user)),
+        );
+      },
     );
   }
 

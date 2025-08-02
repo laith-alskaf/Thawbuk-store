@@ -8,7 +8,7 @@ class AppConstants {
   static const int otpExpiryMinutes = 10;
   
   // API Endpoints
-  static const String baseUrl = 'http://localhost:3000/api';
+  static const String baseUrl = 'https://thawbuk.vercel.app/api';
   static const String authEndpoint = '/auth';
   static const String userEndpoint = '/user';
   

@@ -1,48 +1,62 @@
 import 'package:equatable/equatable.dart';
 
+class AgeRangeEntity extends Equatable {
+  final int minAge;
+  final int maxAge;
+
+  const AgeRangeEntity({
+    required this.minAge,
+    required this.maxAge,
+  });
+
+  @override
+  List<Object?> get props => [minAge, maxAge];
+}
+
 class ProductEntity extends Equatable {
   final String id;
   final String name;
   final String? nameAr;
-  final String? description;
+  final String description;
   final String? descriptionAr;
   final double price;
   final String categoryId;
-  final String? createdBy;
+  final String createdBy;
   final List<String> images;
-  final List<String>? sizes;
-  final List<String>? colors;
+  final List<String> sizes;
+  final List<String> colors;
   final int stock;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+  final String? brand;
+  final AgeRangeEntity? ageRange;
   final double? rating;
   final int? reviewsCount;
-  final String? brand;
-  final Map<String, int>? ageRange;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   const ProductEntity({
     required this.id,
     required this.name,
-    this.nameAr,
-    this.description,
-    this.descriptionAr,
+    required this.description,
     required this.price,
     required this.categoryId,
-    this.createdBy,
+    required this.createdBy,
     required this.images,
-    this.sizes,
-    this.colors,
+    required this.sizes,
+    required this.colors,
     required this.stock,
-    this.createdAt,
-    this.updatedAt,
-    this.rating,
-    this.reviewsCount,
+    required this.createdAt,
+    required this.updatedAt,
+    this.nameAr,
+    this.descriptionAr,
     this.brand,
     this.ageRange,
+    this.rating,
+    this.reviewsCount,
   });
 
   String get displayName => nameAr?.isNotEmpty == true ? nameAr! : name;
-  String get displayDescription => descriptionAr?.isNotEmpty == true ? descriptionAr! : description ?? '';
+  String get displayDescription =>
+      descriptionAr?.isNotEmpty == true ? descriptionAr! : description ?? '';
   String get mainImage => images.isNotEmpty ? images.first : '';
   bool get isAvailable => stock > 0;
 
@@ -60,11 +74,11 @@ class ProductEntity extends Equatable {
         sizes,
         colors,
         stock,
-        createdAt,
-        updatedAt,
-        rating,
-        reviewsCount,
         brand,
         ageRange,
+        rating,
+        reviewsCount,
+        createdAt,
+        updatedAt,
       ];
 }

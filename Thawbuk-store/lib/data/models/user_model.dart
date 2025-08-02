@@ -3,66 +3,90 @@ import '../../domain/entities/user_entity.dart';
 
 part 'user_model.g.dart';
 
+// --- Models ---
+
 @JsonSerializable(explicitToJson: true)
-class UserModel extends UserEntity {
-  @JsonKey(name: 'company')
-  @override
-  final CompanyModel? company;
-
-  const UserModel({
-    required super.id,
-    required super.email,
-    required super.name,
+class AddressModel extends AddressEntity {
+  const AddressModel({
+    super.street,
+    super.city,
+    super.state,
+    super.country,
+    super.postalCode,
     super.phone,
-    required super.role,
-    required super.createdAt,
-    super.lastLoginAt,
-    super.profileImage,
-    this.company,
-  }) : super(company: company);
+    super.fullName,
+  });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return _$UserModelFromJson(json);
-  }
+  factory AddressModel.fromJson(Map<String, dynamic> json) =>
+      _$AddressModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$UserModelToJson(this);
-
-  UserEntity toEntity() {
-    return UserEntity(
-      id: id,
-      email: email,
-      name: name,
-      phone: phone,
-      role: role,
-      createdAt: createdAt,
-      lastLoginAt: lastLoginAt,
-      profileImage: profileImage,
-      company: company?.toEntity(),
-    );
-  }
+  Map<String, dynamic> toJson() => _$AddressModelToJson(this);
 }
 
 @JsonSerializable(explicitToJson: true)
 class CompanyModel extends CompanyEntity {
-  const CompanyModel({
-    required super.name,
-    required super.address,
-    super.logo,
-    super.description,
-  });
+  @override
+  final AddressModel? companyAddress;
 
-  factory CompanyModel.fromJson(Map<String, dynamic> json) {
-    return _$CompanyModelFromJson(json);
-  }
+  const CompanyModel({
+    required super.companyName,
+    super.companyDescription,
+    this.companyAddress,
+    super.companyPhone,
+    super.companyLogo,
+  }) : super(companyAddress: companyAddress);
+
+  factory CompanyModel.fromJson(Map<String, dynamic> json) =>
+      _$CompanyModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$CompanyModelToJson(this);
+}
 
-  CompanyEntity toEntity() {
-    return CompanyEntity(
-      name: name,
-      address: address,
-      logo: logo,
-      description: description,
-    );
-  }
+@JsonSerializable()
+class ChildModel extends ChildEntity {
+  const ChildModel({
+    required super.age,
+    required super.gender,
+  });
+
+  factory ChildModel.fromJson(Map<String, dynamic> json) =>
+      _$ChildModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ChildModelToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class UserModel extends UserEntity {
+  @override
+  final AddressModel? address;
+  @override
+  @JsonKey(name: 'companyDetails')
+  final CompanyModel? companyDetails;
+  @override
+  final List<ChildModel>? children;
+
+  const UserModel({
+    required super.id,
+    required super.email,
+    required super.role,
+    required super.isEmailVerified,
+    required super.createdAt,
+    super.name,
+    super.lastLoginAt,
+    super.age,
+    super.gender,
+    this.address,
+    this.children,
+    this.companyDetails,
+    super.fcmToken,
+  }) : super(
+          address: address,
+          children: children,
+          companyDetails: companyDetails,
+        );
+
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UserModelToJson(this);
 }
