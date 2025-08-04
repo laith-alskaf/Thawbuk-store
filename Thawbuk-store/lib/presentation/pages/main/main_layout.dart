@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:thawbuk_store/presentation/pages/product/products_page.dart';
+import 'package:thawbuk_store/presentation/pages/products/products_page.dart';
 
 import '../../../core/navigation/navigation_helper.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../widgets/navigation/bottom_nav_bar.dart';
 import '../home/home_page.dart';
-import '../products/products_page.dart';
 import '../cart/cart_page.dart';
 import '../favorites/favorites_page.dart';
 import '../profile/profile_page.dart';
@@ -74,7 +75,7 @@ class _MainLayoutState extends State<MainLayout> {
           },
           children: const [
             HomePage(),                    // 0 - الرئيسية (عامة)
-            ProductsPage(categoryId: null),  // 1 - المنتجات (عامة)
+            ProductsPage(),  // 1 - المنتجات (عامة)
             CartPage(),                    // 2 - السلة (محمية)
             FavoritesPage(),               // 3 - المفضلة (محمية)
             ProfilePage(),                 // 4 - الحساب (محمية)

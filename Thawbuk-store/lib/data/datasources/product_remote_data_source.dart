@@ -83,8 +83,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     
       print(response);
       
-      if (response['body']['data']['product'] != null) {
-        final jsonData = response['body']['data']['product'] as Map<String, dynamic>;
+      if (response['body']['data'] != null) {
+        final jsonData = response['body']['data'] as Map<String, dynamic>;
       
         try {
           final product = ProductModel.fromJson(jsonData);
@@ -105,7 +105,9 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> searchProducts(String query) async {
     try {
-      final response = await httpClient.get('/product/search?q=$query');
+      final response = await httpClient.get('/v2/product/search',queryParameters: {
+        'title':Uri.encodeComponent(query)
+      });
                print(response);
       if (response['body']['data']['products'] is List) {
         return (response['body']['data']['products'] as List)
@@ -123,7 +125,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   Future<List<ProductModel>> getProductsByCategory(String category) async {
     try {
       // Use filter endpoint with category parameter since byCategory endpoint is not working
-      final response = await httpClient.get('/product/filter', queryParameters: {'category': category});
+      final response = await httpClient.get('/v2/product/filter', queryParameters: {'category': category});
       print('getProductsByCategory (using filter) response: $response');
       
       if (response['body'] != null && response['body']['data'] is List) {
@@ -150,7 +152,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<ProductModel> createProduct(Map<String, dynamic> productData) async {
     try {
-      final response = await httpClient.post('/user/product', body: productData);
+      final response = await httpClient.post('/v2/user/product', body: productData);
       
       if (response['body']['data'] != null) {
         return ProductModel.fromJson(response['body']['data'] as Map<String, dynamic>);
@@ -165,7 +167,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<ProductModel> updateProduct(String id, Map<String, dynamic> productData) async {
     try {
-      final response = await httpClient.put('/user/product/$id', body: productData);
+      final response = await httpClient.put('/v2/user/product/$id', body: productData);
       
       if (response['body']['data'] != null) {
         return ProductModel.fromJson(response['body']['data'] as Map<String, dynamic>);
@@ -180,7 +182,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<void> deleteProduct(String id) async {
     try {
-      await httpClient.deleteVoid('/user/product/$id');
+      await httpClient.deleteVoid('/v2/user/product/$id');
     } catch (e) {
       throw ServerException('Failed to delete product: ${e.toString()}');
     }
@@ -189,7 +191,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> getMyProducts() async {
     try {
-      final response = await httpClient.get('/user/product');
+      final response = await httpClient.get('/v2/user/product');
       if (response['body']['data']['products'] is List) {
         return (response['body']['data']['products'] as List)
             .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))

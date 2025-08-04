@@ -192,7 +192,7 @@ export class ProductController {
         try {
             const { title = '', categoryId = null, page = 1, limit = 10, createdId = null } = req.query;
             const searchProductDTO: SearchProductDTO = {
-                name: title as string,
+                name: decodeURIComponent(title as string),
                 categoryId: categoryId as string,
                 createdId: createdId as string,
                 peginationProduct: {
