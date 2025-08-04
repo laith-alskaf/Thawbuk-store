@@ -12,8 +12,8 @@ export const excludedPathsForAuth = [
     /^\/api\/category\/[^/]+$/,
 
     // Product Routes  
-    "/api/product",
-    "/api/product/",
+    "/api/v2/product",
+    "/api/v2/product/",
     /^\/api\/product\/[^/]+$/,
     /^\/api\/product\/byCategory\/[^/]+$/,
     /^\/api\/product\/search.*$/,

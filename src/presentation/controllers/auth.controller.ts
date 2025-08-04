@@ -32,7 +32,7 @@ export class AuthController {
       new ApplicationResponse(res, {
         success: true,
         statusCode: StatusCodes.CREATED,
-        message: Messages.AUTH.REGISTER_SUCCESS_EN,
+        message: Messages.AUTH.REGISTER_SUCCESS,
       }).send();
 
     } catch (error: any) {
@@ -49,7 +49,7 @@ export class AuthController {
       new ApplicationResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: Messages.AUTH.LOGIN_SUCCESS_EN,
+        message: Messages.AUTH.LOGIN_SUCCESS,
         body: {
           token,
           userInfo: {
@@ -70,7 +70,7 @@ export class AuthController {
     new ApplicationResponse(res, {
       success: true,
       statusCode: StatusCodes.OK,
-      message: Messages.AUTH.LOGOUT_SUCCESS_EN || "Logged out successfully"
+      message: Messages.AUTH.LOGOUT_SUCCESS || "Logged out successfully"
     }).send();
   }
 
@@ -82,7 +82,7 @@ export class AuthController {
       new ApplicationResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: Messages.AUTH.FORGOT_PASSWORD_SUCCESS_EN
+        message: Messages.AUTH.FORGOT_PASSWORD_SUCCESS
       }).send();
     } catch (error: any) {
       throw new BadRequestError(error.message);
@@ -97,7 +97,7 @@ export class AuthController {
       new ApplicationResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: Messages.AUTH.VERIFY_SUCCESS_EN
+        message: Messages.AUTH.VERIFY_SUCCESS
       }).send();
     } catch (error: any) {
       throw new BadRequestError(error.message);
@@ -112,7 +112,7 @@ export class AuthController {
       new ApplicationResponse(res, {
         success: true,
         statusCode: StatusCodes.OK,
-        message: Messages.AUTH.RESET_PASSWORD_SUCCESS_EN
+        message: Messages.AUTH.RESET_PASSWORD_SUCCESS
       }).send();
     } catch (error: any) {
       throw new BadRequestError(error.message);

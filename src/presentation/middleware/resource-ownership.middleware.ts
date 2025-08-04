@@ -15,22 +15,22 @@ export const checkResourceOwnership = <T extends IOwnership>(
     return async (req: Request, res: Response, next: NextFunction): Promise<any> => {
         try {
             if (!req.user) {
-                throw new Error(Messages.AUTH.AUTHENTICATION_REQUIRED_EN);
+                throw new Error(Messages.AUTH.AUTHENTICATION_REQUIRED);
             }
             const resourceId = req.body[idKey] || req.params[idKey];
             const resource = await model.findById(resourceId);
             if (!resource) {
-                throw new Error(Messages.GENERAL.INVALID_PARAMETERS_EN);
+                throw new Error(Messages.GENERAL.INVALID_PARAMETERS);
             }
             const isSuperAdmin = req.user.role === UserRoles.SUPER_ADMIN;
             const isOwner = resource.createdBy === req.user.id;
 
             if (!isSuperAdmin && !isOwner) {
-                new ForbiddenError(Messages.USER.UNAUTHORIZED_ACTION_EN);
+                new ForbiddenError(Messages.USER.UNAUTHORIZED_ACTION);
             }
             next();
         } catch (error: any) {
-            throw error.message = Messages.GENERAL.INVALID_REQUEST_EN;
+            throw error.message = Messages.GENERAL.INVALID_REQUEST;
         }
     };
 };

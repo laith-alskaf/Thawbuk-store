@@ -38,7 +38,7 @@ export class ProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
+                message: Messages.PRODUCT.GET_ALL_SUCCESS,
                 body: {
                     data: {
                         currentPage: peginationProductDTO.page,
@@ -50,7 +50,7 @@ export class ProductController {
             }).send();
 
         } catch (error: any) {
-            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_PRODUCTS_EN);
+            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_PRODUCTS);
         }
     }
 
@@ -66,7 +66,7 @@ export class ProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.CREATED,
-                message: Messages.PRODUCT.CREATE_SUCCESS_EN,
+                message: Messages.PRODUCT.CREATE_SUCCESS,
             }).send();
         } catch (error: any) {
             throw new BadRequestError(error.message);
@@ -82,11 +82,11 @@ export class ProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.DELETE_SUCCESS_EN,
+                message: Messages.PRODUCT.DELETE_SUCCESS,
             }).send();
 
         } catch (error: any) {
-            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_OPERATION_EN);
+            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_OPERATION);
         }
     }
 
@@ -103,14 +103,14 @@ export class ProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.UPDATE_SUCCESS_EN,
+                message: Messages.PRODUCT.UPDATE_SUCCESS,
                 body: {
                     data: updatedProduct
                 }
             }).send();
 
         } catch (error: any) {
-            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_OPERATION_EN);
+            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_OPERATION);
         }
     }
 
@@ -121,7 +121,7 @@ export class ProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_SUCCESS_EN,
+                message: Messages.PRODUCT.GET_SUCCESS,
                 body: {
                     data: prodcut
                 }
@@ -139,14 +139,14 @@ export class ProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
+                message: Messages.PRODUCT.GET_ALL_SUCCESS,
                 body: {
                     data: prodcuts
                 }
             }).send();
 
         } catch (error: any) {
-            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_PRODUCTS_EN);
+            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_PRODUCTS);
         }
     }
 
@@ -176,14 +176,14 @@ export class ProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
+                message: Messages.PRODUCT.GET_ALL_SUCCESS,
                 body: {
                     data: products
                 }
             }).send();
 
         } catch (error: any) {
-            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_PRODUCTS_EN);
+            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_PRODUCTS);
         }
     }
 
@@ -204,7 +204,7 @@ export class ProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
+                message: Messages.PRODUCT.GET_ALL_SUCCESS,
                 body: {
                     data: {
                         total: prodcuts.total,
@@ -214,7 +214,7 @@ export class ProductController {
             }).send();
 
         } catch (error: any) {
-            throw new BadRequestError(Messages.PRODUCT.NO_RESULTS_EN);
+            throw new BadRequestError(Messages.PRODUCT.NO_RESULTS);
         }
     }
 
@@ -235,7 +235,7 @@ export class ProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
+                message: Messages.PRODUCT.GET_ALL_SUCCESS,
                 body: {
                     data: {
                         currentPage: getProductsByUserIdDTO.peginationProduct.page,
@@ -247,7 +247,7 @@ export class ProductController {
             }).send();
 
         } catch (error: any) {
-            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_PRODUCTS_EN);
+            throw new BadRequestError(Messages.PRODUCT.NOT_FOUND_PRODUCTS);
         }
     }
 

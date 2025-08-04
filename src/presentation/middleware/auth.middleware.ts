@@ -36,21 +36,21 @@ export const authMiddleware = (tokenService: TokenService, userRepository: UserR
 
             const authHeader = req.header('Authorization')?.trim();
             if (!authHeader || !authHeader.startsWith('Bearer ')) {
-                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED_EN);
+                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED);
             }
             const token = authHeader.split(' ')[1];
             if (!token) {
-                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED_EN);
+                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED);
             }
 
             const userInfo = await tokenService.verify(token, CONFIG.JWT_SECRET_ACCESS_TOKEN) as { id: string, role: string };
             if (!userInfo.id || !userInfo.role) {
-                throw new ForbiddenError(Messages.AUTH.INVALID_TOKEN_EN);
+                throw new ForbiddenError(Messages.AUTH.INVALID_TOKEN);
             }
 
             const user = await userRepository.findById(userInfo.id);
             if (!user) {
-                throw new BadRequestError(Messages.USER.USER_NOT_FOUND_EN)
+                throw new BadRequestError(Messages.USER.USER_NOT_FOUND)
             }
 
             req.user = {

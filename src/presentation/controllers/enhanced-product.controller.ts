@@ -50,7 +50,7 @@ export class EnhancedProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN,
+                message: Messages.PRODUCT.GET_ALL_SUCCESS,
                 body: {
                     data: {
                         currentPage: peginationProductDTO.page,
@@ -66,7 +66,7 @@ export class EnhancedProductController {
         } catch (error: any) {
             console.error('Error in getAllProducts:', error);
             throw new BadRequestError(
-                error.message || Messages.PRODUCT.NOT_FOUND_PRODUCTS_EN || 'فشل في تحميل المنتجات'
+                error.message || Messages.PRODUCT.NOT_FOUND_PRODUCTS || 'فشل في تحميل المنتجات'
             );
         }
     }
@@ -92,7 +92,7 @@ export class EnhancedProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.CREATED,
-                message: Messages.PRODUCT.CREATE_SUCCESS_EN || 'تم إنشاء المنتج بنجاح',
+                message: Messages.PRODUCT.CREATE_SUCCESS || 'تم إنشاء المنتج بنجاح',
                 body: {
                     data: createdProduct
                 }
@@ -106,7 +106,7 @@ export class EnhancedProductController {
             }
             
             throw new BadRequestError(
-                error.message || Messages.PRODUCT.CREATE_FAILED_EN || 'فشل في إنشاء المنتج'
+                error.message || Messages.PRODUCT.CREATE_FAILED || 'فشل في إنشاء المنتج'
             );
         }
     }
@@ -135,7 +135,7 @@ export class EnhancedProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.UPDATE_SUCCESS_EN || 'تم تحديث المنتج بنجاح',
+                message: Messages.PRODUCT.UPDATE_SUCCESS || 'تم تحديث المنتج بنجاح',
                 body: {
                     data: updatedProduct
                 }
@@ -149,7 +149,7 @@ export class EnhancedProductController {
             }
             
             throw new BadRequestError(
-                error.message || Messages.PRODUCT.UPDATE_FAILED_EN || 'فشل في تحديث المنتج'
+                error.message || Messages.PRODUCT.UPDATE_FAILED || 'فشل في تحديث المنتج'
             );
         }
     }
@@ -170,7 +170,7 @@ export class EnhancedProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.DELETE_SUCCESS_EN || 'تم حذف المنتج بنجاح',
+                message: Messages.PRODUCT.DELETE_SUCCESS || 'تم حذف المنتج بنجاح',
             }).send();
 
         } catch (error: any) {
@@ -181,7 +181,7 @@ export class EnhancedProductController {
             }
             
             throw new BadRequestError(
-                error.message || Messages.PRODUCT.DELETE_FAILED_EN || 'فشل في حذف المنتج'
+                error.message || Messages.PRODUCT.DELETE_FAILED || 'فشل في حذف المنتج'
             );
         }
     }
@@ -199,7 +199,7 @@ export class EnhancedProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_SUCCESS_EN || 'تم تحميل المنتج بنجاح',
+                message: Messages.PRODUCT.GET_SUCCESS || 'تم تحميل المنتج بنجاح',
                 body: {
                     data: product
                 }
@@ -208,7 +208,7 @@ export class EnhancedProductController {
         } catch (error: any) {
             console.error('Error in getSingleProduct:', error);
             throw new BadRequestError(
-                error.message || Messages.PRODUCT.NOT_FOUND_EN || 'المنتج غير موجود'
+                error.message || Messages.PRODUCT.NOT_FOUND || 'المنتج غير موجود'
             );
         }
     }
@@ -226,7 +226,7 @@ export class EnhancedProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN || 'تم تحميل المنتجات بنجاح',
+                message: Messages.PRODUCT.GET_ALL_SUCCESS || 'تم تحميل المنتجات بنجاح',
                 body: {
                     data: products || [],
                     count: products ? products.length : 0
@@ -236,7 +236,7 @@ export class EnhancedProductController {
         } catch (error: any) {
             console.error('Error in getProductsByCategoryId:', error);
             throw new BadRequestError(
-                error.message || Messages.PRODUCT.NOT_FOUND_PRODUCTS_EN || 'لم يتم العثور على منتجات'
+                error.message || Messages.PRODUCT.NOT_FOUND_PRODUCTS || 'لم يتم العثور على منتجات'
             );
         }
     }
@@ -273,7 +273,7 @@ export class EnhancedProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN || 'تم تحميل المنتجات بنجاح',
+                message: Messages.PRODUCT.GET_ALL_SUCCESS || 'تم تحميل المنتجات بنجاح',
                 body: {
                     data: products,
                     count: products.length,
@@ -284,7 +284,7 @@ export class EnhancedProductController {
         } catch (error: any) {
             console.error('Error in filterProducts:', error);
             throw new BadRequestError(
-                error.message || Messages.PRODUCT.NOT_FOUND_PRODUCTS_EN || 'فشل في البحث عن المنتجات'
+                error.message || Messages.PRODUCT.NOT_FOUND_PRODUCTS || 'فشل في البحث عن المنتجات'
             );
         }
     }
@@ -308,7 +308,7 @@ export class EnhancedProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN || 'تم البحث بنجاح',
+                message: Messages.PRODUCT.GET_ALL_SUCCESS || 'تم البحث بنجاح',
                 body: {
                     data: {
                         total: products.total,
@@ -323,7 +323,7 @@ export class EnhancedProductController {
         } catch (error: any) {
             console.error('Error in searchProducts:', error);
             throw new BadRequestError(
-                error.message || Messages.PRODUCT.NO_RESULTS_EN || 'لم يتم العثور على نتائج'
+                error.message || Messages.PRODUCT.NO_RESULTS || 'لم يتم العثور على نتائج'
             );
         }
     }
@@ -347,7 +347,7 @@ export class EnhancedProductController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.PRODUCT.GET_ALL_SUCCESS_EN || 'تم تحميل منتجاتك بنجاح',
+                message: Messages.PRODUCT.GET_ALL_SUCCESS || 'تم تحميل منتجاتك بنجاح',
                 body: {
                     data: {
                         currentPage: getProductsByUserIdDTO.peginationProduct.page,
@@ -363,7 +363,7 @@ export class EnhancedProductController {
         } catch (error: any) {
             console.error('Error in getProductsByUserId:', error);
             throw new BadRequestError(
-                error.message || Messages.PRODUCT.NOT_FOUND_PRODUCTS_EN || 'فشل في تحميل منتجاتك'
+                error.message || Messages.PRODUCT.NOT_FOUND_PRODUCTS || 'فشل في تحميل منتجاتك'
             );
         }
     }

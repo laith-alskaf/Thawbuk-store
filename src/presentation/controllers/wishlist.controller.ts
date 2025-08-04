@@ -25,7 +25,7 @@ export class WishlistController {
             const wishlist = await this.getWishlistUseCase.execute(userId);
             new ApplicationResponse(res, {
                 success: true,
-                statusCode: StatusCodes.OK, message: Messages.WISHLIST.GET_SUCCESS_EN,
+                statusCode: StatusCodes.OK, message: Messages.WISHLIST.GET_SUCCESS,
                 body: wishlist
             }).send();
 
@@ -43,7 +43,7 @@ export class WishlistController {
             await this.addProductToWishlistUseCase.execute(userId, productId);
             new ApplicationResponse(res, {
                 success: true,
-                statusCode: StatusCodes.OK, message: Messages.WISHLIST.ADD_SUCCESS_EN,
+                statusCode: StatusCodes.OK, message: Messages.WISHLIST.ADD_SUCCESS,
             }).send();
         } catch (error: any) {
             throw new BadRequestError(error.message);
@@ -58,7 +58,7 @@ export class WishlistController {
             await this.removeProductFromWishlistUseCase.execute(userId, productId);
             new ApplicationResponse(res, {
                 success: true,
-                statusCode: StatusCodes.OK, message: Messages.WISHLIST.REMOVE_SUCCESS_EN,
+                statusCode: StatusCodes.OK, message: Messages.WISHLIST.REMOVE_SUCCESS,
             }).send();
         } catch (error: any) {
             throw new BadRequestError(error.message);
@@ -73,7 +73,7 @@ export class WishlistController {
             await this.removeAllProductfromWishlistUseCase.execute(userId!);
             new ApplicationResponse(res, {
                 success: true,
-                statusCode: StatusCodes.OK, message: Messages.WISHLIST.CLEAR_SUCCESS_EN,
+                statusCode: StatusCodes.OK, message: Messages.WISHLIST.CLEAR_SUCCESS,
             }).send();
         } catch (error: any) {
             throw new BadRequestError(error.message);

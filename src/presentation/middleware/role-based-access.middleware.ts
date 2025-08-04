@@ -61,19 +61,19 @@ export const requireRole = (allowedRoles: UserRole[]) => {
         try {
             // التحقق من وجود المستخدم (يجب أن يكون auth middleware قد تم تشغيله أولاً)
             if (!req.user) {
-                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED_EN);
+                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED);
             }
 
             const userRole = req.user.role as UserRole;
             
             // التحقق من وجود الدور
             if (!userRole) {
-                throw new ForbiddenError(Messages.AUTH.ROLE_NOT_ASSIGNED_EN || 'لم يتم تعيين دور للمستخدم');
+                throw new ForbiddenError(Messages.AUTH.ROLE_NOT_ASSIGNED);
             }
 
             // التحقق من أن الدور مسموح
             if (!allowedRoles.includes(userRole)) {
-                throw new ForbiddenError(Messages.AUTH.INSUFFICIENT_PERMISSIONS_EN || 'ليس لديك صلاحية للوصول لهذا المورد');
+                throw new ForbiddenError(Messages.AUTH.INSUFFICIENT_PERMISSIONS);
             }
 
             next();
@@ -92,14 +92,14 @@ export const requirePermission = (requiredPermission: Permission) => {
         try {
             // التحقق من وجود المستخدم
             if (!req.user) {
-                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED_EN);
+                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED);
             }
 
             const userRole = req.user.role as UserRole;
             
             // التحقق من وجود الدور
             if (!userRole) {
-                throw new ForbiddenError(Messages.AUTH.ROLE_NOT_ASSIGNED_EN || 'لم يتم تعيين دور للمستخدم');
+                throw new ForbiddenError(Messages.AUTH.ROLE_NOT_ASSIGNED);
             }
 
             // الحصول على صلاحيات الدور
@@ -107,7 +107,7 @@ export const requirePermission = (requiredPermission: Permission) => {
             
             // التحقق من وجود الصلاحية
             if (!rolePermissions.includes(requiredPermission)) {
-                throw new ForbiddenError(Messages.AUTH.INSUFFICIENT_PERMISSIONS_EN || 'ليس لديك صلاحية لتنفيذ هذا الإجراء');
+                throw new ForbiddenError(Messages.AUTH.INSUFFICIENT_PERMISSIONS);
             }
 
             next();
@@ -126,7 +126,7 @@ export const requireOwnershipOrAdmin = (resourceOwnerField: string = 'createdBy'
         try {
             // التحقق من وجود المستخدم
             if (!req.user) {
-                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED_EN);
+                throw new UnauthorizedError(Messages.AUTH.AUTHENTICATION_REQUIRED);
             }
 
             const userId = req.user.id;

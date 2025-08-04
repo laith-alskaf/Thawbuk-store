@@ -62,7 +62,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> getProducts() async {
     try {
-      final response = await httpClient.get('/product');
+      final response = await httpClient.get('/v2/product');
        print(response);
       if (response['body']['data']['products'] is List) {
         return (response['body']['data']['products'] as List)

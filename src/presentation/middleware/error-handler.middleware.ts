@@ -17,7 +17,7 @@ export const errorHandler = (err: Error, _: Request, res: Response, __: NextFunc
     return new ApplicationResponse(res, {
         statusCode: res.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
         success: false,
-        message: err.message || Messages.GENERAL.INTERNAL_ERROR_EN,
+        message: err.message || Messages.GENERAL.INTERNAL_ERROR,
     }).send()
 
 };
@@ -26,6 +26,6 @@ export const notFoundHandler = (req: Request, res: Response) => {
     return new ApplicationResponse(res, {
         statusCode: StatusCodes.NOT_FOUND,
         success: false,
-        message: `Not Found - ${req.originalUrl}`,
+        message: `غير موجود - ${req.originalUrl}`,
     }).send()
 };

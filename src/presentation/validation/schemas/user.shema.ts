@@ -3,15 +3,15 @@ import { Messages } from "../../config/constant";
 
 export const updateUserInfoShema = Joi.object({
     name: Joi.string().min(3).max(30).optional().messages({
-        'string.min': Messages.USER.VALIDATION.USERNAME_MIN_EN,
-        'string.max': Messages.USER.VALIDATION.USERNAME_MAX_EN,
+        'string.min': Messages.USER.VALIDATION.USERNAME_MIN,
+        'string.max': Messages.USER.VALIDATION.USERNAME_MAX,
     }),
     email: Joi.string().email().optional().messages({
-        'string.email': Messages.USER.VALIDATION.EMAIL_INVALID_EN,
+        'string.email': Messages.USER.VALIDATION.EMAIL_INVALID,
     }),
     companyDetails: Joi.object({
         companyName: Joi.string().optional().messages({
-            'any.required': Messages.USER.VALIDATION.COMPANY_NAME_REQUIRED_EN,
+            'any.required': Messages.USER.VALIDATION.COMPANY_NAME_REQUIRED,
         }),
         companyDescription: Joi.string().optional().allow(''),
         companyAddress: Joi.object({
@@ -26,18 +26,18 @@ export const updateUserInfoShema = Joi.object({
     }).optional(),
     address: Joi.object({
         city: Joi.string().required().messages({
-            'any.required': Messages.USER.VALIDATION.CITY_REQUIRED_EN,
+            'any.required': Messages.USER.VALIDATION.CITY_REQUIRED,
         }),
         street: Joi.string().optional().allow('').messages({
-            'any.required': Messages.USER.VALIDATION.STREET_REQUIRED_EN,
+            'any.required': Messages.USER.VALIDATION.STREET_REQUIRED,
         }),
     }).optional(),
     age: Joi.number().min(18).max(120).optional().messages({
-        'number.min': Messages.USER.VALIDATION.AGE_MIN_EN,
-        'number.max': Messages.USER.VALIDATION.AGE_MAX_EN,
+        'number.min': Messages.USER.VALIDATION.AGE_MIN,
+        'number.max': Messages.USER.VALIDATION.AGE_MAX,
     }),
     gender: Joi.string().valid('male', 'female', 'other').optional().messages({
-        'any.only': Messages.USER.VALIDATION.GENDER_INVALID_EN,
+        'any.only': Messages.USER.VALIDATION.GENDER_INVALID,
     }),
     // Explicitly exclude role and other sensitive fields
     role: Joi.forbidden(),

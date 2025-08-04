@@ -13,13 +13,13 @@ export const wishlistProductIdMiddleware = (isAdd: boolean) => {
             const wishlist = await WishlistModel.findOne({ userId }).select('productsId');
 
             if (!wishlist) {
-                throw new Error(Messages.WISHLIST.VALIDATION.WISHLIST_NOT_FOUND_EN);
+                throw new Error(Messages.WISHLIST.VALIDATION.WISHLIST_NOT_FOUND);
             }
             if (isAdd && wishlist.productsId.includes(productId)) {
-                throw new Error(Messages.WISHLIST.VALIDATION.PRODUCT_IN_WISHLIST_EN);
+                throw new Error(Messages.WISHLIST.VALIDATION.PRODUCT_IN_WISHLIST);
             }
             else if (!isAdd && !wishlist.productsId.includes(productId)) {
-                throw new Error(Messages.WISHLIST.VALIDATION.PRODUCT_NOT_IN_WISHLIST_EN);
+                throw new Error(Messages.WISHLIST.VALIDATION.PRODUCT_NOT_IN_WISHLIST);
             }
 
             next();

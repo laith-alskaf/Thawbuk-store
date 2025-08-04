@@ -31,7 +31,7 @@ export class UserController {
             return new ApplicationResponse(res, {
                 statusCode: StatusCodes.OK,
                 success: true,
-                message: Messages.USER.GET_INFO_SUCCESS_EN,
+                message: Messages.USER.GET_INFO_SUCCESS,
                 body: { user: userInfo },
             }).send()
 
@@ -67,7 +67,7 @@ export class UserController {
             return new ApplicationResponse(res, {
                 statusCode: StatusCodes.OK,
                 success: true,
-                message: Messages.USER.UPDATE_INFO_SUCCESS_EN,
+                message: Messages.USER.UPDATE_INFO_SUCCESS,
                 body: { user: updatedUserInfo },
             }).send();
 
@@ -84,7 +84,7 @@ export class UserController {
             return new ApplicationResponse(res, {
                 statusCode: StatusCodes.OK,
                 success: true,
-                message: Messages.USER.DELETE_ACCOUNT_SUCCESS_EN,
+                message: Messages.USER.DELETE_ACCOUNT_SUCCESS,
             }).send();
 
         } catch (error) {
@@ -130,7 +130,3 @@ export class UserController {
     };
 
 }
-
-
-
-

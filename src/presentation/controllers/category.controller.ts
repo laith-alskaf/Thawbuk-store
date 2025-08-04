@@ -28,13 +28,13 @@ export class CategoryController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.CATEGORY.GET_ALL_SUCCESS_EN,
+                message: Messages.CATEGORY.GET_ALL_SUCCESS,
                 body: { data: category }
             }).send();
 
 
         } catch (error: any) {
-            throw new BadRequestError(Messages.CATEGORY.NOT_FOUND_CATEGORIES_EN);
+            throw new BadRequestError(Messages.CATEGORY.NOT_FOUND_CATEGORIES);
         }
     }
 
@@ -47,7 +47,7 @@ export class CategoryController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.CREATED,
-                message: Messages.CATEGORY.CREATE_SUCCESS_EN,
+                message: Messages.CATEGORY.CREATE_SUCCESS,
             }).send();
 
         } catch (error: any) {
@@ -62,7 +62,7 @@ export class CategoryController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.CATEGORY.DELETE_SUCCESS_EN
+                message: Messages.CATEGORY.DELETE_SUCCESS
             }).send();
 
         } catch (error: any) {
@@ -79,7 +79,7 @@ export class CategoryController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.CATEGORY.UPDATE_SUCCESS_EN,
+                message: Messages.CATEGORY.UPDATE_SUCCESS,
                 body: {
                     data: updatedCategory
                 }
@@ -96,7 +96,7 @@ export class CategoryController {
             new ApplicationResponse(res, {
                 success: true,
                 statusCode: StatusCodes.OK,
-                message: Messages.CATEGORY.GET_SUCCESS_EN,
+                message: Messages.CATEGORY.GET_SUCCESS,
                 body: {
                     data: category
                 }
