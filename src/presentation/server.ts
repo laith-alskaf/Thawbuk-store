@@ -37,10 +37,10 @@ export default class Server {
         this.app.use(logger);
         
         // Rate limiting
-        this.app.use('/api/auth', createRateLimit(this.container.cacheService, RateLimitConfigs.AUTH));
-        this.app.use('/api/v2/product/enhanced-search', createRateLimit(this.container.cacheService, RateLimitConfigs.SEARCH));
-        this.app.use('/api/v2/user/product', createRateLimit(this.container.cacheService, RateLimitConfigs.PRODUCT_CREATE));
-        this.app.use('/api', createRateLimit(this.container.cacheService, RateLimitConfigs.GENERAL));
+        // this.app.use('/api/auth', createRateLimit(this.container.cacheService, RateLimitConfigs.AUTH));
+        // this.app.use('/api/v2/product/enhanced-search', createRateLimit(this.container.cacheService, RateLimitConfigs.SEARCH));
+        // this.app.use('/api/v2/user/product', createRateLimit(this.container.cacheService, RateLimitConfigs.PRODUCT_CREATE));
+        // this.app.use('/api', createRateLimit(this.container.cacheService, RateLimitConfigs.GENERAL));
         
         this.app.use(express.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
