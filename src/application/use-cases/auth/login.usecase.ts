@@ -18,14 +18,14 @@ export class LoginUseCase {
     execute = async (loginData: LoginDTO): Promise<{ token: string, user: IUser }> => {
         const user = await this.userRepository.findByEmail(loginData.email);
         if (!user) {
-            throw new BadRequestError(Messages.AUTH.INVALID_CREDENTIALS_EN);
+            throw new BadRequestError(Messages.AUTH.INVALID_CREDENTIALS);
         }
         if (!user.isEmailVerified) {
-            throw new BadRequestError(Messages.AUTH.RESEND_VERIFICATION_SUCCESS_EN);
+            throw new BadRequestError(Messages.AUTH.RESEND_VERIFICATION_SUCCESS);
         }
         const isPasswordValid = await this.encryptionService.compare(loginData.password, user.password);
         if (!isPasswordValid) {
-            throw new BadRequestError(Messages.AUTH.INVALID_CREDENTIALS_EN);
+            throw new BadRequestError(Messages.AUTH.INVALID_CREDENTIALS);
         }
         const payload = { id: user._id, email: user.email, role: user.role };
         const token = await this.tokenService.generate(payload, this.jwtSecret, '7d');
