@@ -1,15 +1,49 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/app_constants.dart';
 import '../errors/exceptions.dart';
+import 'network_info.dart';
 
 class HttpClient {
   final SharedPreferences sharedPreferences;
+  final NetworkInfo? networkInfo;
   
-  HttpClient(this.sharedPreferences);
+  HttpClient(this.sharedPreferences, {this.networkInfo});
   static var client = http.Client();
+  /// فحص الاتصال بالإنترنت
+  Future<void> _checkConnection() async {
+    if (networkInfo != null) {
+      final isConnected = await networkInfo!.isConnected;
+      if (!isConnected) {
+        throw NetworkException('لا يوجد اتصال بالإنترنت. يرجى التحقق من الاتصال والمحاولة مرة أخرى.');
+      }
+    }
+  }
+
+  /// طباعة تفاصيل الطلب
+  void _logRequest(String method, String url, Map<String, String> headers, {Map<String, dynamic>? body}) {
+    developer.log('🚀 HTTP REQUEST', name: 'HttpClient');
+    developer.log('Method: $method', name: 'HttpClient');
+    developer.log('URL: $url', name: 'HttpClient');
+    developer.log('Headers: ${jsonEncode(headers)}', name: 'HttpClient');
+    if (body != null) {
+      developer.log('Body: ${jsonEncode(body)}', name: 'HttpClient');
+    }
+    developer.log('─' * 50, name: 'HttpClient');
+  }
+
+  /// طباعة تفاصيل الاستجابة
+  void _logResponse(http.Response response) {
+    developer.log('📥 HTTP RESPONSE', name: 'HttpClient');
+    developer.log('Status Code: ${response.statusCode}', name: 'HttpClient');
+    developer.log('Headers: ${jsonEncode(response.headers)}', name: 'HttpClient');
+    developer.log('Body: ${response.body}', name: 'HttpClient');
+    developer.log('─' * 50, name: 'HttpClient');
+  }
+
   /// الحصول على الرؤوس الأساسية
   Map<String, String> get _headers {
     final token = sharedPreferences.getString(AppConstants.tokenKey);
@@ -23,6 +57,7 @@ class HttpClient {
   /// طلب GET
   Future<Map<String, dynamic>> get(String endpoint,
       {Map<String, dynamic>? queryParameters}) async {
+    await _checkConnection();
     try {
       var url = Uri.parse('${AppConstants.baseUrl}$endpoint');
 
@@ -37,43 +72,62 @@ class HttpClient {
         url = url.replace(queryParameters: Map.fromEntries(validQueryParameters));
       }
 
+      // Log request
+      _logRequest('GET', url.toString(), _headers);
+
       final response = await http.get(url, headers: _headers);
+      
+      // Log response
+      _logResponse(response);
 
       return _handleResponse(response);
     } catch (e) {
+      developer.log('❌ GET ERROR: ${e.toString()}', name: 'HttpClient');
       throw ServerException('GET request failed: ${e.toString()}');
     }
   }
 
   /// طلب POST
   Future<Map<String, dynamic>> post(String endpoint, {Map<String, dynamic>? body}) async {
+    await _checkConnection();
     try {
       final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      
+      // Log request
+      _logRequest('POST', url.toString(), _headers, body: body);
+      
       final response = await client.post(
         url,
         headers: _headers,
         body: body != null ? jsonEncode(body) : null,
       );
 
-      print('POST URL: $url');
-      print('POST Body: ${jsonEncode(body)}');
-      print('Response Status: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      // Log response
+      _logResponse(response);
       return _handleResponse(response);
     } catch (e) {
+      developer.log('❌ POST ERROR: ${e.toString()}', name: 'HttpClient');
       throw ServerException('POST request failed: ${e.toString()}');
     }
   }
 
   /// طلب PUT
   Future<Map<String, dynamic>> put(String endpoint, {Map<String, dynamic>? body}) async {
+    await _checkConnection();
     try {
       final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      
+      // Log request
+      _logRequest('PUT', url.toString(), _headers, body: body);
+      
       final response = await http.put(
         url,
         headers: _headers,
         body: body != null ? jsonEncode(body) : null,
       );
+      
+      // Log response
+      _logResponse(response);
       
       return _handleResponse(response);
     } catch (e) {
@@ -83,9 +137,17 @@ class HttpClient {
 
   /// طلب DELETE (مع إرجاع بيانات)
   Future<Map<String, dynamic>> delete(String endpoint) async {
+    await _checkConnection();
     try {
       final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      
+      // Log request
+      _logRequest('DELETE', url.toString(), _headers);
+      
       final response = await http.delete(url, headers: _headers);
+      
+      // Log response
+      _logResponse(response);
       
       return _handleResponse(response);
     } catch (e) {
@@ -95,9 +157,17 @@ class HttpClient {
 
   /// طلب DELETE (للحالات التي لا تحتاج رد)
   Future<void> deleteVoid(String endpoint) async {
+    await _checkConnection();
     try {
       final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      
+      // Log request
+      _logRequest('DELETE', url.toString(), _headers);
+      
       final response = await http.delete(url, headers: _headers);
+      
+      // Log response
+      _logResponse(response);
       
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return;

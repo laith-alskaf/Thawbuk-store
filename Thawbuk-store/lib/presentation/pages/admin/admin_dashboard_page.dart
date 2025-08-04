@@ -89,7 +89,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Widget _buildWelcomeCard(user) {
     return CustomCard(
-      color: AppColors.primary.withOpacity(0.1),
+      backgroundColor: AppColors.primary.withOpacity(0.1),
       child: Row(
         children: [
           Expanded(

@@ -155,7 +155,8 @@ class _OrdersPageState extends State<OrdersPage>
         }
         
         return const EmptyWidget(
-          message: 'لا توجد طلبات',
+          title: 'لا توجد طلبات',
+          message: 'لم تقم بإجراء أي طلبات بعد',
           icon: Icons.receipt_long_outlined,
         );
       },
@@ -223,6 +224,7 @@ class _OrdersPageState extends State<OrdersPage>
     }
 
     return EmptyWidget(
+      title: 'لا توجد طلبات',
       message: message,
       icon: icon,
     );

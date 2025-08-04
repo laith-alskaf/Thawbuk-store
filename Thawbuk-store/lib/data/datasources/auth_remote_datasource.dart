@@ -1,16 +1,17 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../../core/network/api_client.dart';
 import '../../core/utils/mock_data.dart';
 import '../models/user_model.dart';
+import '../models/auth_response_model.dart';
+import '../models/auth_request_models.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<AuthResponseModel> login(LoginRequestModel request);
+  Future<AuthResponseModel> login(String email, String password);
   Future<AuthResponseModel> register(RegisterRequestModel request);
   Future<void> logout();
-  Future<void> forgotPassword(ForgotPasswordRequestModel request);
-  Future<void> verifyEmail(VerifyEmailRequestModel request);
-  Future<void> changePassword(ChangePasswordRequestModel request);
+  Future<void> forgotPassword(String email);
+  Future<void> verifyEmail(String code);
+  Future<void> changePassword(String oldPassword, String newPassword);
   Future<void> resendVerificationCode(String email);
   Future<UserModel> getCurrentUser();
   Future<UserModel> updateUserProfile(UserModel user);
@@ -24,31 +25,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this._apiClient);
 
   @override
-  Future<AuthResponseModel> login(LoginRequestModel request) async {
-    // في وضع التطوير، استخدام mock data
-    if (kDebugMode) {
-      await Future.delayed(const Duration(seconds: 1)); // محاكاة تأخير الشبكة
-      
-      // تحقق من بيانات الاعتماد
-      if (request.email == 'admin@test.com' && request.password == '123456') {
-        return MockData.mockAdminAuthResponse;
-      } else if (request.email == 'user@test.com' && request.password == '123456') {
-        return MockData.mockAuthResponse;
-      } else {
-        throw Exception('بيانات الاعتماد غير صحيحة');
-      }
-    }
-
-    // في وضع الإنتاج، استخدام API الحقيقي
+  Future<AuthResponseModel> login(String email, String password) async {
+    
     final response = await _apiClient.post(
       '/auth/login',
-      data: request.toJson(),
+      data: {'email': email, 'password': password},
     );
 
-    if (response.data['success'] == true) {
-      return AuthResponseModel.fromJson(response.data['data']);
+    if (response['success'] == true) {
+      return AuthResponseModel.fromJson(response['data']);
     } else {
-      throw Exception(response.data['message'] ?? 'فشل في تسجيل الدخول');
+      throw Exception(response['message'] ?? 'فشل في تسجيل الدخول');
     }
   }
 
@@ -59,10 +46,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       data: request.toJson(),
     );
 
-    if (response.data['success'] == true) {
-      return AuthResponseModel.fromJson(response.data['data']);
+    if (response['success'] == true) {
+      return AuthResponseModel.fromJson(response['data']);
     } else {
-      throw Exception(response.data['message'] ?? 'فشل في إنشاء الحساب');
+      throw Exception(response['message'] ?? 'فشل في إنشاء الحساب');
     }
   }
 
@@ -70,44 +57,44 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> logout() async {
     final response = await _apiClient.post('/auth/logout');
 
-    if (response.data['success'] != true) {
-      throw Exception(response.data['message'] ?? 'فشل في تسجيل الخروج');
+    if (response['success'] != true) {
+      throw Exception(response['message'] ?? 'فشل في تسجيل الخروج');
     }
   }
 
   @override
-  Future<void> forgotPassword(ForgotPasswordRequestModel request) async {
+  Future<void> forgotPassword(String email) async {
     final response = await _apiClient.post(
       '/auth/forgot-password',
-      data: request.toJson(),
+      data: {'email': email},
     );
 
-    if (response.data['success'] != true) {
-      throw Exception(response.data['message'] ?? 'فشل في إرسال رابط استعادة كلمة المرور');
+    if (response['success'] != true) {
+      throw Exception(response['message'] ?? 'فشل في إرسال رابط استعادة كلمة المرور');
     }
   }
 
   @override
-  Future<void> verifyEmail(VerifyEmailRequestModel request) async {
+  Future<void> verifyEmail(String code) async {
     final response = await _apiClient.post(
       '/auth/verify-email',
-      data: request.toJson(),
+      data: {'code': code},
     );
 
-    if (response.data['success'] != true) {
-      throw Exception(response.data['message'] ?? 'فشل في التحقق من البريد الإلكتروني');
+    if (response['success'] != true) {
+      throw Exception(response['message'] ?? 'فشل في التحقق من البريد الإلكتروني');
     }
   }
 
   @override
-  Future<void> changePassword(ChangePasswordRequestModel request) async {
+  Future<void> changePassword(String oldPassword, String newPassword) async {
     final response = await _apiClient.post(
       '/auth/change-password',
-      data: request.toJson(),
+      data: {'oldPassword': oldPassword, 'newPassword': newPassword},
     );
 
-    if (response.data['success'] != true) {
-      throw Exception(response.data['message'] ?? 'فشل في تغيير كلمة المرور');
+    if (response['success'] != true) {
+      throw Exception(response['message'] ?? 'فشل في تغيير كلمة المرور');
     }
   }
 
@@ -118,8 +105,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       data: {'email': email},
     );
 
-    if (response.data['success'] != true) {
-      throw Exception(response.data['message'] ?? 'فشل في إعادة إرسال رمز التحقق');
+    if (response['success'] != true) {
+      throw Exception(response['message'] ?? 'فشل في إعادة إرسال رمز التحقق');
     }
   }
 
@@ -133,10 +120,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     final response = await _apiClient.get('/user/profile');
 
-    if (response.data['success'] == true) {
-      return UserModel.fromJson(response.data['data']);
+    if (response['success'] == true) {
+      return UserModel.fromJson(response['data']);
     } else {
-      throw Exception(response.data['message'] ?? 'فشل في جلب بيانات المستخدم');
+      throw Exception(response['message'] ?? 'فشل في جلب بيانات المستخدم');
     }
   }
 
@@ -147,28 +134,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       data: user.toJson(),
     );
 
-    if (response.data['success'] == true) {
-      return UserModel.fromJson(response.data['data']);
+    if (response['success'] == true) {
+      return UserModel.fromJson(response['data']);
     } else {
-      throw Exception(response.data['message'] ?? 'فشل في تحديث الملف الشخصي');
+      throw Exception(response['message'] ?? 'فشل في تحديث الملف الشخصي');
     }
   }
 
   @override
   Future<String> updateProfileImage(String imagePath) async {
-    final file = File(imagePath);
-    
-    final response = await _apiClient.uploadFile(
-      '/user/profile/image',
-      file,
-      fieldName: 'profileImage',
-    );
+    // final response = await _apiClient.uploadFile(
+    //   '/user/profile/image',
+    //   imagePath,
+    //   data: {'fieldName': 'profileImage'},
+    // );
 
-    if (response.data['success'] == true) {
-      return response.data['data']['imageUrl'] as String;
-    } else {
-      throw Exception(response.data['message'] ?? 'فشل في رفع الصورة');
-    }
+    // if (response.data['success'] == true) {
+    //   return response.data['data']['imageUrl'] as String;
+    // } else {
+    //   throw Exception(response.data['message'] ?? 'فشل في رفع الصورة');
+    // }
+    return '';
   }
 
   @override
@@ -178,8 +164,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       data: {'fcmToken': token},
     );
 
-    if (response.data['success'] != true) {
-      throw Exception(response.data['message'] ?? 'فشل في تحديث رمز الإشعارات');
+    if (response['success'] != true) {
+      throw Exception(response['message'] ?? 'فشل في تحديث رمز الإشعارات');
     }
   }
 }

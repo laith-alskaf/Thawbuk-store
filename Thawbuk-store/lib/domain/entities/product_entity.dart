@@ -23,6 +23,10 @@ class ProductEntity extends Equatable {
   final int? favoritesCount;
   final int? viewsCount;
   final bool? isActive;
+  final double? originalPrice;
+  final String? storeName;
+  final String? storeImage;
+  final double? storeRating;
 
   const ProductEntity({
     required this.id,
@@ -46,12 +50,21 @@ class ProductEntity extends Equatable {
     this.favoritesCount,
     this.viewsCount,
     this.isActive,
+    this.originalPrice,
+    this.storeName,
+    this.storeImage,
+    this.storeRating,
   });
 
   String get displayName => nameAr?.isNotEmpty == true ? nameAr! : name;
   String get displayDescription => descriptionAr?.isNotEmpty == true ? descriptionAr! : description ?? '';
+  bool get hasDiscount => originalPrice != null && originalPrice! > price;
   String get mainImage => images.isNotEmpty ? images.first : '';
   bool get isAvailable => stock > 0;
+  
+  // Methods needed by wishlist
+  String getLocalizedName() => displayName;
+  String get formattedPrice => '${price.toStringAsFixed(2)} ر.س';
 
   @override
   List<Object?> get props => [
@@ -76,5 +89,9 @@ class ProductEntity extends Equatable {
         favoritesCount,
         viewsCount,
         isActive,
+        originalPrice,
+        storeName,
+        storeImage,
+        storeRating,
       ];
 }

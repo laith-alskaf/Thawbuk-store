@@ -13,6 +13,12 @@ class UserModel extends UserEntity {
   @override
   final CompanyModel? company;
 
+  @override
+  final List<ChildModel>? children;
+
+  @override
+  final AddressModel? address;
+
   const UserModel({
     required this.id,
     required super.email,
@@ -25,13 +31,18 @@ class UserModel extends UserEntity {
     this.company,
     super.age,
     super.gender,
-    super.children,
-    super.address,
+    this.children,
+    this.address,
     super.fcmToken,
     required super.isEmailVerified,
     super.otpCode,
     super.otpCodeExpires,
-  }) : super(id: id, company: company);
+  }) : super(
+          id: id,
+          company: company,
+          children: children,
+          address: address,
+        );
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return _$UserModelFromJson(json);
@@ -52,8 +63,8 @@ class UserModel extends UserEntity {
       company: company?.toEntity(),
       age: age,
       gender: gender,
-      children: children?.map((c) => (c as ChildModel).toEntity()).toList(),
-      address: (address as AddressModel?)?.toEntity(),
+      children: children?.map((c) => c.toEntity()).toList(),
+      address: address?.toEntity(),
       fcmToken: fcmToken,
       isEmailVerified: isEmailVerified,
       otpCode: otpCode,
@@ -113,6 +124,8 @@ class ChildModel extends ChildEntity {
 @JsonSerializable(explicitToJson: true)
 class AddressModel extends AddressEntity {
   const AddressModel({
+    required super.fullName,
+    required super.phone,
     required super.street,
     required super.city,
     required super.state,
@@ -128,6 +141,8 @@ class AddressModel extends AddressEntity {
 
   AddressEntity toEntity() {
     return AddressEntity(
+      fullName: fullName,
+      phone: phone,
       street: street,
       city: city,
       state: state,

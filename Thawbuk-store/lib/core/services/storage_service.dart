@@ -28,7 +28,7 @@ class StorageService {
       _wishlistBox = await Hive.openBox(_wishlistBoxName);
       _settingsBox = await Hive.openBox(_settingsBoxName);
     } catch (e) {
-      throw CacheFailure(message: 'فشل في تهيئة التخزين المحلي: $e');
+      throw CacheFailure('فشل في تهيئة التخزين المحلي: $e');
     }
   }
 

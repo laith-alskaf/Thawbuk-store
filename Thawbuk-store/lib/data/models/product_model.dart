@@ -6,6 +6,7 @@ part 'product_model.g.dart';
 @JsonSerializable()
 class ProductModel extends ProductEntity {
   @JsonKey(name: '_id')
+  @override
   final String id;
 
   const ProductModel({

@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../entities/order_entity.dart';
+import '../entities/user_entity.dart';
 import '../../core/errors/failures.dart';
 
 abstract class OrderRepository {

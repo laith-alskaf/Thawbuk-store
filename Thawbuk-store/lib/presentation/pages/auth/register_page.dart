@@ -124,7 +124,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: _nameController,
                     label: 'الاسم الكامل',
                     hint: 'أدخل اسمك الكامل',
-                    prefixIcon: Icons.account_circle, // أيقونة شخص أوضح
+                    prefixIcon: const Icon(Icons.account_circle), // أيقونة شخص أوضح
                     validator: (value) {
                       if (_selectedRole == 'customer') {
                         if (value == null || value.isEmpty) {
@@ -146,7 +146,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'البريد الإلكتروني',
                     hint: 'أدخل بريدك الإلكتروني',
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icons.alternate_email, // أيقونة بريد إلكتروني أوضح
+                    prefixIcon: const Icon(Icons.alternate_email), // أيقونة بريد إلكتروني أوضح
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء إدخال البريد الإلكتروني';
@@ -166,7 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'العمر',
                     hint: 'أدخل عمرك',
                     keyboardType: TextInputType.number,
-                    prefixIcon: Icons.date_range, // أيقونة تاريخ أوضح من الكعكة
+                    prefixIcon: const Icon(Icons.date_range), // أيقونة تاريخ أوضح من الكعكة
                     validator: (value) {
                       if (_selectedRole == 'customer') {
                         if (value == null || value.isEmpty) {
@@ -228,7 +228,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _customerCityController,
                       label: 'المدينة',
                       hint: 'أدخل مدينتك',
-                      prefixIcon: Icons.location_city,
+                      prefixIcon: const Icon(Icons.location_city),
                       validator: (value) {
                         if (_selectedRole == 'customer' && (value == null || value.isEmpty)) {
                           return 'الرجاء إدخال المدينة';
@@ -242,7 +242,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _customerStreetController,
                       label: 'الشارع (اختياري)',
                       hint: 'أدخل عنوان الشارع',
-                      prefixIcon: Icons.location_on,
+                      prefixIcon: const Icon(Icons.location_on),
                     ),
                     const SizedBox(height: 16),
                     
@@ -305,7 +305,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'كلمة المرور',
                     hint: 'أدخل كلمة المرور',
                     obscureText: _isPasswordHidden,
-                    prefixIcon: Icons.key, // أيقونة مفتاح أوضح
+                    prefixIcon: const Icon(Icons.key), // أيقونة مفتاح أوضح
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordHidden ? Icons.visibility : Icons.visibility_off,
@@ -335,7 +335,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'تأكيد كلمة المرور',
                     hint: 'أعد إدخال كلمة المرور',
                     obscureText: _isConfirmPasswordHidden,
-                    prefixIcon: Icons.key, // أيقونة مفتاح أوضح
+                    prefixIcon: const Icon(Icons.key), // أيقونة مفتاح أوضح
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isConfirmPasswordHidden ? Icons.visibility : Icons.visibility_off,
@@ -522,7 +522,7 @@ class _RegisterPageState extends State<RegisterPage> {
           controller: _companyNameController,
           label: 'اسم المتجر',
           hint: 'أدخل اسم المتجر',
-          prefixIcon: Icons.store,
+          prefixIcon: const Icon(Icons.store),
           validator: (value) {
             if (_selectedRole == 'admin' && (value == null || value.isEmpty)) {
               return 'الرجاء إدخال اسم المتجر';
@@ -537,7 +537,7 @@ class _RegisterPageState extends State<RegisterPage> {
           controller: _companyDescriptionController,
           label: 'وصف المتجر (اختياري)',
           hint: 'أدخل وصف مختصر عن المتجر',
-          prefixIcon: Icons.description,
+          prefixIcon: const Icon(Icons.description),
           maxLines: 3,
         ),
         const SizedBox(height: 16),
@@ -547,7 +547,7 @@ class _RegisterPageState extends State<RegisterPage> {
           controller: _companyPhoneController,
           label: 'رقم هاتف المتجر (اختياري)',
           hint: 'أدخل رقم هاتف المتجر',
-          prefixIcon: Icons.phone,
+          prefixIcon: const Icon(Icons.phone),
           keyboardType: TextInputType.phone,
         ),
         const SizedBox(height: 16),
@@ -566,7 +566,7 @@ class _RegisterPageState extends State<RegisterPage> {
           controller: _companyCityController,
           label: 'مدينة المتجر',
           hint: 'أدخل مدينة المتجر',
-          prefixIcon: Icons.location_city,
+          prefixIcon: const Icon(Icons.location_city),
           validator: (value) {
             if (_selectedRole == 'admin' && (value == null || value.isEmpty)) {
               return 'الرجاء إدخال مدينة المتجر';
@@ -581,7 +581,7 @@ class _RegisterPageState extends State<RegisterPage> {
           controller: _companyStreetController,
           label: 'الشارع (اختياري)',
           hint: 'أدخل عنوان الشارع',
-          prefixIcon: Icons.location_on,
+          prefixIcon: const Icon(Icons.location_on),
         ),
         const SizedBox(height: 16),
         
@@ -590,7 +590,7 @@ class _RegisterPageState extends State<RegisterPage> {
           controller: _companyCountryController,
           label: 'البلد (اختياري)',
           hint: 'أدخل البلد',
-          prefixIcon: Icons.public,
+          prefixIcon: const Icon(Icons.public),
         ),
         const SizedBox(height: 16),
         

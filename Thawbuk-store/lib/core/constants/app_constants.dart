@@ -7,10 +7,15 @@ class AppConstants {
   static const int otpLength = 6;
   static const int otpExpiryMinutes = 10;
   
-  // API Endpoints
-  static const String baseUrl = 'http://localhost:3000/api';
+  // API Endpoints - Updated to match backend
+  static const String baseUrl = 'https://thawbuk-store.vercel.app/api';
   static const String authEndpoint = '/auth';
   static const String userEndpoint = '/user';
+  static const String productEndpoint = '/v2/product';
+  static const String categoryEndpoint = '/category';
+  static const String cartEndpoint = '/user/cart';
+  static const String wishlistEndpoint = '/user/wishlist';
+  static const String orderEndpoint = '/user/order';
   
   // Storage Keys
   static const String tokenKey = 'auth_token';

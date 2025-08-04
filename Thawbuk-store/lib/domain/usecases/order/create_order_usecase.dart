@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
 import '../../entities/order_entity.dart';
+import '../../entities/user_entity.dart';
 import '../../repositories/order_repository.dart';
 
 class CreateOrderUseCase implements UseCase<OrderEntity, CreateOrderParams> {

@@ -82,13 +82,15 @@ class _CartPageState extends State<CartPage> {
               return _buildCartContent(state.cart);
             } else if (state is CartCleared) {
               return const EmptyWidget(
-                message: 'سلة التسوق فارغة',
+                title: 'سلة التسوق فارغة',
+                message: 'لم تقم بإضافة أي منتجات بعد',
                 icon: Icons.shopping_cart_outlined,
               );
             }
             
             return const EmptyWidget(
-              message: 'سلة التسوق فارغة',
+              title: 'سلة التسوق فارغة',
+              message: 'لم تقم بإضافة أي منتجات بعد',
               icon: Icons.shopping_cart_outlined,
             );
           },
@@ -111,7 +113,8 @@ class _CartPageState extends State<CartPage> {
         children: [
           const Expanded(
             child: EmptyWidget(
-              message: 'سلة التسوق فارغة\nابدأ التسوق لإضافة منتجات',
+              title: 'سلة التسوق فارغة',
+              message: 'ابدأ التسوق لإضافة منتجات',
               icon: Icons.shopping_cart_outlined,
             ),
           ),

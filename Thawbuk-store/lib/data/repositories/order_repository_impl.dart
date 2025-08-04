@@ -1,10 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:thawbuk_store/domain/entities/order_entity.dart';
-
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
-import '../../domain/entities/order.dart';
+import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../datasources/order_remote_data_source.dart';
 

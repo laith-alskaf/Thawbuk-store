@@ -102,7 +102,6 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  @override
   Future<Either<Failure, String>> getThemeMode() async {
     try {
       final themeMode = await localDataSource.getThemeMode();
@@ -112,7 +111,6 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  @override
   Future<Either<Failure, void>> setThemeMode(String themeMode) async {
     try {
       await localDataSource.setThemeMode(themeMode);

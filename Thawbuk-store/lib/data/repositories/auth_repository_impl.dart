@@ -1,12 +1,12 @@
 import 'package:dartz/dartz.dart';
-
+import 'package:thawbuk_store/data/models/auth_request_models.dart';
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_data_source.dart';
-import '../datasources/auth_remote_data_source.dart';
+import '../datasources/auth_remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -20,12 +20,15 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<Either<Failure, UserEntity>> login(String email, String password) async {
+  Future<Either<Failure, UserEntity>> login(
+      String email, String password) async {
     if (await networkInfo.isConnected) {
       try {
         final userModel = await remoteDataSource.login(email, password);
-        await localDataSource.cacheUser(userModel);
+        await localDataSource.cacheUser(userModel.user);
         return Right(userModel.toEntity());
+      } on NetworkException catch (e) {
+        return Left(NetworkFailure(e.message));
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }
@@ -38,8 +41,10 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> register(Map<String, dynamic> userData) async {
     if (await networkInfo.isConnected) {
       try {
-        await remoteDataSource.register(userData);
+        await remoteDataSource.register(RegisterRequestModel.fromJson(userData));
         return const Right(null);
+      } on NetworkException catch (e) {
+        return Left(NetworkFailure(e.message));
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }
@@ -126,6 +131,35 @@ class AuthRepositoryImpl implements AuthRepository {
     if (await networkInfo.isConnected) {
       try {
         await remoteDataSource.resendVerificationCode(email);
+        return const Right(null);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      }
+    } else {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> forgotPassword(String email) async {
+    if (await networkInfo.isConnected) {
+      try {
+        await remoteDataSource.forgotPassword(email);
+        return const Right(null);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(e.message));
+      }
+    } else {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword(
+      String oldPassword, String newPassword) async {
+    if (await networkInfo.isConnected) {
+      try {
+        await remoteDataSource.changePassword(oldPassword, newPassword);
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));

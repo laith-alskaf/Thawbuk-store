@@ -20,6 +20,9 @@ class NetworkFailure extends Failure {
 
 class CacheFailure extends Failure {
   const CacheFailure(String message) : super(message);
+  
+  factory CacheFailure.writeError() => const CacheFailure('فشل في كتابة البيانات');
+  factory CacheFailure.readError() => const CacheFailure('فشل في قراءة البيانات');
 }
 
 class ValidationFailure extends Failure {

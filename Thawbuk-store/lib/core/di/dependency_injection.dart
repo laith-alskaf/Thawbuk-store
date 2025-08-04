@@ -1,12 +1,13 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../domain/usecases/auth/forgot_password_usecase.dart';
 import '../network/http_client.dart';
 import '../network/api_client.dart';
 import '../network/network_info.dart';
 import '../services/fcm_service.dart';
 
 // Data Sources
-import '../../data/datasources/auth_remote_data_source.dart';
+import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/datasources/auth_local_data_source.dart';
 import '../../data/datasources/product_remote_data_source.dart';
 import '../../data/datasources/category_remote_data_source.dart';
@@ -86,8 +87,8 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => FCMService());
   
   // HTTP Client setup
-  getIt.registerLazySingleton(() => HttpClient(getIt<SharedPreferences>()));
-  getIt.registerLazySingleton(() => ApiClient());
+  getIt.registerLazySingleton(() => HttpClient(getIt<SharedPreferences>(), networkInfo: getIt()));
+  getIt.registerLazySingleton(() => ApiClient(networkInfo: getIt()));
 
   // Data sources
   getIt.registerLazySingleton<AuthRemoteDataSource>(
@@ -174,6 +175,7 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => LogoutUseCase(getIt()));
   getIt.registerLazySingleton(() => VerifyEmailUseCase(getIt()));
   getIt.registerLazySingleton(() => ResendVerificationUseCase(getIt()));
+  getIt.registerLazySingleton(() => ForgotPasswordUseCase(getIt()));
   getIt.registerLazySingleton(() => GetProductsUseCase(getIt()));
   getIt.registerLazySingleton(() => GetProductByIdUseCase(getIt()));
   getIt.registerLazySingleton(() => SearchProductsUseCase(getIt()));
@@ -202,6 +204,7 @@ Future<void> configureDependencies() async {
     authRepository: getIt(),
     verifyEmailUseCase: getIt(),
     resendVerificationUseCase: getIt(),
+    forgotPasswordUseCase: getIt(),
   ));
   
   getIt.registerFactory(() => ProductBloc(

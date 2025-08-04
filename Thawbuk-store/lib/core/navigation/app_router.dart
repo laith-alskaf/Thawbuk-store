@@ -20,7 +20,6 @@ import '../../presentation/pages/auth/forgot_password_page.dart';
 import '../../presentation/pages/auth/verify_email_page.dart';
 import '../../presentation/pages/home/home_page.dart';
 import '../../presentation/pages/products/products_page.dart';
-import '../../presentation/pages/products/product_details_page.dart';
 import '../../presentation/pages/categories/categories_page.dart';
 import '../../presentation/pages/cart/cart_page.dart';
 import '../../presentation/pages/wishlist/wishlist_page.dart';

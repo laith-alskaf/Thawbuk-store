@@ -7,6 +7,7 @@ import '../../../domain/usecases/auth/register_usecase.dart';
 import '../../../domain/usecases/auth/logout_usecase.dart';
 import '../../../domain/usecases/auth/verify_email_usecase.dart';
 import '../../../domain/usecases/auth/resend_verification_usecase.dart';
+import '../../../domain/usecases/auth/forgot_password_usecase.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
@@ -66,6 +67,15 @@ class ResendVerificationCodeEvent extends AuthEvent {
   List<Object> get props => [email];
 }
 
+class ForgotPasswordEvent extends AuthEvent {
+  final String email;
+
+  const ForgotPasswordEvent({required this.email});
+
+  @override
+  List<Object> get props => [email];
+}
+
 class ContinueAsGuestEvent extends AuthEvent {}
 
 // States
@@ -95,6 +105,15 @@ class AuthGuest extends AuthState {}
 
 class AuthEmailVerified extends AuthState {}
 
+class ForgotPasswordSent extends AuthState {
+  final String email;
+
+  const ForgotPasswordSent({required this.email});
+
+  @override
+  List<Object?> get props => [email];
+}
+
 class AuthRegistrationSuccess extends AuthState {
   final String email;
 
@@ -121,6 +140,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;
   final VerifyEmailUseCase verifyEmailUseCase;
   final ResendVerificationUseCase resendVerificationUseCase;
+  final ForgotPasswordUseCase forgotPasswordUseCase;
 
   AuthBloc({
     required this.loginUseCase,
@@ -129,6 +149,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.authRepository,
     required this.verifyEmailUseCase,
     required this.resendVerificationUseCase,
+    required this.forgotPasswordUseCase,
   }) : super(AuthInitial()) {
     
     on<CheckAuthStatusEvent>(_onCheckAuthStatus);
@@ -137,6 +158,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutEvent>(_onLogout);
     on<VerifyEmailEvent>(_onVerifyEmail);
     on<ResendVerificationCodeEvent>(_onResendVerificationCode);
+    on<ForgotPasswordEvent>(_onForgotPassword);
     on<ContinueAsGuestEvent>(_onContinueAsGuest);
 
     // Check auth status on startup
@@ -304,6 +326,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthError(message));
       },
       (_) => emit(AuthRegistrationSuccess(email: event.email)),
+    );
+  }
+
+  Future<void> _onForgotPassword(
+    ForgotPasswordEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    
+    final result = await forgotPasswordUseCase(
+      ForgotPasswordParams(email: event.email),
+    );
+    
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء إرسال رابط استعادة كلمة المرور';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(AuthError(message));
+      },
+      (_) => emit(ForgotPasswordSent(email: event.email)),
     );
   }
 

@@ -6,6 +6,8 @@ import '../../bloc/auth/auth_bloc.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../widgets/shared/custom_button.dart';
 import '../../widgets/shared/custom_text_field.dart';
+import '../../widgets/shared/network_error_widget.dart';
+import '../../../core/errors/failures.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -43,12 +45,17 @@ class _LoginPageState extends State<LoginPage> {
           if (state is AuthAuthenticated) {
             context.go('/home');
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
-              ),
-            );
+            // التحقق من نوع الخطأ
+            if (state.message.contains('اتصال') || state.message.contains('إنترنت') || state.message.contains('شبكة')) {
+              NetworkErrorSnackBar.show(context, state.message);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
           }
         },
         child: SafeArea(
@@ -103,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                     label: 'البريد الإلكتروني',
                     hint: 'أدخل بريدك الإلكتروني',
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icons.alternate_email, // أيقونة بريد إلكتروني أوضح
+                    prefixIcon: const Icon(Icons.alternate_email), // أيقونة بريد إلكتروني أوضح
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'الرجاء إدخال البريد الإلكتروني';
@@ -123,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                     label: 'كلمة المرور',
                     hint: 'أدخل كلمة المرور',
                     obscureText: _isPasswordHidden,
-                    prefixIcon: Icons.key, // أيقونة مفتاح أوضح من القفل
+                    prefixIcon: const Icon(Icons.key), // أيقونة مفتاح أوضح من القفل
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordHidden ? Icons.visibility : Icons.visibility_off,

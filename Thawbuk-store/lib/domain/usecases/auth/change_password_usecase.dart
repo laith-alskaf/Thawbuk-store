@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/usecases/usecase.dart';
-import '../../entities/user.dart';
 import '../../repositories/auth_repository.dart';
 
 class ChangePasswordUseCase implements UseCase<void, ChangePasswordParams> {
@@ -11,19 +10,16 @@ class ChangePasswordUseCase implements UseCase<void, ChangePasswordParams> {
 
   @override
   Future<Either<Failure, void>> call(ChangePasswordParams params) async {
-    return await repository.changePassword(ChangePasswordRequest(
-      email: params.email,
-      newPassword: params.newPassword,
-    ));
+    return await repository.changePassword(params.oldPassword, params.newPassword);
   }
 }
 
 class ChangePasswordParams {
-  final String email;
+  final String oldPassword;
   final String newPassword;
 
   ChangePasswordParams({
-    required this.email,
+    required this.oldPassword,
     required this.newPassword,
   });
 }

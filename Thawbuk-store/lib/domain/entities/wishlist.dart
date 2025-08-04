@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'product.dart';
+import 'product_entity.dart';
 
 class Wishlist extends Equatable {
   final String id;
@@ -56,7 +56,7 @@ class Wishlist extends Equatable {
   bool get isNotEmpty => items.isNotEmpty;
 
   // الحصول على قائمة المنتجات
-  List<Product> get products => items
+  List<ProductEntity> get products => items
       .where((item) => item.product != null)
       .map((item) => item.product!)
       .toList();
@@ -68,7 +68,7 @@ class Wishlist extends Equatable {
 class WishlistItem extends Equatable {
   final String id;
   final String productId;
-  final Product? product; // قد يكون null في بعض الحالات
+  final ProductEntity? product; // قد يكون null في بعض الحالات
   final DateTime addedAt;
 
   const WishlistItem({
@@ -81,7 +81,7 @@ class WishlistItem extends Equatable {
   WishlistItem copyWith({
     String? id,
     String? productId,
-    Product? product,
+    ProductEntity? product,
     DateTime? addedAt,
   }) {
     return WishlistItem(

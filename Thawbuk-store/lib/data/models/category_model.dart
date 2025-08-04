@@ -6,6 +6,7 @@ part 'category_model.g.dart';
 @JsonSerializable()
 class CategoryModel extends CategoryEntity {
   @JsonKey(name: '_id')
+  @override
   final String id;
 
   const CategoryModel({

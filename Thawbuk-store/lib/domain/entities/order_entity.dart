@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'cart_entity.dart';
+import 'user_entity.dart';
 
 enum OrderStatus {
   pending,
@@ -69,35 +70,4 @@ class OrderEntity extends Equatable {
       ];
 }
 
-class AddressEntity extends Equatable {
-  final String fullName;
-  final String phone;
-  final String street;
-  final String city;
-  final String state;
-  final String country;
-  final String? postalCode;
-
-  const AddressEntity({
-    required this.fullName,
-    required this.phone,
-    required this.street,
-    required this.city,
-    required this.state,
-    required this.country,
-    this.postalCode,
-  });
-
-  String get fullAddress => '$street, $city, $state, $country';
-
-  @override
-  List<Object?> get props => [
-        fullName,
-        phone,
-        street,
-        city,
-        state,
-        country,
-        postalCode,
-      ];
-}
+// AddressEntity is imported from user_entity.dart

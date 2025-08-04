@@ -1,6 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../pages/products/products_page.dart';
+import '../../../core/enums/sort_type.dart';
+
+class SortOption {
+  final SortType type;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+
+  const SortOption({
+    required this.type,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+  });
+}
 
 class SortBottomSheet extends StatefulWidget {
   final SortType currentSort;
@@ -37,13 +51,13 @@ class _SortBottomSheetState extends State<SortBottomSheet>
       icon: Icons.history,
     ),
     SortOption(
-      type: SortType.priceAsc,
+      type: SortType.priceLowToHigh,
       title: 'السعر من الأقل للأعلى',
       subtitle: 'الأرخص أولاً',
       icon: Icons.trending_up,
     ),
     SortOption(
-      type: SortType.priceDesc,
+      type: SortType.priceHighToLow,
       title: 'السعر من الأعلى للأقل',
       subtitle: 'الأغلى أولاً',
       icon: Icons.trending_down,
@@ -286,18 +300,4 @@ class _SortBottomSheetState extends State<SortBottomSheet>
       Navigator.of(context).pop();
     });
   }
-}
-
-class SortOption {
-  final SortType type;
-  final String title;
-  final String subtitle;
-  final IconData icon;
-
-  SortOption({
-    required this.type,
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-  });
 }

@@ -74,7 +74,7 @@ class _MainLayoutState extends State<MainLayout> {
           },
           children: const [
             HomePage(),                    // 0 - الرئيسية (عامة)
-            ProductsPage(category: null),  // 1 - المنتجات (عامة)
+            ProductsPage(categoryId: null),  // 1 - المنتجات (عامة)
             CartPage(),                    // 2 - السلة (محمية)
             FavoritesPage(),               // 3 - المفضلة (محمية)
             ProfilePage(),                 // 4 - الحساب (محمية)

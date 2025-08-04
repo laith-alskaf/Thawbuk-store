@@ -42,8 +42,7 @@ class AppTheme {
         primaryContainer: AppColors.primaryLight,
         secondary: AppColors.secondary,
         secondaryContainer: AppColors.secondaryLight,
-        background: AppColors.background,
-        surface: AppColors.surface,
+        surface: AppColors.background,
         error: AppColors.error,
       ),
       
@@ -163,8 +162,7 @@ class AppTheme {
         primaryContainer: AppColors.primary,
         secondary: AppColors.secondaryLight,
         secondaryContainer: AppColors.secondary,
-        background: Color(0xFF121212),
-        surface: Color(0xFF1E1E1E),
+        surface: Color(0xFF121212),
         error: AppColors.error,
       ),
       

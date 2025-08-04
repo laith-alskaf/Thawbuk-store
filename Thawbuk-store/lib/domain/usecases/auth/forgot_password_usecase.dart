@@ -10,9 +10,7 @@ class ForgotPasswordUseCase implements UseCase<void, ForgotPasswordParams> {
 
   @override
   Future<Either<Failure, void>> call(ForgotPasswordParams params) async {
-    return await repository.forgotPassword(ForgotPasswordRequest(
-      email: params.email,
-    ));
+    return await repository.forgotPassword(params.email);
   }
 }
 

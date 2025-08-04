@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 
 enum UserRole { customer, admin, superAdmin }
 
+enum Gender { male, female, other }
+
 class UserEntity extends Equatable {
   final String id;
   final String email;
@@ -14,7 +16,7 @@ class UserEntity extends Equatable {
   final CompanyEntity? company;
   // خصائص إضافية من Backend
   final int? age;
-  final String? gender; // 'male' | 'female' | 'other'
+  final Gender? gender;
   final List<ChildEntity>? children;
   final AddressEntity? address;
   final String? fcmToken;
@@ -45,6 +47,7 @@ class UserEntity extends Equatable {
   bool get isSuperAdmin => role == UserRole.superAdmin;
   bool get isAdmin => role == UserRole.admin;
   bool get isCustomer => role == UserRole.customer;
+  bool get isOwner => role == UserRole.admin || role == UserRole.superAdmin;
 
   @override
   List<Object?> get props => [
@@ -101,6 +104,8 @@ class ChildEntity extends Equatable {
 }
 
 class AddressEntity extends Equatable {
+  final String fullName;
+  final String phone;
   final String street;
   final String city;
   final String state;
@@ -108,6 +113,8 @@ class AddressEntity extends Equatable {
   final String? postalCode;
 
   const AddressEntity({
+    required this.fullName,
+    required this.phone,
     required this.street,
     required this.city,
     required this.state,
@@ -115,6 +122,14 @@ class AddressEntity extends Equatable {
     this.postalCode,
   });
 
+  String get fullAddress {
+    final parts = [street, city, state, country];
+    if (postalCode != null && postalCode!.isNotEmpty) {
+      parts.add(postalCode!);
+    }
+    return parts.where((part) => part.isNotEmpty).join(', ');
+  }
+
   @override
-  List<Object?> get props => [street, city, state, country, postalCode];
+  List<Object?> get props => [fullName, phone, street, city, state, country, postalCode];
 }

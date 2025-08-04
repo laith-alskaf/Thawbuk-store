@@ -177,31 +177,84 @@ class DeleteProductEvent extends ProductEvent {
   List<Object?> get props => [productId];
 }
 
+class LoadMoreProductsEvent extends ProductEvent {}
+
+class FilterProductsEvent extends ProductEvent {
+  final String? category;
+  final String? searchQuery;
+  final List<String>? sizes;
+  final List<String>? colors;
+  final double? minPrice;
+  final double? maxPrice;
+  final String? sortBy;
+
+  const FilterProductsEvent({
+    this.category,
+    this.searchQuery,
+    this.sizes,
+    this.colors,
+    this.minPrice,
+    this.maxPrice,
+    this.sortBy,
+  });
+
+  @override
+  List<Object?> get props => [
+        category,
+        searchQuery,
+        sizes,
+        colors,
+        minPrice,
+        maxPrice,
+        sortBy,
+      ];
+}
+
 // States
 abstract class ProductState extends Equatable {
   const ProductState();
 
   @override
   List<Object?> get props => [];
+  
+  // Getters for common properties
+  List<ProductEntity> get products => [];
+  ProductEntity? get selectedProduct => null;
 }
 
 class ProductInitial extends ProductState {}
 
-class ProductLoading extends ProductState {}
+class ProductLoading extends ProductState {
+  final List<ProductEntity> currentProducts;
+  
+  const ProductLoading({this.currentProducts = const []});
+  
+  @override
+  List<ProductEntity> get products => currentProducts;
+  
+  @override
+  List<Object?> get props => [currentProducts];
+}
 
 class ProductsLoaded extends ProductState {
-  final List<ProductEntity> products;
+  final List<ProductEntity> _products;
 
-  const ProductsLoaded(this.products);
+  const ProductsLoaded(this._products);
 
   @override
-  List<Object?> get props => [products];
+  List<ProductEntity> get products => _products;
+
+  @override
+  List<Object?> get props => [_products];
 }
 
 class ProductLoaded extends ProductState {
   final ProductEntity product;
 
   const ProductLoaded(this.product);
+
+  @override
+  ProductEntity? get selectedProduct => product;
 
   @override
   List<Object?> get props => [product];
@@ -236,11 +289,15 @@ class ProductDeleted extends ProductState {
 
 class ProductError extends ProductState {
   final String message;
+  final List<ProductEntity> currentProducts;
 
-  const ProductError(this.message);
+  const ProductError(this.message, {this.currentProducts = const []});
 
   @override
-  List<Object?> get props => [message];
+  List<ProductEntity> get products => currentProducts;
+
+  @override
+  List<Object?> get props => [message, currentProducts];
 }
 
 // BLoC

@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/order_entity.dart';
+import '../../domain/entities/user_entity.dart';
 import 'cart_model.dart';
 
 part 'order_model.g.dart';
@@ -51,15 +52,51 @@ class OrderModel extends OrderEntity {
 
 @JsonSerializable(explicitToJson: true)
 class AddressModel extends AddressEntity {
+  @JsonKey(name: 'fullName')
+  @override
+  final String fullName;
+  
+  @JsonKey(name: 'phone')
+  @override
+  final String phone;
+  
+  @JsonKey(name: 'street')
+  @override
+  final String street;
+  
+  @JsonKey(name: 'city')
+  @override
+  final String city;
+  
+  @JsonKey(name: 'state')
+  @override
+  final String state;
+  
+  @JsonKey(name: 'country')
+  @override
+  final String country;
+  
+  @JsonKey(name: 'postalCode')
+  @override
+  final String? postalCode;
+
   const AddressModel({
-    required super.fullName,
-    required super.phone,
-    required super.street,
-    required super.city,
-    required super.state,
-    required super.country,
-    super.postalCode,
-  });
+    required this.fullName,
+    required this.phone,
+    required this.street,
+    required this.city,
+    required this.state,
+    required this.country,
+    this.postalCode,
+  }) : super(
+    fullName: fullName,
+    phone: phone,
+    street: street,
+    city: city,
+    state: state,
+    country: country,
+    postalCode: postalCode,
+  );
 
   factory AddressModel.fromJson(Map<String, dynamic> json) {
     return _$AddressModelFromJson(json);

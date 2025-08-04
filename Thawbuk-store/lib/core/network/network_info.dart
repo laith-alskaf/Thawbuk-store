@@ -1,3 +1,5 @@
+import 'dart:io';
+
 abstract class NetworkInfo {
   Future<bool> get isConnected;
 }
@@ -7,9 +9,12 @@ class NetworkInfoImpl implements NetworkInfo {
 
   @override
   Future<bool> get isConnected async {
-    // Simple implementation - in production you'd use internet_connection_checker
     try {
-      return true; // For now, assume we're always connected
+      // Try to lookup Google's DNS server
+      final result = await InternetAddress.lookup('google.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
     } catch (_) {
       return false;
     }

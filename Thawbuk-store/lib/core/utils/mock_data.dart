@@ -1,9 +1,10 @@
-import '../../../domain/entities/user.dart';
+import '../../domain/entities/user_entity.dart';
 import '../../data/models/user_model.dart';
+import '../../data/models/auth_response_model.dart';
 
 class MockData {
   // Mock User للاختبار
-  static UserModel get mockUser => const UserModel(
+  static UserModel get mockUser => UserModel(
     id: 'mock_user_123',
     email: 'test@example.com',
     role: UserRole.customer,
@@ -11,13 +12,12 @@ class MockData {
     age: 25,
     gender: Gender.male,
     isEmailVerified: true,
-    lastLogin: DateTime.now(),
+    lastLoginAt: DateTime.now(),
     createdAt: DateTime.now(),
-    updatedAt: DateTime.now(),
   );
 
   // Mock Admin User للاختبار
-  static UserModel get mockAdminUser => const UserModel(
+  static UserModel get mockAdminUser => UserModel(
     id: 'mock_admin_123',
     email: 'admin@example.com',
     role: UserRole.admin,
@@ -25,9 +25,8 @@ class MockData {
     age: 30,
     gender: Gender.male,
     isEmailVerified: true,
-    lastLogin: DateTime.now(),
+    lastLoginAt: DateTime.now(),
     createdAt: DateTime.now(),
-    updatedAt: DateTime.now(),
   );
 
   // Mock Auth Response
