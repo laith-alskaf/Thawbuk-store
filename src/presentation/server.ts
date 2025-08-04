@@ -6,8 +6,6 @@ import { authMiddleware } from './middleware/auth.middleware';
 import cors from 'cors';
 import { corsOptions } from './config/corsOptions';
 import categoryRouters from './routes/category.routes.ts/category.route';
-import productRouters from './routes/product.routes.ts/product.route';
-import publicProductRoutes from "./routes/product.routes.ts/public-product.route";
 import { 
     enhancedProductRoutes, 
     enhancedUserProductRoutes, 
@@ -35,16 +33,17 @@ export default class Server {
 
     private setupMiddleware() {
         this.app.use(logger);
-        
-        // Rate limiting
-        // this.app.use('/api/auth', createRateLimit(this.container.cacheService, RateLimitConfigs.AUTH));
-        // this.app.use('/api/v2/product/enhanced-search', createRateLimit(this.container.cacheService, RateLimitConfigs.SEARCH));
-        // this.app.use('/api/v2/user/product', createRateLimit(this.container.cacheService, RateLimitConfigs.PRODUCT_CREATE));
-        // this.app.use('/api', createRateLimit(this.container.cacheService, RateLimitConfigs.GENERAL));
-        
         this.app.use(express.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(bodyParser.json());
+        
+        // Rate limiting
+        this.app.use('/api/auth', createRateLimit(this.container.cacheService, RateLimitConfigs.AUTH));
+        this.app.use('/api/v2/product/enhanced-search', createRateLimit(this.container.cacheService, RateLimitConfigs.SEARCH));
+        this.app.use('/api/v2/user/product', createRateLimit(this.container.cacheService, RateLimitConfigs.PRODUCT_CREATE));
+        this.app.use('/api', createRateLimit(this.container.cacheService, RateLimitConfigs.GENERAL));
+        
+        
         this.app.use(authMiddleware(this.container.tokenService, this.container.userRepository))
     }
 

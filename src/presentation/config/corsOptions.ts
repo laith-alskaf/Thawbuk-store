@@ -3,7 +3,7 @@ import { CorsOptions } from 'cors';
 export const allowedOrigins = [
     'http://localhost:5000',
     'http://localhost:8080',
-    'https://ecommerce-backend-clean-architecture.vercel.app',
+    'https://thawbuk-store.vercel.app',
 ];
 
 export const corsOptions: CorsOptions = {
