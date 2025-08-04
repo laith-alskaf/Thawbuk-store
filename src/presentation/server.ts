@@ -5,14 +5,14 @@ import { setupDependencies } from './dependencies';
 import { authMiddleware } from './middleware/auth.middleware';
 import cors from 'cors';
 import { corsOptions } from './config/corsOptions';
-import categoryRouters from './routes/category.routes.ts/category.route';
+import categoryRouters from './routes/category.routes/category.route';
 import { 
     enhancedProductRoutes, 
     enhancedUserProductRoutes, 
     enhancedAdminProductRoutes 
 } from "./routes/enhanced-product.routes";
 import wishlistRoutes from "./routes/wishlist.route";
-import publicCategoryRouters from "./routes/category.routes.ts/public-category.route";
+import publicCategoryRouters from "./routes/category.routes/public-category.route";
 import cartRoutes from "./routes/cart.route";
 import orderRoutes from "./routes/order.route";
 import { errorHandler } from "./middleware/error-handler.middleware";
@@ -79,9 +79,6 @@ export default class Server {
         this.app.use('/api/user/order', orderRoutes(this.container.orderController));
         this.app.use('/api/cities', citiesRoutes());
 
-        // 404 handler for undefined routes
-        this.app.use('*', notFoundHandler);
-
         // Enhanced error handler (must be last)
         this.app.use(EnhancedErrorHandler.handle);
     }
@@ -109,4 +106,3 @@ export default class Server {
         this.setupErrorHandlers();
     }
 }
-

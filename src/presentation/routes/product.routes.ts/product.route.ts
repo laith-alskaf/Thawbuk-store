@@ -8,10 +8,8 @@ import {
     validateUpdateProduct
 } from '../../validation/product.validators';
 import {
-    requireAdmin,
     requireOwnershipOrAdmin,
     ProductPermissions,
-    UserRole
 } from '../../middleware/role-based-access.middleware';
 import multer from 'multer';
 
