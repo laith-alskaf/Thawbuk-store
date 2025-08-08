@@ -1,11 +1,12 @@
 export const excludedPathsForAuth = [
     // Auth Routes
     "/api/auth/register",
-    "/api/auth/login", 
+    "/api/auth/login",
     "/api/auth/verify-email",
     "/api/auth/forgot-password",
     "/api/auth/change-password",
-
+    '/api/auth/verify',
+    /^\/api\/auth\/verify\/[^/]+$/,
     // Category Routes
     "/api/category",
     "/api/category/",
