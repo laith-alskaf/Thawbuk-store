@@ -49,28 +49,19 @@ class RegisterEvent extends AuthEvent {
 class LogoutEvent extends AuthEvent {}
 
 class VerifyEmailEvent extends AuthEvent {
-  final String otpCode;
-  final String email;
+  final String code;
+  final String? email;
 
-  const VerifyEmailEvent({required this.otpCode, required this.email});
+  const VerifyEmailEvent({required this.code, this.email});
 
   @override
-  List<Object> get props => [otpCode, email];
+  List<Object> get props => [code];
 }
 
 class ResendVerificationCodeEvent extends AuthEvent {
   final String email;
 
   const ResendVerificationCodeEvent({required this.email});
-
-  @override
-  List<Object> get props => [email];
-}
-
-class ResendVerificationEvent extends AuthEvent {
-  final String email;
-
-  const ResendVerificationEvent({required this.email});
 
   @override
   List<Object> get props => [email];
@@ -176,7 +167,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutEvent>(_onLogout);
     on<VerifyEmailEvent>(_onVerifyEmail);
     on<ResendVerificationCodeEvent>(_onResendVerificationCode);
-    on<ResendVerificationEvent>(_onResendVerification);
     on<ForgotPasswordEvent>(_onForgotPassword);
     on<ContinueAsGuestEvent>(_onContinueAsGuest);
     on<UpdateUserProfileEvent>(_onUpdateUserProfile);
@@ -308,8 +298,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     final result = await verifyEmailUseCase(VerifyEmailParams(
-      code: event.otpCode,
-      email: event.email,
+      code: event.code,
     ));
 
     result.fold(
@@ -350,29 +339,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onResendVerification(
-    ResendVerificationEvent event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    
-    final result = await resendVerificationUseCase(
-      ResendVerificationParams(email: event.email),
-    );
-    
-    result.fold(
-      (failure) {
-        String message = 'حدث خطأ أثناء إعادة إرسال رمز التحقق';
-        if (failure is ServerFailure) {
-          message = failure.message;
-        } else if (failure is NetworkFailure) {
-          message = 'تحقق من اتصال الإنترنت';
-        }
-        emit(AuthError(message));
-      },
-      (_) => emit(AuthRegistrationSuccess(email: event.email)),
-    );
-  }
+
 
   Future<void> _onForgotPassword(
     ForgotPasswordEvent event,

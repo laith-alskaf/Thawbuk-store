@@ -8,7 +8,7 @@ abstract class AuthRemoteDataSource {
   Future<void> register(RegisterRequestModel request);
   Future<void> logout();
   Future<void> forgotPassword(String email);
-  Future<void> verifyEmail(String code, String email);
+  Future<void> verifyEmail(String code);
   Future<void> changePassword(String oldPassword, String newPassword);
   Future<void> resendVerificationCode(String email);
   Future<UserModel> getCurrentUser();
@@ -72,10 +72,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> verifyEmail(String code, String email) async {
+  Future<void> verifyEmail(String code) async {
     final response = await _apiClient.post(
       '/auth/verify-email',
-      data: {'otpCode': code, 'email': email},
+      data: {'code': code},
     );
 
     if (response['success'] != true) {

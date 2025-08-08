@@ -16,7 +16,7 @@ abstract class AuthRepository {
 
   Future<Either<Failure, String?>> getToken();
 
-  Future<Either<Failure, void>> verifyEmail(String code, String email);
+  Future<Either<Failure, void>> verifyEmail(String code);
   
   Future<Either<Failure, void>> resendVerificationCode(String email);
   

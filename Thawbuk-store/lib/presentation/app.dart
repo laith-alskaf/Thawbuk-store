@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import '../core/di/dependency_injection.dart';
-import '../core/services/deep_link_service.dart';
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/product/product_bloc.dart';
 import 'bloc/admin/admin_bloc.dart';
@@ -12,28 +11,8 @@ import 'bloc/order/order_bloc.dart';
 import 'bloc/theme/theme_cubit.dart';
 import 'navigation/app_router_improved.dart';
 
-class App extends StatefulWidget {
+class App extends StatelessWidget {
   const App({super.key});
-
-  @override
-  State<App> createState() => _AppState();
-}
-
-class _AppState extends State<App> {
-  @override
-  void initState() {
-    super.initState();
-    // Initialize deep links
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      DeepLinkService().initialize(getIt<AppRouterImproved>().router);
-    });
-  }
-
-  @override
-  void dispose() {
-    DeepLinkService().dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

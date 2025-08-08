@@ -12,16 +12,15 @@ class VerifyEmailUseCase implements UseCase<void, VerifyEmailParams> {
 
   @override
   Future<Either<Failure, void>> call(VerifyEmailParams params) async {
-    return await repository.verifyEmail(params.code, params.email);
+    return await repository.verifyEmail(params.code);
   }
 }
 
 class VerifyEmailParams extends Equatable {
   final String code;
-  final String email;
 
-  const VerifyEmailParams({required this.code, required this.email});
+  const VerifyEmailParams({required this.code});
 
   @override
-  List<Object?> get props => [code, email];
+  List<Object?> get props => [code];
 }

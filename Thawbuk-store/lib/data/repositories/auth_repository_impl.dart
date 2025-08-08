@@ -142,10 +142,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> verifyEmail(String code, String email) async {
+  Future<Either<Failure, void>> verifyEmail(String code) async {
     if (await networkInfo.isConnected) {
       try {
-        await remoteDataSource.verifyEmail(code, email);
+        await remoteDataSource.verifyEmail(code);
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));

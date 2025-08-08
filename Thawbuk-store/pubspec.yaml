@@ -58,9 +58,6 @@ dependencies:
   # URL Launcher
   url_launcher: ^6.2.2
   
-  # Deep Links
-  app_links: ^3.4.5
-  
   # Development
   get_it: ^7.6.4
   injectable: ^2.3.2

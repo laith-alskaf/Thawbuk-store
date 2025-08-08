@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:thawbuk_store/presentation/pages/auth/verify_email_page.dart';
 
 // Core imports
 import '../../core/navigation/navigation_service.dart';
@@ -19,7 +20,6 @@ import 'shells/admin_shell.dart';
 import '../pages/splash/splash_page.dart';
 import '../pages/auth/login_page.dart';
 import '../pages/auth/register_page.dart';
-import '../pages/auth/email_verification_page.dart';
 
 // Main app pages
 import '../pages/home/home_page.dart';
@@ -78,28 +78,18 @@ class AppRouterImproved {
           name: 'login',
           builder: (context, state) => const LoginPage(),
         ),
-        GoRoute(
-          path: '/login',
-          name: 'login-short',
-          builder: (context, state) => const LoginPage(),
-        ),
+
         GoRoute(
           path: '/auth/register',
           name: 'register',
           builder: (context, state) => const RegisterPage(),
         ),
         GoRoute(
-          path: '/auth/verify-email',
+          path: '/auth/verify-email/:email',
           name: 'verify-email',
           builder: (context, state) {
-            final email = state.uri.queryParameters['email'];
-            final token = state.uri.queryParameters['token'];
-            final auto = state.uri.queryParameters['auto'] == 'true';
-            return EmailVerificationPage(
-              email: email,
-              token: token,
-              autoVerify: auto,
-            );
+            final email = state.pathParameters['email']!;
+            return VerifyEmailPage(email: email);
           },
         ),
 
