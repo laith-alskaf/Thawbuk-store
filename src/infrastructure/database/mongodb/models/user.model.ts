@@ -29,7 +29,7 @@ const userSchema = new Schema<UserDocument>({
         companyAddress: {
             street: { type: String },
             city: { type: String , required: function () { return this.role === 'admin'; }},
-            country: { type: String, default: 'سوريا' },
+            country: { type: String },
         },
         companyPhone: { type: String },
         companyLogo: { type: String, match: [/^https?:\/\/.+/] },
