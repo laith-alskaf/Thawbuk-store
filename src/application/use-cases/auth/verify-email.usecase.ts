@@ -9,7 +9,7 @@ export class VerifiyEmailUseCase {
         private readonly userRepository: UserRepository,
     ) { }
     execute = async (verifyEmailDTO: VerifyEmailDTO): Promise<void> => {
-        const user = await this.userRepository.findByCode(verifyEmailDTO.code);
+        const user = await this.userRepository.findByCode(verifyEmailDTO.otpCode);
         if (!user) throw new Error("Invalid or expired verification code");
 
         if (user.otpCodeExpires < new Date()) {

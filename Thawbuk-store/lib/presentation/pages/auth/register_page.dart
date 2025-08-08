@@ -76,7 +76,7 @@ class _RegisterPageState extends State<RegisterPage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthRegistrationSuccess) {
-            context.go('/verify-email/${state.email}');
+            context.go('/auth/verify-email/${state.email}');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

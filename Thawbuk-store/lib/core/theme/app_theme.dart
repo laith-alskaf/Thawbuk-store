@@ -18,6 +18,10 @@ class AppColors {
   static const Color lightGrey = Color(0xFFF5F5F5);
   static const Color darkGrey = Color(0xFF424242);
   
+  // ألوان النصوص
+  static const Color textPrimary = Color(0xFF212121);
+  static const Color textSecondary = Color(0xFF757575);
+  
   // ألوان الحالة
   static const Color success = Color(0xFF4CAF50);
   static const Color warning = Color(0xFFFF9800);

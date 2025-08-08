@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/theme/app_theme.dart';
 import '../../../core/guards/auth_guard.dart';
 import '../../bloc/auth/auth_bloc.dart';
-import '../../widgets/shared/custom_button.dart';
 import '../../widgets/shared/unified_app_bar.dart';
 import '../../widgets/shared/guest_access_widget.dart';
 

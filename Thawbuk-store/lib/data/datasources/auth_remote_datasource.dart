@@ -75,7 +75,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> verifyEmail(String code) async {
     final response = await _apiClient.post(
       '/auth/verify-email',
-      data: {'code': code},
+      data: {'otpCode': code},
     );
 
     if (response['success'] != true) {

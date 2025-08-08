@@ -52,7 +52,7 @@ export const signupSchema = Joi.object({
 }).concat(loginSchema);
 
 export const codeSchema = Joi.object({
-    code: Joi.string().min(6).max(6).required().messages({
+    otpCode: Joi.string().min(6).max(6).required().messages({
         'string.min': Messages.USER.VALIDATION.CODE_MIN,
         'any.required': Messages.USER.VALIDATION.CODE_REQUIRED,
     }),
