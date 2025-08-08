@@ -6,7 +6,7 @@ export const excludedPathsForAuth = [
     "/api/auth/forgot-password",
     "/api/auth/change-password",
     '/api/auth/verify',
-    /^\/api\/auth\/verify\/[^/]+$/,
+    '/api/auth/resend-verification',
     // Category Routes
     "/api/category",
     "/api/category/",
