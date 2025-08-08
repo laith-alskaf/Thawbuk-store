@@ -12,7 +12,7 @@ export class VerifiyEmailUseCase {
         const user = await this.userRepository.findByCode(verifyEmailDTO.otpCode);
         if (!user) throw new Error("Invalid or expired verification code");
 
-        if (user.otpCodeExpires < new Date()) {
+        if (user.otpCodeExpires < new Date(Date.now())) {
             throw new Error("Expired verification code");
         }
         user.otpCodeExpires = new Date("00");
