@@ -27,7 +27,8 @@ export interface ForgotPasswordDTO {
     email: string
 }
 export interface VerifyEmailDTO {
-    code: string
+        email: string,
+    otpCode: string
 }
 
 export interface UserInfoDTO {

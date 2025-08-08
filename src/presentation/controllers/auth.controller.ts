@@ -104,6 +104,114 @@ export class AuthController {
     }
   }
 
+  // New method for email verification via link
+  async verifyEmailViaLink(req: Request, res: Response): Promise<void> {
+    try {
+      const { token, email } = req.body;
+      
+      if (!token || !email) {
+        throw new BadRequestError('Token and email are required');
+      }
+
+      // Use the existing verify email use case with token as otpCode
+      const verifyEmailDTO: VerifyEmailDTO = {
+        email: email,
+        otpCode: token
+      };
+      
+      await this.verifyEmailUseCase.execute(verifyEmailDTO);
+      
+      new ApplicationResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: Messages.AUTH.VERIFY_SUCCESS
+      }).send();
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
+  }
+
+  // Method to serve the email verification page
+  async showVerificationPage(req: Request, res: Response): Promise<void> {
+    try {
+      const { token, email } = req.query;
+      
+      if (!token || !email) {
+         res.status(400).send(`
+          <html>
+            <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+              <h1>رابط التحقق غير صحيح</h1>
+              <p>يرجى التأكد من الرابط والمحاولة مرة أخرى</p>
+            </body>
+          </html>
+        `);
+      }
+
+      // Read and serve the verification HTML page
+      const path = require('path');
+      const fs = require('fs');
+      const htmlPath = path.join(__dirname, '../views/email-verification.html');
+      
+      if (fs.existsSync(htmlPath)) {
+        const html = fs.readFileSync(htmlPath, 'utf8');
+        res.send(html);
+      } else {
+        // Fallback HTML if file doesn't exist
+        res.send(`
+          <!DOCTYPE html>
+          <html lang="ar" dir="rtl">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>تأكيد البريد الإلكتروني - متجر ثوبك</title>
+              <style>
+                  body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                  .container { max-width: 500px; margin: 0 auto; }
+                  .btn { padding: 10px 20px; background: #6366f1; color: white; text-decoration: none; border-radius: 5px; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>تأكيد البريد الإلكتروني</h1>
+                  <p>جاري التحقق من بريدك الإلكتروني...</p>
+                  <script>
+                      const token = '${token}';
+                      const email = '${email}';
+                      
+                      fetch('/api/auth/verify-email', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ token, email })
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data.success) {
+                              document.body.innerHTML = '<div class="container"><h1>تم تأكيد البريد الإلكتروني بنجاح!</h1><p>يمكنك الآن تسجيل الدخول إلى التطبيق</p><a href="thawbukstore://login" class="btn">فتح التطبيق</a></div>';
+                          } else {
+                              document.body.innerHTML = '<div class="container"><h1>فشل في التحقق</h1><p>' + data.message + '</p></div>';
+                          }
+                      })
+                      .catch(error => {
+                          document.body.innerHTML = '<div class="container"><h1>حدث خطأ</h1><p>يرجى المحاولة مرة أخرى</p></div>';
+                      });
+                  </script>
+              </div>
+          </body>
+          </html>
+        `);
+      }
+    } catch (error: any) {
+      res.status(500).send(`
+        <html>
+          <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
+            <h1>حدث خطأ</h1>
+            <p>يرجى المحاولة مرة أخرى لاحقاً</p>
+          </body>
+        </html>
+      `);
+    }
+  }
+
 
   async changePassword(req: Request, res: Response): Promise<void> {
     try {
