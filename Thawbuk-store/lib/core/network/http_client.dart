@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/app_constants.dart';
@@ -19,7 +22,7 @@ class HttpClient {
     if (networkInfo != null) {
       final isConnected = await networkInfo!.isConnected;
       if (!isConnected) {
-        throw NetworkException(
+        throw const NetworkException(
             'لا يوجد اتصال بالإنترنت. يرجى التحقق من الاتصال والمحاولة مرة أخرى.');
       }
     }
@@ -204,7 +207,7 @@ class HttpClient {
     } else if (statusCode == 401) {
       // إزالة التوكن المنتهي الصلاحية
       sharedPreferences.remove(AppConstants.tokenKey);
-      throw UnauthorizedException('Token expired or invalid');
+      throw const UnauthorizedException('Token expired or invalid');
     } else if (statusCode >= 400 && statusCode < 500) {
       try {
         final errorBody = response.body.isNotEmpty
@@ -215,13 +218,14 @@ class HttpClient {
         String errorMessage = 'Client error';
         if (errorBody is Map<String, dynamic>) {
           errorMessage = errorBody['message'] ??
-              errorBody['error'] ??
+              errorBody['error']?['message'] ??
+              errorBody['error']?['details'] ??
               errorBody['details'] ??
               'Client error occurred';
         }
         throw ClientException(errorMessage);
       } catch (e) {
-        throw ClientException('خطأ في البيانات المرسلة');
+        throw const ClientException('خطأ في البيانات المرسلة');
       }
     } else if (statusCode >= 500) {
       try {
@@ -232,15 +236,423 @@ class HttpClient {
         String errorMessage = 'Server error';
         if (errorBody is Map<String, dynamic>) {
           errorMessage = errorBody['message'] ??
+              errorBody['error']?['message'] ??
               errorBody['error'] ??
               'Server error occurred';
+              
+          // إضافة تفاصيل إضافية للتشخيص
+          if (statusCode == 500) {
+            developer.log('🔥 SERVER ERROR 500 DETAILS:', name: 'HttpClient');
+            developer.log('Error Body: ${jsonEncode(errorBody)}', name: 'HttpClient');
+          }
         }
         throw ServerException(errorMessage);
       } catch (e) {
-        throw ServerException('خطأ في الخادم');
+        throw const ServerException('خطأ في الخادم');
       }
     }
 
     throw ServerException('Unexpected status code: $statusCode');
+  }
+
+  /// طلب POST مع ملفات (multipart/form-data)
+  Future<Map<String, dynamic>> postWithFiles(String endpoint,
+      {Map<String, dynamic>? fields, List<File>? files, String fileFieldName = 'images'}) async {
+    await _checkConnection();
+    try {
+      final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      
+      // إنشاء multipart request
+      final request = http.MultipartRequest('POST', url);
+      
+      // إضافة headers
+      final token = sharedPreferences.getString(AppConstants.tokenKey);
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+      request.headers['Accept'] = 'application/json';
+      
+      // إضافة الحقول النصية
+      if (fields != null) {
+        fields.forEach((key, value) {
+          if (value is List) {
+            // تحويل القوائم إلى JSON strings
+            request.fields[key] = jsonEncode(value);
+          } else {
+            request.fields[key] = value.toString();
+          }
+        });
+      }
+      
+      // إضافة الملفات
+      if (files != null && files.isNotEmpty) {
+        for (int i = 0; i < files.length; i++) {
+          final file = files[i];
+          
+          // التحقق من وجود الملف وحجمه
+          if (!await file.exists()) {
+            throw ServerException('الملف غير موجود: ${file.path}');
+          }
+          
+          final fileSize = await file.length();
+          if (fileSize == 0) {
+            throw ServerException('الملف فارغ: ${file.path}');
+          }
+          
+          // حد أقصى 10 ميجابايت للملف الواحد
+          if (fileSize > 10 * 1024 * 1024) {
+            throw ServerException('حجم الملف كبير جداً (أكثر من 10 ميجابايت): ${file.path}');
+          }
+          
+          // تحديد نوع الملف بناءً على الامتداد
+          String? contentType;
+          final extension = file.path.toLowerCase().split('.').last;
+          switch (extension) {
+            case 'jpg':
+            case 'jpeg':
+              contentType = 'image/jpeg';
+              break;
+            case 'png':
+              contentType = 'image/png';
+              break;
+            case 'gif':
+              contentType = 'image/gif';
+              break;
+            case 'webp':
+              contentType = 'image/webp';
+              break;
+            default:
+              contentType = 'image/jpeg'; // افتراضي
+          }
+          
+          final multipartFile = await http.MultipartFile.fromPath(
+            fileFieldName, // 'images' - multer.array('images')
+            file.path,
+            filename: 'image_$i.$extension',
+            contentType: MediaType.parse(contentType),
+          );
+          request.files.add(multipartFile);
+          
+          developer.log('Added file: ${file.path}, size: ${fileSize} bytes, type: $contentType', name: 'HttpClient');
+        }
+      }
+      
+      // Log request
+      developer.log('🚀 HTTP MULTIPART REQUEST', name: 'HttpClient');
+      developer.log('Method: POST', name: 'HttpClient');
+      developer.log('URL: $url', name: 'HttpClient');
+      developer.log('Headers: ${request.headers}', name: 'HttpClient');
+      developer.log('Fields: ${request.fields}', name: 'HttpClient');
+      developer.log('Files: ${request.files.length} files', name: 'HttpClient');
+      for (int i = 0; i < request.files.length; i++) {
+        final file = request.files[i];
+        developer.log('File $i: field=${file.field}, filename=${file.filename}, length=${file.length}', name: 'HttpClient');
+      }
+      developer.log('─' * 50, name: 'HttpClient');
+      
+      // إرسال الطلب
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      // Log response
+      _logResponse(response);
+      return _handleResponse(response);
+    } catch (e) {
+      developer.log('❌ POST WITH FILES ERROR: ${e.toString()}', name: 'HttpClient');
+      throw ServerException('POST with files request failed: ${e.toString()}');
+    }
+  }
+
+  /// طلب POST مع ملفات (طريقة بديلة)
+  Future<Map<String, dynamic>> postWithFilesAlternative(String endpoint,
+      {Map<String, dynamic>? fields, List<File>? files}) async {
+    await _checkConnection();
+    try {
+      final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      
+      // إنشاء multipart request
+      final request = http.MultipartRequest('POST', url);
+      
+      // إضافة headers
+      final token = sharedPreferences.getString(AppConstants.tokenKey);
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+      request.headers['Accept'] = 'application/json';
+      
+      // إضافة الحقول النصية
+      if (fields != null) {
+        fields.forEach((key, value) {
+          if (value is List) {
+            // تحويل القوائم إلى JSON strings
+            request.fields[key] = jsonEncode(value);
+          } else {
+            request.fields[key] = value.toString();
+          }
+        });
+      }
+      
+      // إضافة الملفات بطرق مختلفة للتجربة
+      if (files != null && files.isNotEmpty) {
+        // الطريقة الأولى: images[0], images[1], etc.
+        for (int i = 0; i < files.length; i++) {
+          final file = files[i];
+          final multipartFile = await http.MultipartFile.fromPath(
+            'images[$i]', // images[0], images[1], etc.
+            file.path,
+            filename: 'image_$i.jpg',
+          );
+          request.files.add(multipartFile);
+        }
+      }
+      
+      // Log request
+      developer.log('🚀 HTTP MULTIPART REQUEST (ALTERNATIVE)', name: 'HttpClient');
+      developer.log('Method: POST', name: 'HttpClient');
+      developer.log('URL: $url', name: 'HttpClient');
+      developer.log('Headers: ${request.headers}', name: 'HttpClient');
+      developer.log('Fields: ${request.fields}', name: 'HttpClient');
+      developer.log('Files: ${request.files.length} files', name: 'HttpClient');
+      for (int i = 0; i < request.files.length; i++) {
+        final file = request.files[i];
+        developer.log('File $i: field=${file.field}, filename=${file.filename}', name: 'HttpClient');
+      }
+      developer.log('─' * 50, name: 'HttpClient');
+      
+      // إرسال الطلب
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      // Log response
+      _logResponse(response);
+      return _handleResponse(response);
+    } catch (e) {
+      developer.log('❌ POST WITH FILES ALTERNATIVE ERROR: ${e.toString()}', name: 'HttpClient');
+      throw ServerException('POST with files alternative request failed: ${e.toString()}');
+    }
+  }
+
+  /// طلب POST مع صور كـ base64 (طريقة ثالثة)
+  Future<Map<String, dynamic>> postWithBase64Images(String endpoint,
+      {Map<String, dynamic>? fields, List<File>? files}) async {
+    await _checkConnection();
+    try {
+      final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      
+      // تحويل الصور إلى base64
+      final List<String> base64Images = [];
+      if (files != null && files.isNotEmpty) {
+        for (final file in files) {
+          final Uint8List bytes = await file.readAsBytes();
+          final String base64String = base64Encode(bytes);
+          base64Images.add('data:image/jpeg;base64,$base64String');
+        }
+      }
+      
+      // إضافة الصور كـ base64 إلى الحقول
+      final Map<String, dynamic> bodyData = Map<String, dynamic>.from(fields ?? {});
+      if (base64Images.isNotEmpty) {
+        bodyData['images'] = base64Images;
+      }
+      
+      // Log request
+      developer.log('🚀 HTTP BASE64 REQUEST', name: 'HttpClient');
+      developer.log('Method: POST', name: 'HttpClient');
+      developer.log('URL: $url', name: 'HttpClient');
+      developer.log('Headers: $_headers', name: 'HttpClient');
+      developer.log('Body keys: ${bodyData.keys.toList()}', name: 'HttpClient');
+      developer.log('Images count: ${base64Images.length}', name: 'HttpClient');
+      developer.log('─' * 50, name: 'HttpClient');
+
+      final response = await client.post(
+        url,
+        headers: _headers,
+        body: jsonEncode(bodyData),
+      );
+
+      // Log response
+      _logResponse(response);
+      return _handleResponse(response);
+    } catch (e) {
+      developer.log('❌ POST BASE64 ERROR: ${e.toString()}', name: 'HttpClient');
+      throw ServerException('POST base64 request failed: ${e.toString()}');
+    }
+  }
+
+  /// طلب POST مع ملفات منفصلة (طريقة رابعة)
+  Future<Map<String, dynamic>> postWithSeparateFiles(String endpoint,
+      {Map<String, dynamic>? fields, List<File>? files}) async {
+    await _checkConnection();
+    try {
+      final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      
+      // إنشاء multipart request
+      final request = http.MultipartRequest('POST', url);
+      
+      // إضافة headers
+      final token = sharedPreferences.getString(AppConstants.tokenKey);
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+      request.headers['Accept'] = 'application/json';
+      
+      // إضافة الحقول النصية
+      if (fields != null) {
+        fields.forEach((key, value) {
+          if (value is List) {
+            // تحويل القوائم إلى JSON strings
+            request.fields[key] = jsonEncode(value);
+          } else {
+            request.fields[key] = value.toString();
+          }
+        });
+      }
+      
+      // إضافة الملفات بأسماء منفصلة
+      if (files != null && files.isNotEmpty) {
+        for (int i = 0; i < files.length; i++) {
+          final file = files[i];
+          final multipartFile = await http.MultipartFile.fromPath(
+            'image$i', // image0, image1, image2, etc.
+            file.path,
+            filename: 'image_$i.jpg',
+          );
+          request.files.add(multipartFile);
+        }
+      }
+      
+      // Log request
+      developer.log('🚀 HTTP SEPARATE FILES REQUEST', name: 'HttpClient');
+      developer.log('Method: POST', name: 'HttpClient');
+      developer.log('URL: $url', name: 'HttpClient');
+      developer.log('Headers: ${request.headers}', name: 'HttpClient');
+      developer.log('Fields: ${request.fields}', name: 'HttpClient');
+      developer.log('Files: ${request.files.length} files', name: 'HttpClient');
+      for (int i = 0; i < request.files.length; i++) {
+        final file = request.files[i];
+        developer.log('File $i: field=${file.field}, filename=${file.filename}', name: 'HttpClient');
+      }
+      developer.log('─' * 50, name: 'HttpClient');
+      
+      // إرسال الطلب
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      // Log response
+      _logResponse(response);
+      return _handleResponse(response);
+    } catch (e) {
+      developer.log('❌ POST SEPARATE FILES ERROR: ${e.toString()}', name: 'HttpClient');
+      throw ServerException('POST separate files request failed: ${e.toString()}');
+    }
+  }
+
+  /// طلب PUT مع ملفات (لتعديل المنتجات مع صور)
+  Future<Map<String, dynamic>> putWithFiles(String endpoint,
+      {Map<String, dynamic>? fields, List<File>? files, String fileFieldName = 'images'}) async {
+    await _checkConnection();
+    try {
+      final url = Uri.parse('${AppConstants.baseUrl}$endpoint');
+      
+      // إنشاء multipart request مع PUT method
+      final request = http.MultipartRequest('PUT', url);
+      
+      // إضافة headers
+      final token = sharedPreferences.getString(AppConstants.tokenKey);
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+      request.headers['Accept'] = 'application/json';
+      
+      // إضافة الحقول النصية
+      if (fields != null) {
+        fields.forEach((key, value) {
+          if (value is List) {
+            // إرسال كل عنصر في القائمة كحقل منفصل
+            for (int i = 0; i < value.length; i++) {
+              request.fields['${key}[$i]'] = value[i].toString();
+            }
+          } else {
+            request.fields[key] = value.toString();
+          }
+        });
+      }
+      
+      // إضافة الملفات
+      if (files != null && files.isNotEmpty) {
+        for (int i = 0; i < files.length; i++) {
+          final file = files[i];
+          
+          // التحقق من وجود الملف وحجمه
+          if (!await file.exists()) {
+            throw ServerException('الملف غير موجود: ${file.path}');
+          }
+          
+          final fileSize = await file.length();
+          if (fileSize == 0) {
+            throw ServerException('الملف فارغ: ${file.path}');
+          }
+          
+          // حد أقصى 10 ميجابايت للملف الواحد
+          if (fileSize > 10 * 1024 * 1024) {
+            throw ServerException('حجم الملف كبير جداً (أكثر من 10 ميجابايت): ${file.path}');
+          }
+          
+          // تحديد نوع الملف بناءً على الامتداد
+          String? contentType;
+          final extension = file.path.toLowerCase().split('.').last;
+          switch (extension) {
+            case 'jpg':
+            case 'jpeg':
+              contentType = 'image/jpeg';
+              break;
+            case 'png':
+              contentType = 'image/png';
+              break;
+            case 'gif':
+              contentType = 'image/gif';
+              break;
+            case 'webp':
+              contentType = 'image/webp';
+              break;
+            default:
+              contentType = 'application/octet-stream';
+          }
+          
+          final multipartFile = await http.MultipartFile.fromPath(
+            fileFieldName,
+            file.path,
+            filename: '${DateTime.now().millisecondsSinceEpoch}_$i.$extension',
+            contentType: MediaType.parse(contentType),
+          );
+          
+          request.files.add(multipartFile);
+        }
+      }
+      
+      // Log request
+      developer.log('🚀 HTTP PUT WITH FILES REQUEST', name: 'HttpClient');
+      developer.log('Method: PUT', name: 'HttpClient');
+      developer.log('URL: $url', name: 'HttpClient');
+      developer.log('Headers: ${request.headers}', name: 'HttpClient');
+      developer.log('Fields: ${request.fields}', name: 'HttpClient');
+      developer.log('Files: ${request.files.length} files', name: 'HttpClient');
+      for (int i = 0; i < request.files.length; i++) {
+        final file = request.files[i];
+        developer.log('File $i: field=${file.field}, filename=${file.filename}', name: 'HttpClient');
+      }
+      developer.log('─' * 50, name: 'HttpClient');
+      
+      // إرسال الطلب
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      // Log response
+      _logResponse(response);
+      return _handleResponse(response);
+    } catch (e) {
+      developer.log('❌ PUT WITH FILES ERROR: ${e.toString()}', name: 'HttpClient');
+      throw ServerException('PUT with files request failed: ${e.toString()}');
+    }
   }
 }

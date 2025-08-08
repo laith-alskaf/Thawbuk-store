@@ -79,22 +79,14 @@ class ApiClient {
 
     if (statusCode != null) {
       switch (statusCode) {
-        case 400:
-          return ServerException('طلب غير صحيح');
-        case 401:
-          return ServerException('غير مخول للوصول');
-        case 403:
-          return ServerException('ممنوع الوصول');
-        case 404:
-          return ServerException('المورد غير موجود');
         case 500:
-          return ServerException('خطأ في الخادم');
+          return const ServerException('خطأ في الخادم');
         default:
-          return ServerException('خطأ غير معروف: $statusCode');
+          return ServerException(error);
       }
     }
 
-    return ServerException(error.toString());
+    return throw error;
   }
 
   // GET request
@@ -118,10 +110,12 @@ class ApiClient {
 
       final response = await http
           .get(
-            Uri.parse(url),
-            headers: _headers,
-          )
-          .timeout(const Duration(seconds: 30));
+        Uri.parse(url),
+        headers: _headers,
+      )
+          .timeout(const Duration(seconds: 30), onTimeout: () {
+        throw const ServerException('خطأ في الاتصال بالشبكة');
+      });
 
       // Log response
       _logResponse(response);
@@ -145,11 +139,13 @@ class ApiClient {
 
       final response = await http
           .post(
-            Uri.parse(url),
-            headers: _headers,
-            body: data != null ? jsonEncode(data) : null,
-          )
-          .timeout(const Duration(seconds: 30));
+        Uri.parse(url),
+        headers: _headers,
+        body: data != null ? jsonEncode(data) : null,
+      )
+          .timeout(const Duration(seconds: 30), onTimeout: () {
+        throw const ServerException('خطأ في الاتصال بالشبكة');
+      });
 
       // Log response
       _logResponse(response);
@@ -221,12 +217,8 @@ class ApiClient {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return responseData;
     } else {
-      return throw 
-         (responseData['message'] ?? 'خطأ في الخادم');
-       
-      
-
-      // throw _handleError(responseData['message'] ?? 'خطأ في الخادم', response.statusCode);
+      throw _handleError(
+          responseData['message'] ?? 'خطأ في الخادم', response.statusCode);
     }
   }
 

@@ -9,9 +9,11 @@ import '../../../domain/entities/cart_entity.dart';
 import '../../widgets/shared/custom_button.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../widgets/shared/error_widget.dart';
+import '../../widgets/shared/unified_app_bar.dart';
+import '../../widgets/shared/guest_access_widget.dart';
 
 class CartPage extends StatefulWidget {
-  const CartPage({Key? key}) : super(key: key);
+  const CartPage({super.key});
 
   @override
   State<CartPage> createState() => _CartPageState();
@@ -21,22 +23,31 @@ class _CartPageState extends State<CartPage> {
   @override
   void initState() {
     super.initState();
-    context.read<CartBloc>().add(GetCartEvent());
+    // تحميل السلة فقط للمستخدمين المسجلين
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      context.read<CartBloc>().add(GetCartEvent());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('سلة التسوق'),
-        actions: [
+      appBar: UnifiedAppBar(
+        title: 'سلة التسوق',
+        customActions: [
           BlocBuilder<CartBloc, CartState>(
             builder: (context, state) {
-              if (state is CartLoaded && state.cart.items.isNotEmpty) {
+              if (state is CartLoaded && 
+                  state.cart.items.isNotEmpty && 
+                  context.read<AuthBloc>().state is AuthAuthenticated) {
                 return TextButton.icon(
                   onPressed: () => _showClearCartDialog(),
-                  icon: const Icon(Icons.clear_all),
+                  icon: const Icon(Icons.clear_all, size: 18),
                   label: const Text('مسح الكل'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.error,
+                  ),
                 );
               }
               return const SizedBox.shrink();
@@ -44,8 +55,15 @@ class _CartPageState extends State<CartPage> {
           ),
         ],
       ),
-      body: BlocListener<CartBloc, CartState>(
-        listener: (context, state) {
+      body: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          // إذا كان المستخدم زائر، اعرض رسالة تسجيل الدخول
+          if (authState is AuthGuest) {
+            return GuestAccessWidget.cart();
+          }
+          
+          return BlocListener<CartBloc, CartState>(
+            listener: (context, state) {
           if (state is CartItemAdded) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -76,7 +94,12 @@ class _CartPageState extends State<CartPage> {
             } else if (state is CartError) {
               return CustomErrorWidget(
                 message: state.message,
-                onRetry: () => context.read<CartBloc>().add(GetCartEvent()),
+                onRetry: () {
+                  final authState = context.read<AuthBloc>().state;
+                  if (authState is AuthAuthenticated) {
+                    context.read<CartBloc>().add(GetCartEvent());
+                  }
+                },
               );
             } else if (state is CartLoaded) {
               return _buildCartContent(state.cart);
@@ -95,8 +118,10 @@ class _CartPageState extends State<CartPage> {
             );
           },
         ),
-      ),
-      bottomNavigationBar: BlocBuilder<CartBloc, CartState>(
+      );
+    },
+  ),
+    bottomNavigationBar: BlocBuilder<CartBloc, CartState>(
         builder: (context, state) {
           if (state is CartLoaded && state.cart.items.isNotEmpty) {
             return _buildCheckoutBar(state.cart);
@@ -154,7 +179,7 @@ class _CartPageState extends State<CartPage> {
                   Text(
                     'إجمالي المنتجات',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.white.withOpacity(0.9),
+                      color: AppColors.white.withValues(alpha: 0.9),
                     ),
                   ),
                   Text(
@@ -172,7 +197,7 @@ class _CartPageState extends State<CartPage> {
                   Text(
                     'المجموع',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.white.withOpacity(0.9),
+                      color: AppColors.white.withValues(alpha: 0.9),
                     ),
                   ),
                   Text(
@@ -257,7 +282,7 @@ class _CartPageState extends State<CartPage> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -273,7 +298,7 @@ class _CartPageState extends State<CartPage> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.secondary.withOpacity(0.1),
+                              color: AppColors.secondary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -474,6 +499,8 @@ class _CartPageState extends State<CartPage> {
 
   void _proceedToCheckout(CartEntity cart) {
     // Navigate to checkout/order page
-    context.push('/checkout');
+    context.push('/app/checkout');
   }
+
+
 }

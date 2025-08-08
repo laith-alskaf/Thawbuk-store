@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../core/navigation/navigation_helper.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -14,10 +13,18 @@ class SplashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        // توجيه جميع المستخدمين للصفحة الرئيسية
-        // سواء كانوا مسجلين أم لا (كزوار)
-        if (state is AuthAuthenticated || state is AuthUnauthenticated) {
-          NavigationHelper.goToHome(context);
+        if (state is AuthAuthenticated) {
+          // التوجيه حسب الدور
+          if (state.user.isOwner ) {
+            // توجيه المدراء إلى لوحة التحكم
+            context.go('/admin/dashboard');
+          } else {
+            // توجيه العملاء إلى الصفحة الرئيسية
+            context.go('/home');
+          }
+        } else if (state is AuthUnauthenticated) {
+          // توجيه المستخدمين غير المسجلين إلى صفحة تسجيل الدخول
+          context.go('/login');
         } else if (state is AuthRegistrationSuccess) {
           context.pushReplacement('/verify-email/${state.email}');
         }

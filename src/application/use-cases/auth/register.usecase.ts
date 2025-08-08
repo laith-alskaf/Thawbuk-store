@@ -4,7 +4,7 @@ import { IdGeneratorService } from "../../../domain/services/id-generator.servic
 import { MailService } from "../../../domain/services/mail.service";
 import { RandomStringGenerator } from "../../../domain/services/number-generateor.service";
 import { RegisterDTO } from "../../dtos/user.dto";
-import { VERIFICATION_EMAIL_TEMPLATE } from "../../../domain/emails_template/verification_email_template";
+import { VERIFICATION_EMAIL_WITH_LINK_TEMPLATE } from "../../../domain/emails_template/verification_email_with_link_template";
 import { BadRequestError, ConflictRequestError } from "../../errors/application-error";
 import { Messages, UserRoles } from "../../../presentation/config/constant";
 
@@ -44,6 +44,17 @@ export class RegisterUseCase {
             isEmailVerified: false // Require email verification
         };
         await this.userRepository.create(user);
-        await this.emailService.send(registerData.email, 'تأكيد البريد الإلكتروني - متجر ثوبك', VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", otpCode))
+        
+        // Create verification link
+        const baseUrl = process.env.BASE_URL || 'https://thawbuk-store.vercel.app';
+        const verificationLink = `${baseUrl}/api/auth/verify?token=${otpCode}&email=${encodeURIComponent(registerData.email)}`;
+        
+        // Prepare email content with both link and code
+        const emailContent = VERIFICATION_EMAIL_WITH_LINK_TEMPLATE
+            .replace("{userName}", registerData.name || "عزيزي المستخدم")
+            .replace("{verificationLink}", verificationLink)
+            .replace("{verificationCode}", otpCode);
+        
+        await this.emailService.send(registerData.email, 'تأكيد البريد الإلكتروني - متجر ثوبك', emailContent)
     }
 }

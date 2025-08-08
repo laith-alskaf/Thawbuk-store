@@ -57,22 +57,27 @@ class NavigationHelper {
 
   /// التنقل للسلة مع التحقق
   static void goToCart(BuildContext context) {
-    navigateToProtectedRoute(context, '/cart', feature: 'cart');
+    navigateToProtectedRoute(context, '/app/cart', feature: 'cart');
   }
 
   /// التنقل للمفضلة مع التحقق
   static void goToFavorites(BuildContext context) {
-    navigateToProtectedRoute(context, '/favorites', feature: 'favorites');
+    navigateToProtectedRoute(context, '/app/favorites', feature: 'favorites');
   }
 
   /// التنقل للطلبات مع التحقق
   static void goToOrders(BuildContext context) {
-    navigateToProtectedRoute(context, '/orders', feature: 'orders');
+    navigateToProtectedRoute(context, '/app/orders', feature: 'orders');
   }
 
   /// التنقل للملف الشخصي مع التحقق
   static void goToProfile(BuildContext context) {
-    navigateToProtectedRoute(context, '/profile', feature: 'profile');
+    navigateToProtectedRoute(context, '/app/profile', feature: 'profile');
+  }
+
+  /// التنقل للإعدادات مع التحقق
+  static void goToSettings(BuildContext context) {
+    navigateToProtectedRoute(context, '/app/settings', feature: 'settings');
   }
 
   /// إضافة للسلة مع التحقق
@@ -92,7 +97,7 @@ class NavigationHelper {
 
   /// التنقل للدفع مع التحقق
   static void goToCheckout(BuildContext context) {
-    navigateToProtectedRoute(context, '/checkout', feature: 'checkout');
+    navigateToProtectedRoute(context, '/app/checkout', feature: 'checkout');
   }
 
   /// التحقق من حالة التسجيل

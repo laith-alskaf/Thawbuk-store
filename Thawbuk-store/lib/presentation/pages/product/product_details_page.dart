@@ -62,7 +62,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       followersCount: 1200,
       isVerified: true,
       isActive: true,
-      categories: ['ملابس نسائية', 'ملابس رجالية'],
+      categories:const ['ملابس نسائية', 'ملابس رجالية'],
       stats: const StoreStatsEntity(
         totalSales: 500,
         totalOrders: 300,
@@ -88,13 +88,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       price: 150.0,
       categoryId: 'cat_1',
       createdBy: 'store_1',
-      images: [
+      images:const [
         'https://via.placeholder.com/400x600',
         'https://via.placeholder.com/400x600/ff0000',
         'https://via.placeholder.com/400x600/00ff00',
       ],
-      sizes: ['S', 'M', 'L', 'XL'],
-      colors: ['أحمر', 'أزرق', 'أخضر'],
+      sizes:const ['S', 'M', 'L', 'XL'],
+      colors:const ['أحمر', 'أزرق', 'أخضر'],
       stock: 10,
       rating: 4.3,
       reviewsCount: 25,
@@ -225,7 +225,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             if (product.rating != null) ...[
               Row(
                 children: [
-                  Icon(
+                 const Icon(
                     Icons.star,
                     color: AppColors.warning,
                     size: 20,

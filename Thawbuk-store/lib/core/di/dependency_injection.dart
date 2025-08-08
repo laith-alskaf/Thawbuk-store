@@ -50,6 +50,7 @@ import '../../domain/usecases/product/create_product_usecase.dart';
 import '../../domain/usecases/product/update_product_usecase.dart';
 import '../../domain/usecases/product/delete_product_usecase.dart';
 import '../../domain/usecases/product/get_my_products_usecase.dart';
+import '../../domain/usecases/admin/get_admin_dashboard_stats_usecase.dart';
 import '../../domain/usecases/cart/add_to_cart_usecase.dart';
 import '../../domain/usecases/cart/get_cart_usecase.dart';
 import '../../domain/usecases/cart/update_cart_usecase.dart';
@@ -64,6 +65,7 @@ import '../../domain/usecases/store/get_store_products_usecase.dart';
 // Blocs
 import '../../presentation/bloc/auth/auth_bloc.dart';
 import '../../presentation/bloc/product/product_bloc.dart';
+import '../../presentation/bloc/admin/admin_bloc.dart';
 import '../../presentation/bloc/cart/cart_bloc.dart';
 import '../../presentation/bloc/order/order_bloc.dart';
 import '../../presentation/bloc/category/category_bloc.dart';
@@ -71,7 +73,8 @@ import '../../presentation/bloc/theme/theme_cubit.dart';
 import '../../presentation/bloc/store/store_bloc.dart';
 
 // Navigation
-import '../../presentation/navigation/app_router.dart';
+import '../navigation/navigation_service.dart';
+import '../../presentation/navigation/app_router_improved.dart';
 
 final getIt = GetIt.instance;
 
@@ -128,6 +131,7 @@ Future<void> configureDependencies() async {
       remoteDataSource: getIt(),
       localDataSource: getIt(),
       networkInfo: getIt(),
+      apiClient: getIt(),
     ),
   );
   getIt.registerLazySingleton<ProductRepository>(
@@ -185,6 +189,7 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => UpdateProductUseCase(getIt()));
   getIt.registerLazySingleton(() => DeleteProductUseCase(getIt()));
   getIt.registerLazySingleton(() => GetMyProductsUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetAdminDashboardStatsUseCase(getIt()));
   getIt.registerLazySingleton(() => AddToCartUseCase(getIt()));
   getIt.registerLazySingleton(() => GetCartUseCase(getIt()));
   getIt.registerLazySingleton(() => UpdateCartUseCase(getIt()));
@@ -219,6 +224,15 @@ Future<void> configureDependencies() async {
     deleteProductUseCase: getIt(),
   ));
   
+  getIt.registerFactory(() => AdminBloc(
+    getMyProductsUseCase: getIt(),
+    getProductsUseCase: getIt(),
+    createProductUseCase: getIt(),
+    updateProductUseCase: getIt(),
+    deleteProductUseCase: getIt(),
+    getAdminDashboardStatsUseCase: getIt(),
+  ));
+  
   getIt.registerFactory(() => CartBloc(
     addToCartUseCase: getIt(),
     getCartUseCase: getIt(),
@@ -241,6 +255,32 @@ Future<void> configureDependencies() async {
   
   getIt.registerLazySingleton(() => ThemeCubit());
 
-  // Navigation
-  getIt.registerLazySingleton(() => AppRouter());
+  // Navigation (اختر واحد فقط)
+  // getIt.registerLazySingleton(() => AppRouter()); // النظام القديم
+  getIt.registerLazySingleton(() => AppRouterImproved()); // النظام المحسن
+  
+  // Navigation Service - تأكد من تهيئة NavigationService مع الروتر
+  getIt.registerLazySingleton(() {
+    final appRouterImproved = getIt<AppRouterImproved>();
+    NavigationService.instance.setRouter(appRouterImproved.router);
+    return NavigationService.instance;
+  });
+  
+  // تحميل التوكن المحفوظ عند بدء التطبيق
+  await _loadSavedToken();
+}
+
+Future<void> _loadSavedToken() async {
+  try {
+    final authLocalDataSource = getIt<AuthLocalDataSource>();
+    final apiClient = getIt<ApiClient>();
+    
+    final token = await authLocalDataSource.getToken();
+    if (token != null) {
+      apiClient.updateToken(token);
+    }
+  } catch (e) {
+    // تجاهل الأخطاء في تحميل التوكن
+    print('Error loading saved token: $e');
+  }
 }

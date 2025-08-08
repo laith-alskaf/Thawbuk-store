@@ -11,7 +11,7 @@ class AdminCategoriesPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.category_outlined, size: 64, color: AppColors.primary),
+            const Icon(Icons.category_outlined, size: 64, color: AppColors.primary),
             const SizedBox(height: 16),
             Text('إدارة التصنيفات', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),

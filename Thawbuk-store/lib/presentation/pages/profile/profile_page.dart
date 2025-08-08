@@ -8,6 +8,7 @@ import '../../widgets/shared/custom_button.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../widgets/shared/unified_app_bar.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -15,43 +16,27 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Icon(
-                Icons.account_circle,
-                color: AppColors.primary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'الملف الشخصي',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.black,
-        elevation: 1,
-        shadowColor: Colors.grey.withOpacity(0.3),
-        centerTitle: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined), // أيقونة تعديل أوضح
-            onPressed: () {
-              // TODO: تنفيذ تعديل الملف الشخصي
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('سيتم إضافة تعديل الملف الشخصي قريباً'),
-                ),
-              );
+      appBar: UnifiedAppBar(
+        title: 'الملف الشخصي',
+        showBackButton: true,
+        customActions: [
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is AuthAuthenticated) {
+                return IconButton(
+                  icon: const Icon(Icons.edit_outlined),
+                  tooltip: 'تعديل الملف الشخصي',
+                  onPressed: () {
+                    // TODO: تنفيذ تعديل الملف الشخصي
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('سيتم إضافة تعديل الملف الشخصي قريباً'),
+                      ),
+                    );
+                  },
+                );
+              }
+              return const SizedBox.shrink();
             },
           ),
         ],
@@ -62,10 +47,12 @@ class ProfilePage extends StatelessWidget {
             return const LoadingWidget();
           }
           
+          if (state is AuthGuest) {
+            return _buildGuestProfile(context);
+          }
+          
           if (state is! AuthAuthenticated) {
-            return const Center(
-              child: Text('يرجى تسجيل الدخول أولاً'),
-            );
+            return _buildGuestProfile(context);
           }
           
           return _buildProfileContent(context, state.user);
@@ -558,6 +545,218 @@ class ProfilePage extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+
+  /// واجهة خاصة للزوار
+  Widget _buildGuestProfile(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppConstants.defaultPadding),
+      child: Column(
+        children: [
+          const SizedBox(height: 40),
+          
+          // أيقونة زائر
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: AppColors.grey.withOpacity(0.2),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.grey.withOpacity(0.3),
+                width: 2,
+              ),
+            ),
+            child: const Icon(
+              Icons.person_outline,
+              size: 60,
+              color: AppColors.grey,
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // رسالة ترحيب للزائر
+          Text(
+            'مرحباً زائرنا العزيز!',
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          
+          const SizedBox(height: 12),
+          
+          Text(
+            'أنت تتصفح المتجر كزائر.\nسجل دخولك أو أنشئ حساباً جديداً للاستمتاع بالمزايا الحصرية!',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: AppColors.grey,
+              height: 1.6,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          
+          const SizedBox(height: 40),
+          
+          // مزايا التسجيل
+          CustomCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.stars, color: AppColors.primary, size: 24),
+                    const SizedBox(width: 8),
+                    Text(
+                      'مزايا التسجيل',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                
+                _buildBenefitItem(Icons.favorite, 'إضافة المنتجات للمفضلة'),
+                _buildBenefitItem(Icons.shopping_cart, 'حفظ عربة التسوق'),
+                _buildBenefitItem(Icons.history, 'تتبع تاريخ الطلبات'),
+                _buildBenefitItem(Icons.notifications, 'تلقي الإشعارات والعروض'),
+                _buildBenefitItem(Icons.support_agent, 'دعم فني مخصص'),
+                _buildBenefitItem(Icons.local_offer, 'خصومات وعروض حصرية'),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // أزرار العمل
+          Column(
+            children: [
+              // زر إنشاء حساب
+              CustomButton(
+                text: 'إنشاء حساب جديد',
+                icon: Icons.person_add,
+                onPressed: () => context.push('/auth/register'),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // زر تسجيل الدخول
+              CustomButton(
+                text: 'تسجيل الدخول',
+                icon: Icons.login,
+                isOutlined: true,
+                onPressed: () => context.push('/auth/login'),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // إعدادات عامة للزائر
+          CustomCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'الإعدادات العامة',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                _buildOptionTile(
+                  context,
+                  'اللغة',
+                  Icons.language,
+                  () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('سيتم إضافة تغيير اللغة قريباً'),
+                        backgroundColor: AppColors.info,
+                      ),
+                    );
+                  },
+                ),
+                
+                _buildOptionTile(
+                  context,
+                  'الوضع المظلم',
+                  Icons.dark_mode,
+                  () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('سيتم إضافة الوضع المظلم قريباً'),
+                        backgroundColor: AppColors.info,
+                      ),
+                    );
+                  },
+                ),
+                
+                _buildOptionTile(
+                  context,
+                  'حول التطبيق',
+                  Icons.info,
+                  () => _showAboutDialog(context),
+                ),
+                
+                _buildOptionTile(
+                  context,
+                  'اتصل بنا',
+                  Icons.contact_support,
+                  () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('يمكنك التواصل معنا عبر البريد الإلكتروني'),
+                        backgroundColor: AppColors.info,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  /// عنصر ميزة في قائمة المزايا
+  Widget _buildBenefitItem(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

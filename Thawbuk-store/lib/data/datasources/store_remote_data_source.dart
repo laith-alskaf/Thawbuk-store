@@ -30,7 +30,7 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
       if (e is ServerException) {
         rethrow;
       }
-      throw ServerException('حدث خطأ أثناء تحميل بيانات المتجر');
+      throw const ServerException('حدث خطأ أثناء تحميل بيانات المتجر');
     }
   }
 
@@ -61,7 +61,7 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
       if (e is ServerException) {
         rethrow;
       }
-      throw ServerException('حدث خطأ أثناء تحميل منتجات المتجر');
+      throw const ServerException('حدث خطأ أثناء تحميل منتجات المتجر');
     }
   }
 
@@ -73,7 +73,7 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
       if (e is ServerException) {
         rethrow;
       }
-      throw ServerException('حدث خطأ أثناء متابعة المتجر');
+      throw const ServerException('حدث خطأ أثناء متابعة المتجر');
     }
   }
 
@@ -85,7 +85,7 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
       if (e is ServerException) {
         rethrow;
       }
-      throw ServerException('حدث خطأ أثناء إلغاء متابعة المتجر');
+      throw const ServerException('حدث خطأ أثناء إلغاء متابعة المتجر');
     }
   }
 
@@ -98,7 +98,7 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
       if (e is ServerException) {
         rethrow;
       }
-      throw ServerException('حدث خطأ أثناء التحقق من حالة المتابعة');
+      throw const ServerException('حدث خطأ أثناء التحقق من حالة المتابعة');
     }
   }
 }

@@ -10,10 +10,10 @@ import '../../bloc/category/category_event.dart';
 import '../../bloc/category/category_state.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/navigation/navigation_helper.dart';
-import '../../../core/guards/auth_guard.dart';
 import '../../../domain/entities/user_entity.dart';
 import '../../../domain/entities/product_entity.dart';
 import '../../widgets/products/product_card.dart';
+import '../../widgets/shared/unified_app_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -27,8 +27,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     context.read<ProductBloc>().add(GetProductsEvent());
-    context.read<CartBloc>().add(GetCartEvent());
     context.read<CategoryBloc>().add(GetCategoriesEvent());
+    
+    // تحميل السلة فقط للمستخدمين المسجلين
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      context.read<CartBloc>().add(GetCartEvent());
+    }
   }
 
   @override
@@ -36,63 +41,16 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
         return Scaffold(
-          appBar: AppBar(
-            title: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.store,
-                    color: AppColors.primary,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'ثوبك',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.white,
-            foregroundColor: AppColors.black,
-            elevation: 2,
-            shadowColor: Colors.grey.withOpacity(0.3),
-            centerTitle: false,
-            actions: [
-              // Cart Icon - محمي بالتحقق من تسجيل الدخول
-              BlocBuilder<CartBloc, CartState>(
-                builder: (context, cartState) {
-                  int itemCount = 0;
-                  if (cartState is CartLoaded) {
-                    itemCount = cartState.cart.itemsCount;
-                  }
-
-                  return Badge(
-                    label: Text(itemCount.toString()),
-                    isLabelVisible: itemCount > 0 && AuthGuard.isAuthenticated(context),
-                    child: IconButton(
-                      icon: const Icon(Icons.shopping_bag),
-                      onPressed: () => NavigationHelper.goToCart(context),
-                    ),
-                  );
-                },
-              ),
-              // Profile Menu - يظهر بناءً على حالة تسجيل الدخول
-              _buildProfileMenu(context, authState),
-            ],
+          appBar: const UnifiedAppBar(
+            title: 'الرئيسية',
           ),
           body: RefreshIndicator(
             onRefresh: () async {
               context.read<ProductBloc>().add(GetProductsEvent());
-              context.read<CartBloc>().add(GetCartEvent());
+              // تحديث السلة فقط للمستخدمين المسجلين
+              if (authState is AuthAuthenticated) {
+                context.read<CartBloc>().add(GetCartEvent());
+              }
             },
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
@@ -190,7 +148,7 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'مرحباً ${user.name ?? 'بك'}!',
+            'مرحباً ${user.name}!',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               color: AppColors.white,
               fontWeight: FontWeight.bold,
@@ -304,7 +262,7 @@ class _HomePageState extends State<HomePage> {
         final product = products[index];
         return ProductCard(
           product: product,
-          onTap: () => context.push('/product/${product.id}'),
+          onTap: () => context.push('/app/product/${product.id}'),
           onAddToCart: () {
             // التحقق من تسجيل الدخول قبل الإضافة للسلة
             if (NavigationHelper.addToCart(context)) {
@@ -419,7 +377,7 @@ class _HomePageState extends State<HomePage> {
         child: CircleAvatar(
           backgroundColor: AppColors.primary.withOpacity(0.1),
           child: Text(
-            authState.user.name?.substring(0, 1).toUpperCase() ?? 'U',
+            authState.user.name.substring(0, 1).toUpperCase() ,
             style: const TextStyle(
               color: AppColors.primary,
               fontWeight: FontWeight.bold,

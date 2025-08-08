@@ -31,7 +31,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       //       .toList();
       // }
       
-      throw ServerException('Invalid response format for orders');
+      throw const ServerException('Invalid response format for orders');
     } catch (e) {
       throw ServerException('Failed to get orders: ${e.toString()}');
     }

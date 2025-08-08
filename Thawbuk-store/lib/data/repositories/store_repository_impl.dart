@@ -26,10 +26,10 @@ class StoreRepositoryImpl implements StoreRepository {
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       } catch (e) {
-        return Left(ServerFailure('حدث خطأ غير متوقع'));
+        return const Left(ServerFailure('حدث خطأ غير متوقع'));
       }
     } else {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
   }
 
@@ -52,10 +52,10 @@ class StoreRepositoryImpl implements StoreRepository {
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       } catch (e) {
-        return Left(ServerFailure('حدث خطأ غير متوقع'));
+        return const Left(ServerFailure('حدث خطأ غير متوقع'));
       }
     } else {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
   }
 
@@ -68,10 +68,10 @@ class StoreRepositoryImpl implements StoreRepository {
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       } catch (e) {
-        return Left(ServerFailure('حدث خطأ غير متوقع'));
+        return const Left(ServerFailure('حدث خطأ غير متوقع'));
       }
     } else {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
   }
 
@@ -84,10 +84,10 @@ class StoreRepositoryImpl implements StoreRepository {
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       } catch (e) {
-        return Left(ServerFailure('حدث خطأ غير متوقع'));
+        return const Left(ServerFailure('حدث خطأ غير متوقع'));
       }
     } else {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
   }
 
@@ -100,10 +100,10 @@ class StoreRepositoryImpl implements StoreRepository {
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       } catch (e) {
-        return Left(ServerFailure('حدث خطأ غير متوقع'));
+        return const Left(ServerFailure('حدث خطأ غير متوقع'));
       }
     } else {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
   }
 }

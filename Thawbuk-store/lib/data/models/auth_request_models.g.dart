@@ -23,12 +23,17 @@ RegisterRequestModel _$RegisterRequestModelFromJson(
     RegisterRequestModel(
       email: json['email'] as String,
       password: json['password'] as String,
-      name: json['name'] as String,
+      role: json['role'] as String,
+      name: json['name'] as String?,
       phone: json['phone'] as String?,
       age: (json['age'] as num?)?.toInt(),
       gender: json['gender'] as String?,
-      city: json['city'] as String?,
-      address: json['address'] as String?,
+      address: json['address'] as Map<String, dynamic>?,
+      children: (json['children'] as List<dynamic>?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+      companyDetails: json['companyDetails'] as Map<String, dynamic>?,
+      fcmToken: json['fcmToken'] as String?,
     );
 
 Map<String, dynamic> _$RegisterRequestModelToJson(
@@ -36,12 +41,15 @@ Map<String, dynamic> _$RegisterRequestModelToJson(
     <String, dynamic>{
       'email': instance.email,
       'password': instance.password,
-      'name': instance.name,
-      'phone': instance.phone,
-      'age': instance.age,
-      'gender': instance.gender,
-      'city': instance.city,
-      'address': instance.address,
+      'role': instance.role,
+      if (instance.name case final value?) 'name': value,
+      if (instance.phone case final value?) 'phone': value,
+      if (instance.age case final value?) 'age': value,
+      if (instance.gender case final value?) 'gender': value,
+      if (instance.address case final value?) 'address': value,
+      if (instance.children case final value?) 'children': value,
+      if (instance.companyDetails case final value?) 'companyDetails': value,
+      if (instance.fcmToken case final value?) 'fcmToken': value,
     };
 
 ForgotPasswordRequestModel _$ForgotPasswordRequestModelFromJson(

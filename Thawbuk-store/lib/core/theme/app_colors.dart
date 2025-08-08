@@ -54,6 +54,11 @@ class AppColors {
   static const Color outline = Color(0xFFE0E0E0); // حدود
   static const Color shadow = Color(0x1F000000); // ظل خفيف
   static const Color overlay = Color(0x80000000); // طبقة شفافة
+  static const Color grey = Color(0xFF757575); // رمادي
+  static const Color lightGrey = Color(0xFFE0E0E0); // رمادي فاتح
+  static const Color darkGrey = Color(0xFF424242); // رمادي غامق
+  static const Color white = Color(0xFFFFFFFF); // أبيض
+  static const Color black = Color(0xFF000000); // أسود
   
   // ألوان التقييم
   static const Color star = Color(0xFFFFD700); // ذهبي للنجوم

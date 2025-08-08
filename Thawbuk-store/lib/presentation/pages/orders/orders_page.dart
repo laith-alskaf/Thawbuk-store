@@ -410,7 +410,7 @@ class OrderDetailsBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+             const Text(
                 'حالة الطلب',
                 style: TextStyle(
                   color: AppColors.grey,
@@ -438,7 +438,7 @@ class OrderDetailsBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+          const    Text(
                 'تاريخ الطلب',
                 style: TextStyle(
                   color: AppColors.grey,
@@ -458,7 +458,7 @@ class OrderDetailsBottomSheet extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+               const Text(
                   'تاريخ التسليم',
                   style: TextStyle(
                     color: AppColors.grey,
@@ -483,7 +483,7 @@ class OrderDetailsBottomSheet extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+       const Text(
           'عنوان التسليم',
           style: TextStyle(
             fontSize: 16,
@@ -524,7 +524,7 @@ class OrderDetailsBottomSheet extends StatelessWidget {
       children: [
         Text(
           'المنتجات (${order.items.length})',
-          style: TextStyle(
+          style:const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -575,17 +575,17 @@ class OrderDetailsBottomSheet extends StatelessWidget {
                             if (item.selectedSize != null)
                               Text(
                                 'الحجم: ${item.selectedSize}',
-                                style: TextStyle(
+                                style:const TextStyle(
                                   color: AppColors.grey,
                                   fontSize: 12,
                                 ),
                               ),
                             if (item.selectedSize != null && item.selectedColor != null)
-                              Text(' • ', style: TextStyle(color: AppColors.grey)),
+                            const  Text(' • ', style: TextStyle(color: AppColors.grey)),
                             if (item.selectedColor != null)
                               Text(
                                 'اللون: ${item.selectedColor}',
-                                style: TextStyle(
+                                style:const TextStyle(
                                   color: AppColors.grey,
                                   fontSize: 12,
                                 ),
@@ -605,7 +605,7 @@ class OrderDetailsBottomSheet extends StatelessWidget {
                           ),
                           Text(
                             '${item.totalPrice.toStringAsFixed(2)} ريال',
-                            style: TextStyle(
+                            style:const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.bold,
                             ),
@@ -636,7 +636,7 @@ class OrderDetailsBottomSheet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+       const   Text(
             'ملخص الطلب',
             style: TextStyle(
               fontSize: 16,
@@ -647,12 +647,12 @@ class OrderDetailsBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('إجمالي المنتجات'),
+          const    Text('إجمالي المنتجات'),
               Text('${order.totalAmount.toStringAsFixed(2)} ريال'),
             ],
           ),
           const SizedBox(height: 8),
-          Row(
+      const    Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('رسوم التوصيل'),
@@ -663,7 +663,7 @@ class OrderDetailsBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+            const  Text(
                 'المجموع الإجمالي',
                 style: TextStyle(
                   fontSize: 16,
@@ -672,7 +672,7 @@ class OrderDetailsBottomSheet extends StatelessWidget {
               ),
               Text(
                 '${order.totalAmount.toStringAsFixed(2)} ريال',
-                style: TextStyle(
+                style:const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -836,7 +836,7 @@ class OrderTrackingBottomSheet extends StatelessWidget {
                     ),
                     Text(
                       step['subtitle'] as String,
-                      style: TextStyle(
+                      style:const  TextStyle(
                         fontSize: 12,
                         color: AppColors.grey,
                       ),

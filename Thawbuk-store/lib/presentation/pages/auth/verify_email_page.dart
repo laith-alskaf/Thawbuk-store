@@ -49,7 +49,7 @@ class VerifyEmailPage extends StatelessWidget {
                 return CustomButton(
                   onPressed: () {
                     final code = codeController.text;
-                    context.read<AuthBloc>().add(VerifyEmailEvent(code:  code,email: email));
+                    context.read<AuthBloc>().add(VerifyEmailEvent(otpCode:  code,email: email));
                   },
                   text: 'Verify',
                 );

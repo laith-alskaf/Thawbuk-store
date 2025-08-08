@@ -13,7 +13,7 @@ const userSchema = new Schema<UserDocument>({
         match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Invalid email format']
     },
     password: { type: String, required: true },
-    name: { type: String, trim: true },
+    name: { type: String, trim: true,required: true },
     role: {
         type: String,
         enum: ['admin', 'customer', 'superAdmin'],

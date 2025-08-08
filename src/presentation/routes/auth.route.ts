@@ -23,6 +23,12 @@ const authRoutes = (authController: AuthController): Router => {
 
     router.post("/verify-email", validateVerifyEmail, authController.verifyEmail.bind(authController));
 
+    // New route for email verification via link (API endpoint)
+    router.post("/verify-email-link", authController.verifyEmailViaLink.bind(authController));
+
+    // New route to serve the email verification page (GET request)
+    router.get("/verify", authController.showVerificationPage.bind(authController));
+
     router.post("/resend-verification", validateForgotPass, authController.resendVerification.bind(authController));
 
     router.post("/logout", authController.logout.bind(authController));

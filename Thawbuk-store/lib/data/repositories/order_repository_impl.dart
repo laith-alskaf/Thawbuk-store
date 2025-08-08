@@ -53,7 +53,7 @@ class OrderRepositoryImpl implements OrderRepository {
       //   final orderModel = await remoteDataSource.createOrder(orderData);
       //   return Right(orderModel.toEntity());
       // } on ServerException catch (e) {
-        return Left(ServerFailure('e.message'));
+        return const Left(ServerFailure('e.message'));
       // }
     } else {
       return const Left(NetworkFailure('No internet connection'));
@@ -70,7 +70,7 @@ class OrderRepositoryImpl implements OrderRepository {
       //       await remoteDataSource.updateOrderStatus(id, statusData);
       // return Right(orderModel.toEntity());
       // } on ServerException catch (e) {
-      return Left(ServerFailure('e.message'));
+      return const Left(ServerFailure('e.message'));
       // }
     } else {
       return const Left(NetworkFailure('No internet connection'));

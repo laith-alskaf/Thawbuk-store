@@ -18,26 +18,32 @@ class LoginRequestModel {
   Map<String, dynamic> toJson() => _$LoginRequestModelToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class RegisterRequestModel {
   final String email;
   final String password;
-  final String name;
+  final String role;
+  final String? name;
   final String? phone;
   final int? age;
   final String? gender;
-  final String? city;
-  final String? address;
+  final Map<String, dynamic>? address;
+  final List<Map<String, dynamic>>? children;
+  final Map<String, dynamic>? companyDetails;
+  final String? fcmToken;
 
   const RegisterRequestModel({
     required this.email,
     required this.password,
-    required this.name,
+    required this.role,
+    this.name,
     this.phone,
     this.age,
     this.gender,
-    this.city,
     this.address,
+    this.children,
+    this.companyDetails,
+    this.fcmToken,
   });
 
   factory RegisterRequestModel.fromJson(Map<String, dynamic> json) =>

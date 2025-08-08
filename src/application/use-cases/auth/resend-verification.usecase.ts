@@ -1,4 +1,4 @@
-import { VERIFICATION_EMAIL_TEMPLATE } from "../../../domain/emails_template/verification_email_template";
+import { VERIFICATION_EMAIL_WITH_LINK_TEMPLATE } from "../../../domain/emails_template/verification_email_with_link_template";
 import { UserRepository } from "../../../domain/repository/user.repository";
 import { MailService } from "../../../domain/services/mail.service";
 import { RandomStringGenerator } from "../../../domain/services/number-generateor.service";
@@ -31,10 +31,21 @@ export class ResendVerificationUseCase {
         };
         
         await this.userRepository.update(user._id, updateOTPUser);
+        
+        // Create verification link
+        const baseUrl = process.env.BASE_URL || 'https://thawbuk-store.vercel.app';
+        const verificationLink = `${baseUrl}/api/auth/verify?token=${otpCode}&email=${encodeURIComponent(user.email)}`;
+        
+        // Prepare email content with both link and code
+        const emailContent = VERIFICATION_EMAIL_WITH_LINK_TEMPLATE
+            .replace("{userName}", user.name || "عزيزي المستخدم")
+            .replace("{verificationLink}", verificationLink)
+            .replace("{verificationCode}", otpCode);
+        
         await this.emailService.send(
             user.email, 
             'تأكيد البريد الإلكتروني - متجر ثوبك', 
-            VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", otpCode)
+            emailContent
         );
     }
 }

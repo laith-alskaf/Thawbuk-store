@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../bloc/product/product_bloc.dart';
+import '../../bloc/cart/cart_bloc.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../widgets/shared/error_widget.dart';
 import '../../widgets/products/product_card.dart';
 import '../../widgets/shared/custom_text_field.dart';
-import '../../widgets/shared/network_error_widget.dart';
 import '../../widgets/shared/network_aware_widget.dart';
+import '../../widgets/shared/unified_app_bar.dart';
+import '../../../core/navigation/navigation_helper.dart';
 
 class ProductsPage extends StatefulWidget {
   final String? categoryId;
@@ -78,24 +80,20 @@ class _ProductsPageState extends State<ProductsPage> {
   Widget build(BuildContext context) {
     return NetworkAwareWidget(
       child: Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.categoryId != null
-              ? 'منتجات الفئة'
+        appBar: UnifiedAppBar(
+          title: widget.categoryId != null
+              ? (widget.categoryName ?? 'منتجات الفئة')
               : widget.searchQuery != null
                   ? 'نتائج البحث'
                   : 'المنتجات',
+          customActions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              tooltip: 'الفلاتر',
+              onPressed: () => _showFilterDialog(),
+            ),
+          ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              // Show filter dialog
-              _showFilterDialog();
-            },
-          ),
-        ],
-      ),
       body: Column(
         children: [
           // Search bar
@@ -160,19 +158,26 @@ class _ProductsPageState extends State<ProductsPage> {
                         product: product,
                         onTap: () {
                           // Navigate to product details
-                          context.go('/product/${product.id}');
+                          context.push('/app/product/${product.id}');
                         },
                         onAddToCart: () {
-                          // Add to cart logic
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('تم إضافة ${product.displayName} إلى السلة')),
-                          );
+                          // التحقق من تسجيل الدخول قبل الإضافة للسلة
+                          if (NavigationHelper.addToCart(context)) {
+                            context.read<CartBloc>().add(
+                                  AddToCartEvent(
+                                    productId: product.id,
+                                    quantity: 1,
+                                  ),
+                                );
+                            NavigationHelper.showSuccessMessage(context, 'تم إضافة المنتج للسلة');
+                          }
                         },
                         onToggleWishlist: () {
-                          // Toggle wishlist logic
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('تم إضافة ${product.displayName} إلى المفضلة')),
-                          );
+                          // التحقق من تسجيل الدخول قبل الإضافة للمفضلة
+                          if (NavigationHelper.addToFavorites(context)) {
+                            // Add to favorites logic here
+                            NavigationHelper.showSuccessMessage(context, 'تم إضافة المنتج للمفضلة');
+                          }
                         },
                       );
                     },

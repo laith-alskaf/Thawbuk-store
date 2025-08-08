@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../bloc/auth/auth_bloc.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../widgets/shared/custom_button.dart';
 import '../../widgets/shared/custom_text_field.dart';
 import '../../widgets/shared/network_error_widget.dart';
-import '../../../core/errors/failures.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -43,7 +41,23 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            context.go('/home');
+            // إظهار رسالة نجاح
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('مرحباً ${state.user.name}! تم تسجيل الدخول بنجاح'),
+                backgroundColor: AppColors.primary,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            
+            // التوجيه حسب الدور
+            if (state.user.isOwner) {
+              // توجيه المدراء إلى لوحة التحكم
+              context.go('/admin/dashboard');
+            } else {
+              // توجيه العملاء إلى الصفحة الرئيسية
+              context.go('/home');
+            }
           } else if (state is AuthError) {
             // التحقق من نوع الخطأ
             if (state.message.contains('اتصال') || state.message.contains('إنترنت') || state.message.contains('شبكة')) {
@@ -71,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                   Container(
                     height: 120,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(60),
                     ),
                     child: const Icon(
@@ -178,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       GestureDetector(
-                        onTap: () => context.push('/register'),
+                        onTap: () => context.push('/auth/register'),
                         child: Text(
                           'إنشاء حساب جديد',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -194,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
                   TextButton(
                     onPressed: () {
                       context.read<AuthBloc>().add(ContinueAsGuestEvent());
-                      context.go('/home');
+                      context.go('/app/home');
                     },
                     child: Text(
                       'المتابعة كزائر',

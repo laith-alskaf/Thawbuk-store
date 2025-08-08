@@ -49,19 +49,28 @@ class RegisterEvent extends AuthEvent {
 class LogoutEvent extends AuthEvent {}
 
 class VerifyEmailEvent extends AuthEvent {
-  final String code;
-  final String? email;
+  final String otpCode;
+  final String email;
 
-  const VerifyEmailEvent({required this.code, this.email});
+  const VerifyEmailEvent({required this.otpCode, required this.email});
 
   @override
-  List<Object> get props => [code];
+  List<Object> get props => [otpCode, email];
 }
 
 class ResendVerificationCodeEvent extends AuthEvent {
   final String email;
 
   const ResendVerificationCodeEvent({required this.email});
+
+  @override
+  List<Object> get props => [email];
+}
+
+class ResendVerificationEvent extends AuthEvent {
+  final String email;
+
+  const ResendVerificationEvent({required this.email});
 
   @override
   List<Object> get props => [email];
@@ -77,6 +86,15 @@ class ForgotPasswordEvent extends AuthEvent {
 }
 
 class ContinueAsGuestEvent extends AuthEvent {}
+
+class UpdateUserProfileEvent extends AuthEvent {
+  final Map<String, dynamic> userData;
+
+  const UpdateUserProfileEvent({required this.userData});
+
+  @override
+  List<Object> get props => [userData];
+}
 
 // States
 abstract class AuthState extends Equatable {
@@ -158,8 +176,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutEvent>(_onLogout);
     on<VerifyEmailEvent>(_onVerifyEmail);
     on<ResendVerificationCodeEvent>(_onResendVerificationCode);
+    on<ResendVerificationEvent>(_onResendVerification);
     on<ForgotPasswordEvent>(_onForgotPassword);
     on<ContinueAsGuestEvent>(_onContinueAsGuest);
+    on<UpdateUserProfileEvent>(_onUpdateUserProfile);
 
     // Check auth status on startup
     add(CheckAuthStatusEvent());
@@ -288,7 +308,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     final result = await verifyEmailUseCase(VerifyEmailParams(
-      code: event.code,
+      code: event.otpCode,
+      email: event.email,
     ));
 
     result.fold(
@@ -329,6 +350,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  Future<void> _onResendVerification(
+    ResendVerificationEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    
+    final result = await resendVerificationUseCase(
+      ResendVerificationParams(email: event.email),
+    );
+    
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء إعادة إرسال رمز التحقق';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(AuthError(message));
+      },
+      (_) => emit(AuthRegistrationSuccess(email: event.email)),
+    );
+  }
+
   Future<void> _onForgotPassword(
     ForgotPasswordEvent event,
     Emitter<AuthState> emit,
@@ -358,5 +403,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthGuest());
+  }
+
+  Future<void> _onUpdateUserProfile(
+    UpdateUserProfileEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    
+    final result = await authRepository.updateUserProfile(event.userData);
+    
+    result.fold(
+      (failure) {
+        String message = 'حدث خطأ أثناء تحديث الملف الشخصي';
+        if (failure is ServerFailure) {
+          message = failure.message;
+        } else if (failure is NetworkFailure) {
+          message = 'تحقق من اتصال الإنترنت';
+        }
+        emit(AuthError(message));
+      },
+      (user) => emit(AuthAuthenticated(user)),
+    );
   }
 }

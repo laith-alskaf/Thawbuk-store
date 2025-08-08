@@ -62,7 +62,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       //       .toList();
       // }
       
-      throw ServerException('Invalid response format for wishlist');
+      throw const ServerException('Invalid response format for wishlist');
     } catch (e) {
       throw ServerException('Failed to get wishlist: ${e.toString()}');
     }

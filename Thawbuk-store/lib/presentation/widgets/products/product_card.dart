@@ -304,13 +304,20 @@ class _ProductCardState extends State<ProductCard>
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildProductTitle(),
-            const SizedBox(height: 4),
-            _buildProductDetails(),
+            // Product Title - يأخذ المساحة المتاحة
+            Expanded(
+              flex: 2,
+              child: _buildProductTitle(),
+            ),
+            
             const SizedBox(height: 8),
-            _buildBottomRow(),
+            
+            // Price and Add Button - ارتفاع ثابت
+            SizedBox(
+              height: 36,
+              child: _buildBottomRow(),
+            ),
           ],
         ),
       ),
@@ -318,95 +325,41 @@ class _ProductCardState extends State<ProductCard>
   }
 
   Widget _buildProductTitle() {
-    return Text(
-      widget.product.displayName,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        fontWeight: FontWeight.w600,
-        height: 1.2,
-      ),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-
-  Widget _buildProductDetails() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.product.colors?.isNotEmpty == true)
-          _buildColorIndicators(),
-        if (widget.product.sizes?.isNotEmpty == true)
-          _buildSizeInfo(),
-      ],
-    );
-  }
-
-  Widget _buildColorIndicators() {
-    return Row(
-      children: [
-        ...widget.product.colors!.take(3).map((color) => 
-          Container(
-            margin: const EdgeInsets.only(right: 4),
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: _getColorFromName(color),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.grey.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-          ),
+    return Align(
+      alignment: Alignment.topRight,
+      child: Text(
+        widget.product.displayName,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+          height: 1.3,
+          fontSize: 13,
+          color: AppColors.black,
         ),
-        if (widget.product.colors!.length > 3)
-          Text(
-            '+${widget.product.colors!.length - 3}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.grey,
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildSizeInfo() {
-    return Text(
-      'الأحجام: ${widget.product.sizes!.take(3).join(", ")}${widget.product.sizes!.length > 3 ? "..." : ""}',
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: AppColors.grey,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.right,
       ),
     );
   }
+
+
 
   Widget _buildBottomRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _buildPriceInfo(),
-        _buildAddToCartButton(),
-      ],
-    );
-  }
-
-  Widget _buildPriceInfo() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+        // السعر
         Text(
-          '${widget.product.price.toStringAsFixed(2)} ريال',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          '${widget.product.price.toStringAsFixed(0)} ريال',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.bold,
+            fontSize: 16,
           ),
         ),
-        if ((widget.product.reviewsCount ?? 0) > 0)
-          Text(
-            '${widget.product.reviewsCount!} تقييم',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.grey,
-            ),
-          ),
+        // زر الإضافة
+        _buildAddToCartButton(),
       ],
     );
   }
@@ -421,29 +374,31 @@ class _ProductCardState extends State<ProductCard>
               if (mounted) setState(() => _isAddingToCart = false);
             }
           : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(8),
+      child: Container(
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
           color: widget.product.isAvailable 
               ? AppColors.primary 
-              : AppColors.grey.withOpacity(0.5),
+              : AppColors.grey.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: _isAddingToCart
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+        child: Center(
+          child: _isAddingToCart
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                  ),
+                )
+              : const Icon(
+                  Icons.add_shopping_cart,
+                  color: AppColors.white,
+                  size: 18,
                 ),
-              )
-            : const Icon(
-                Icons.add_shopping_cart,
-                color: AppColors.white,
-                size: 18,
-              ),
+        ),
       ),
     );
   }

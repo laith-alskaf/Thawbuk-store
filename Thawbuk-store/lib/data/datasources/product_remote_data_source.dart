@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../../core/errors/exceptions.dart';
 import '../../core/network/http_client.dart';
 import '../../domain/usecases/product/get_filtered_products_usecase.dart';
@@ -142,7 +143,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         return products;
       }
       
-      throw ServerException('Invalid response format for category products');
+      throw const ServerException('Invalid response format for category products');
     } catch (e) {
       print('Error in getProductsByCategory: ${e.toString()}');
       throw ServerException('Failed to get products by category: ${e.toString()}');
@@ -152,9 +153,25 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<ProductModel> createProduct(Map<String, dynamic> productData) async {
     try {
-      final response = await httpClient.post('/v2/user/product', body: productData);
+      // فصل الملفات عن باقي البيانات
+      final files = productData['images'] as List<File>?;
+      final fields = Map<String, dynamic>.from(productData);
+      fields.remove('images'); // إزالة الملفات من الحقول النصية
       
-      if (response['body']['data'] != null) {
+      print('Creating product with ${files?.length ?? 0} images');
+      print('Fields: $fields');
+      
+      // استخدام الطريقة الصحيحة مباشرة (images array)
+      final response = await httpClient.postWithFiles(
+        '/v2/user/product',
+        fields: fields,
+        files: files,
+        fileFieldName: 'images',
+      );
+      
+      if (response['data'] != null) {
+        return ProductModel.fromJson(response['data'] as Map<String, dynamic>);
+      } else if (response['body'] != null && response['body']['data'] != null) {
         return ProductModel.fromJson(response['body']['data'] as Map<String, dynamic>);
       } else {
         return ProductModel.fromJson(response);
@@ -167,10 +184,15 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<ProductModel> updateProduct(String id, Map<String, dynamic> productData) async {
     try {
+      print('Updating product with data: $productData');
+      
+      // updateProduct يستخدم JSON فقط (لا يدعم ملفات)
       final response = await httpClient.put('/v2/user/product/$id', body: productData);
       
       if (response['body']['data'] != null) {
         return ProductModel.fromJson(response['body']['data'] as Map<String, dynamic>);
+      } else if (response['data'] != null) {
+        return ProductModel.fromJson(response['data'] as Map<String, dynamic>);
       } else {
         return ProductModel.fromJson(response);
       }
@@ -192,13 +214,37 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   Future<List<ProductModel>> getMyProducts() async {
     try {
       final response = await httpClient.get('/v2/user/product');
-      if (response['body']['data']['products'] is List) {
-        return (response['body']['data']['products'] as List)
+      
+      // تحقق من وجود البيانات في المسار الصحيح
+      if (response['body'] != null && response['body']['data'] != null) {
+        final data = response['body']['data'];
+        
+        // إذا كانت البيانات في products
+        if (data['products'] is List) {
+          return (data['products'] as List)
+              .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
+              .toList();
+        }
+        
+        // إذا كانت البيانات مباشرة في data
+        if (data is List) {
+          return data 
+              .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
+              .toList();
+        }
+      }
+      
+      // إذا كانت البيانات في المستوى الأول
+      if (response['data'] is List) {
+        return (response['data'] as List)
             .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
             .toList();
       }
-      throw ServerException('Invalid response format for my products');
+      
+      print('Response structure: ${response.toString()}');
+      throw const ServerException('Invalid response format for my products');
     } catch (e) {
+      print('Error in getMyProducts: $e');
       throw ServerException('Failed to get my products: ${e.toString()}');
     }
   }

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../bloc/auth/auth_bloc.dart';
-import '../../bloc/product/product_bloc.dart';
+import '../../bloc/admin/admin_bloc.dart';
 import '../../widgets/shared/custom_card.dart';
 import '../../widgets/shared/custom_button.dart';
-import '../../widgets/shared/loading_widget.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
+import 'admin_layout.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({Key? key}) : super(key: key);
@@ -21,69 +20,74 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   @override
   void initState() {
     super.initState();
-    // تحميل البيانات الإحصائية
-    context.read<ProductBloc>().add(GetProductsEvent());
+    // تحميل البيانات الإحصائية للإدارة
+    context.read<AdminBloc>().add(GetAdminDashboardDataEvent());
+  }
+  
+  void _navigateToProducts() {
+    final adminLayout = AdminLayout.of(context);
+    if (adminLayout != null) {
+      adminLayout.navigateToTab(1);
+    } else {
+      context.go('/admin/products');
+    }
+  }
+  
+  void _navigateToAddProduct() {
+    final adminLayout = AdminLayout.of(context);
+    if (adminLayout != null) {
+      adminLayout.navigateToTab(2);
+    } else {
+      context.go('/admin/add-product');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('لوحة التحكم'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              // TODO: تنفيذ الإشعارات
-            },
-          ),
-        ],
-      ),
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, authState) {
-          if (authState is! AuthAuthenticated || !authState.user.isOwner) {
-            return const Center(
-              child: Text('غير مصرح لك بالوصول لهذه الصفحة'),
-            );
-          }
-          
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<ProductBloc>().add(GetProductsEvent());
-            },
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppConstants.defaultPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // رسالة ترحيب
-                  _buildWelcomeCard(authState.user),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // الإحصائيات السريعة
-                  _buildQuickStats(),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // الإجراءات السريعة
-                  _buildQuickActions(),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // الطلبات الأخيرة
-                  _buildRecentOrders(),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // المنتجات الأكثر مبيعاً
-                  _buildTopProducts(),
-                ],
-              ),
-            ),
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        if (authState is! AuthAuthenticated || !authState.user.isOwner) {
+          return const Center(
+            child: Text('غير مصرح لك بالوصول لهذه الصفحة'),
           );
-        },
-      ),
+        }
+        
+        return RefreshIndicator(
+          onRefresh: () async {
+            context.read<AdminBloc>().add(GetAdminDashboardDataEvent());
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // رسالة ترحيب
+                _buildWelcomeCard(authState.user),
+                
+                const SizedBox(height: 24),
+                
+                // الإحصائيات السريعة
+                _buildQuickStats(),
+                
+                const SizedBox(height: 24),
+                
+                // الإجراءات السريعة
+                _buildQuickActions(),
+                
+                const SizedBox(height: 24),
+                
+                // الطلبات الأخيرة
+                _buildRecentOrders(),
+                
+                const SizedBox(height: 24),
+                
+                // المنتجات الأكثر مبيعاً
+                _buildTopProducts(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -128,21 +132,25 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   Widget _buildQuickStats() {
-    return BlocBuilder<ProductBloc, ProductState>(
+    return BlocBuilder<AdminBloc, AdminState>(
       builder: (context, state) {
         int productsCount = 0;
         int inStockCount = 0;
+        int outOfStockCount = 0;
+        int totalFavorites = 0;
         
-        if (state is ProductsLoaded) {
-          productsCount = state.products.length;
-          inStockCount = state.products.where((p) => p.isAvailable).length;
+        if (state is AdminDashboardLoaded) {
+          productsCount = state.stats.totalProducts;
+          inStockCount = state.stats.availableProducts;
+          outOfStockCount = state.stats.outOfStockProducts;
+          totalFavorites = state.stats.totalFavorites;
         }
         
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'الإحصائيات السريعة',
+              'إحصائيات متجرك',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 16),
@@ -150,11 +158,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               children: [
                 Expanded(
                   child: _buildStatCard(
-                    'المنتجات',
+                    'منتجاتي',
                     productsCount.toString(),
                     Icons.inventory,
                     AppColors.primary,
-                    () => context.go('/admin/products'),
+                    _navigateToProducts,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -164,7 +172,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     inStockCount.toString(),
                     Icons.check_circle,
                     AppColors.success,
-                    () => context.go('/admin/products'),
+                    _navigateToProducts,
                   ),
                 ),
               ],
@@ -174,25 +182,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               children: [
                 Expanded(
                   child: _buildStatCard(
-                    'الطلبات',
-                    '0',
-                    Icons.shopping_bag,
-                    AppColors.secondary,
-                    () {
-                      // TODO: الانتقال لصفحة الطلبات
-                    },
+                    'نفد المخزون',
+                    outOfStockCount.toString(),
+                    Icons.warning,
+                    AppColors.error,
+                    _navigateToProducts,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildStatCard(
-                    'المبيعات',
-                    '0 ل.س',
-                    Icons.monetization_on,
-                    AppColors.warning,
-                    () {
-                      // TODO: الانتقال لصفحة التقارير
-                    },
+                    'المفضلة',
+                    totalFavorites.toString(),
+                    Icons.favorite,
+                    AppColors.secondary,
+                    () => _showFavoritesDetails(context),
                   ),
                 ),
               ],
@@ -253,7 +257,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               child: CustomButton(
                 text: 'إضافة منتج',
                 icon: Icons.add,
-                onPressed: () => context.go('/admin/add-product'),
+                onPressed: _navigateToAddProduct,
               ),
             ),
             const SizedBox(width: 16),
@@ -263,7 +267,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 // type: ButtonType.outline,
                 isOutlined: true,
                 icon:Icons.inventory,
-                onPressed: () => context.go('/admin/products'),
+                onPressed: _navigateToProducts,
               ),
             ),
           ],
@@ -273,24 +277,20 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           children: [
             Expanded(
               child: CustomButton(
-                text: 'الطلبات الجديدة',
+                text: 'جميع المنتجات',
                 // type: ButtonType.secondary,
-                icon: Icons.new_releases,
-                onPressed: () {
-                  // TODO: الانتقال لصفحة الطلبات الجديدة
-                },
+                icon: Icons.store,
+                onPressed: _navigateToAllProducts,
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: CustomButton(
-                text: 'التقارير',
+                text: 'إحصائيات المفضلة',
                 // type: ButtonType.outline,
                 isOutlined: true,
-                icon:Icons.analytics,
-                onPressed: () {
-                  // TODO: الانتقال لصفحة التقارير
-                },
+                icon: Icons.favorite_border,
+                onPressed: () => _showFavoritesDetails(context),
               ),
             ),
           ],
@@ -381,10 +381,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   Widget _buildTopProducts() {
-    return BlocBuilder<ProductBloc, ProductState>(
+    return BlocBuilder<AdminBloc, AdminState>(
       builder: (context, state) {
-        if (state is ProductsLoaded && state.products.isNotEmpty) {
-          final topProducts = state.products.take(3).toList();
+        if (state is AdminDashboardLoaded && state.stats.topFavoriteProducts.isNotEmpty) {
+          final topProducts = state.stats.topFavoriteProducts.take(3).toList();
           
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,11 +393,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'المنتجات المميزة',
+                    'المنتجات الأكثر إعجاباً',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   TextButton(
-                    onPressed: () => context.go('/admin/products'),
+                    onPressed: _navigateToProducts,
                     child: const Text('عرض الكل'),
                   ),
                 ],
@@ -506,7 +506,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 CustomButton(
                   text: 'إضافة منتج',
                   // size: ButtonSize.small,
-                  onPressed: () => context.go('/admin/add-product'),
+                  onPressed: _navigateToAddProduct,
                 ),
               ],
             ),
@@ -518,5 +518,66 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  void _showFavoritesDetails(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تفاصيل المفضلة'),
+        content: BlocBuilder<AdminBloc, AdminState>(
+          builder: (context, state) {
+            if (state is AdminDashboardLoaded) {
+              final topFavorites = state.stats.topFavoriteProducts;
+              if (topFavorites.isEmpty) {
+                return const Text('لا توجد منتجات في المفضلة بعد');
+              }
+              
+              return SizedBox(
+                width: double.maxFinite,
+                height: 300,
+                child: ListView.builder(
+                  itemCount: topFavorites.length,
+                  itemBuilder: (context, index) {
+                    final product = topFavorites[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: product.mainImage.isNotEmpty
+                          ? NetworkImage(product.mainImage)
+                          : null,
+                        child: product.mainImage.isEmpty
+                          ? const Icon(Icons.checkroom)
+                          : null,
+                      ),
+                      title: Text(product.displayName),
+                      subtitle: Text('${product.price.toStringAsFixed(0)} ل.س'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.favorite, color: AppColors.error, size: 16),
+                          const SizedBox(width: 4),
+                          Text('${product.favoritesCount ?? 0}'),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+            }
+            return const CircularProgressIndicator();
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('إغلاق'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToAllProducts() {
+    context.go('/admin/all-products');
   }
 }

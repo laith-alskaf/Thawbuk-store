@@ -30,7 +30,7 @@ export interface IUser {
   role: 'admin' | 'customer' | 'superAdmin';
   age?: number;
   gender?: 'male' | 'female' | 'other';
-  name?: string;
+  name: string;
   children?: IChild[];
   companyDetails?: ICompanyDetails;
   address?: IAddress;

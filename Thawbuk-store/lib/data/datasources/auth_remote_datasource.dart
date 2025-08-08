@@ -1,20 +1,18 @@
-import 'package:flutter/foundation.dart';
 import '../../core/network/api_client.dart';
-import '../../core/utils/mock_data.dart';
 import '../models/user_model.dart';
 import '../models/auth_response_model.dart';
 import '../models/auth_request_models.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponseModel> login(String email, String password);
-  Future<AuthResponseModel> register(RegisterRequestModel request);
+  Future<void> register(RegisterRequestModel request);
   Future<void> logout();
   Future<void> forgotPassword(String email);
-  Future<void> verifyEmail(String code);
+  Future<void> verifyEmail(String code, String email);
   Future<void> changePassword(String oldPassword, String newPassword);
   Future<void> resendVerificationCode(String email);
   Future<UserModel> getCurrentUser();
-  Future<UserModel> updateUserProfile(UserModel user);
+  Future<UserModel> updateUserProfile(Map<String, dynamic> userData);
   Future<String> updateProfileImage(String imagePath);
   Future<void> updateFCMToken(String token);
 }
@@ -33,24 +31,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
 
     if (response['success'] == true) {
-      return AuthResponseModel.fromJson(response['data']);
+      return AuthResponseModel.fromJson(response['body']);
     } else {
       throw Exception(response['message'] ?? 'فشل في تسجيل الدخول');
     }
   }
 
   @override
-  Future<AuthResponseModel> register(RegisterRequestModel request) async {
+  Future<void> register(RegisterRequestModel request) async {
     final response = await _apiClient.post(
       '/auth/register',
       data: request.toJson(),
     );
 
-    if (response['success'] == true) {
-      return AuthResponseModel.fromJson(response['data']);
-    } else {
+    if (response['success'] != true) {
       throw Exception(response['message'] ?? 'فشل في إنشاء الحساب');
     }
+    // لا نحتاج إرجاع أي شيء، فقط التأكد من نجاح العملية
   }
 
   @override
@@ -75,10 +72,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> verifyEmail(String code) async {
+  Future<void> verifyEmail(String code, String email) async {
     final response = await _apiClient.post(
       '/auth/verify-email',
-      data: {'code': code},
+      data: {'otpCode': code, 'email': email},
     );
 
     if (response['success'] != true) {
@@ -113,29 +110,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> getCurrentUser() async {
     // في وضع التطوير، استخدام mock data
-    if (kDebugMode) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      return MockData.mockUser; // يمكن تحسين هذا لاحقاً لإرجاع المستخدم المناسب
-    }
+    // if (kDebugMode) {
+    //   await Future.delayed(const Duration(milliseconds: 500));
+    //   return MockData.mockUser; // يمكن تحسين هذا لاحقاً لإرجاع المستخدم المناسب
+    // }
 
-    final response = await _apiClient.get('/user/profile');
+    final response = await _apiClient.get('/user/me');
 
     if (response['success'] == true) {
-      return UserModel.fromJson(response['data']);
+      return UserModel.fromJson(response['body']['user']);
     } else {
       throw Exception(response['message'] ?? 'فشل في جلب بيانات المستخدم');
     }
   }
 
   @override
-  Future<UserModel> updateUserProfile(UserModel user) async {
+  Future<UserModel> updateUserProfile(Map<String, dynamic> userData) async {
     final response = await _apiClient.put(
-      '/user/profile',
-      data: user.toJson(),
+      '/user/me',
+      data: userData,
     );
 
     if (response['success'] == true) {
-      return UserModel.fromJson(response['data']);
+      return UserModel.fromJson(response['body']['user']);
     } else {
       throw Exception(response['message'] ?? 'فشل في تحديث الملف الشخصي');
     }

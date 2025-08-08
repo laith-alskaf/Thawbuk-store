@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:thawbuk_store/presentation/pages/product/products_page.dart';
 import 'package:thawbuk_store/presentation/pages/products/products_page.dart';
 
 import '../../../core/navigation/navigation_helper.dart';

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/guards/auth_guard.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../widgets/shared/custom_button.dart';
+import '../../widgets/shared/unified_app_bar.dart';
+import '../../widgets/shared/guest_access_widget.dart';
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({Key? key}) : super(key: key);
@@ -18,11 +21,8 @@ class FavoritesPage extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('المفضلة'),
-            backgroundColor: Colors.white,
-            foregroundColor: AppColors.black,
-            elevation: 1,
+          appBar: const UnifiedAppBar(
+            title: 'المفضلة',
           ),
           body: const Center(
             child: Column(
@@ -59,88 +59,10 @@ class FavoritesPage extends StatelessWidget {
 
   Widget _buildGuestView(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('المفضلة'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.black,
-        elevation: 1,
+      appBar: const UnifiedAppBar(
+        title: 'المفضلة',
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(60),
-                ),
-                child: const Icon(
-                  Icons.favorite,
-                  size: 60,
-                  color: AppColors.primary,
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              const Text(
-                'سجل دخولك لحفظ المفضلة',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              const SizedBox(height: 12),
-              
-              const Text(
-                'احفظ منتجاتك المفضلة واحصل عليها بسهولة في أي وقت',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.grey,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // أزرار التسجيل
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomButton(
-                      text: 'تسجيل الدخول',
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/login');
-                      },
-                      backgroundColor: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: CustomButton(
-                      text: 'إنشاء حساب',
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/register');
-                      },
-                      isOutlined: true,
-                      backgroundColor: Colors.white,
-                      textColor: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: GuestAccessWidget.favorites(),
     );
   }
 }

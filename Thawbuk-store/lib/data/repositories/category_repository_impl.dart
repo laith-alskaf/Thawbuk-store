@@ -58,7 +58,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
       //     await remoteDataSource.createCategory(categoryData);
       // return Right(categoryModel.toEntity());
       // } on ServerException catch (e) {
-      return Left(ServerFailure(''));
+      return const Left(ServerFailure(''));
       // }
     } else {
       return const Left(NetworkFailure('No internet connection'));
@@ -79,7 +79,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
       //     await remoteDataSource.updateCategory(id, categoryData);
       //   return Right(categoryModel.toEntity());
       // } on ServerException catch (e) {
-      return Left(ServerFailure(''));
+      return const Left(ServerFailure(''));
       // }
     } else {
       return const Left(NetworkFailure('No internet connection'));

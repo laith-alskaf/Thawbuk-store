@@ -7,25 +7,24 @@ import '../../bloc/store/store_bloc.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../domain/entities/store_profile_entity.dart';
-import '../../../domain/entities/product_entity.dart';
 import '../../widgets/shared/custom_button.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../widgets/shared/error_widget.dart';
 import '../../widgets/products/product_card.dart';
 
-class StoreProfilePage extends StatefulWidget {
+class UserStoreProfilePage extends StatefulWidget {
   final String storeId;
 
-  const StoreProfilePage({
+  const UserStoreProfilePage({
     super.key,
     required this.storeId,
   });
 
   @override
-  State<StoreProfilePage> createState() => _StoreProfilePageState();
+  State<UserStoreProfilePage> createState() => _UserStoreProfilePageState();
 }
 
-class _StoreProfilePageState extends State<StoreProfilePage>
+class _UserStoreProfilePageState extends State<UserStoreProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();

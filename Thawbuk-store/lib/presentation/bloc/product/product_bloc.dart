@@ -339,7 +339,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     GetProductsEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoading());
+    emit(const ProductLoading());
 
     final result = await getProductsUseCase(NoParams());
 
@@ -361,7 +361,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     GetMyProductsEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoading());
+    emit(const ProductLoading());
 
     final result = await getMyProductsUseCase(NoParams());
 
@@ -383,7 +383,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     GetProductByIdEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoading());
+    emit(const ProductLoading());
 
     final result = await getProductByIdUseCase(ProductByIdParams(event.productId));
 
@@ -405,7 +405,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     SearchProductsEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoading());
+    emit(const ProductLoading());
 
     final result = await searchProductsUseCase(SearchProductsParams(query: event.query));
 
@@ -427,7 +427,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     GetProductsByCategoryEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoading());
+    emit(const ProductLoading());
 
     final result = await getProductsByCategoryUseCase(
       GetProductsByCategoryParams(category: event.category),
@@ -451,7 +451,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     GetFilteredProductsEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoading());
+    emit(const ProductLoading());
 
     final result = await getFilteredProductsUseCase(
       GetFilteredProductsParams(
@@ -483,7 +483,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     CreateProductEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoading());
+    emit(const ProductLoading());
 
     final result = await createProductUseCase(
       CreateProductParams(
@@ -518,7 +518,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     UpdateProductEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoading());
+    emit(const ProductLoading());
 
     final result = await updateProductUseCase(
       UpdateProductParams(
@@ -554,7 +554,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     DeleteProductEvent event,
     Emitter<ProductState> emit,
   ) async {
-    emit(ProductLoading());
+    emit(const ProductLoading());
 
     final result = await deleteProductUseCase(DeleteProductParams(event.productId));
 

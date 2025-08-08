@@ -2,16 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import '../core/di/dependency_injection.dart';
+import '../core/services/deep_link_service.dart';
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/product/product_bloc.dart';
+import 'bloc/admin/admin_bloc.dart';
 import 'bloc/cart/cart_bloc.dart';
 import 'bloc/category/category_bloc.dart';
 import 'bloc/order/order_bloc.dart';
 import 'bloc/theme/theme_cubit.dart';
-import 'navigation/app_router.dart';
+import 'navigation/app_router_improved.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize deep links
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DeepLinkService().initialize(getIt<AppRouterImproved>().router);
+    });
+  }
+
+  @override
+  void dispose() {
+    DeepLinkService().dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +44,9 @@ class App extends StatelessWidget {
         ),
         BlocProvider<ProductBloc>(
           create: (_) => getIt<ProductBloc>(),
+        ),
+        BlocProvider<AdminBloc>(
+          create: (_) => getIt<AdminBloc>(),
         ),
         BlocProvider<CartBloc>(
           create: (_) => getIt<CartBloc>(),
@@ -39,7 +64,7 @@ class App extends StatelessWidget {
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
           return MaterialApp.router(
-            routerConfig: getIt<AppRouter>().router,
+            routerConfig: getIt<AppRouterImproved>().router,
             debugShowCheckedModeBanner: false,
             title: 'ثوبك',
             

@@ -10,6 +10,16 @@ class AuthGuard {
     return authState is AuthAuthenticated;
   }
 
+  static bool _isGuest(BuildContext context) {
+    final authState = context.read<AuthBloc>().state;
+    return authState is AuthGuest;
+  }
+
+  static bool _hasAccess(BuildContext context) {
+    final authState = context.read<AuthBloc>().state;
+    return authState is AuthAuthenticated || authState is AuthGuest;
+  }
+
   /// يتحقق من تسجيل الدخول ويعرض popup إذا لم يكن مسجلاً
   static bool requireAuth(BuildContext context, {String? feature}) {
     if (_isAuthenticated(context)) {
@@ -21,30 +31,56 @@ class AuthGuard {
     return false;
   }
 
-  /// يتحقق من تسجيل الدخول للتنقل
+  /// يتحقق من التنقل حسب نوع المستخدم
   static bool canNavigate(BuildContext context, String route) {
-    // الصفحات المسموحة للزوار
+    // الصفحات المسموحة للجميع (مسجلين وزوار)
     final publicRoutes = [
       '/',
-      '/home',
-      '/products',
+      '/app/home',
+      '/app/products', 
       '/product',
-      '/login',
-      '/register',
-      '/verify-email',
+      '/auth/login',
+      '/auth/register',
+      '/auth/verify-email',
+      '/splash',
     ];
 
-    // إذا كان الراوت عام، اسمح بالدخول
-    if (publicRoutes.any((route) => route.startsWith(route))) {
+    // الصفحات التي تتطلب تسجيل دخول فقط
+    final authRequiredRoutes = [
+      '/app/cart',
+      '/app/profile',
+      '/orders',
+      '/settings',
+      '/admin',
+    ];
+
+    // الصفحات العامة مسموحة للجميع
+    if (publicRoutes.any((publicRoute) => route.startsWith(publicRoute))) {
       return true;
     }
 
-    // إذا كان مسجل دخول، اسمح بالدخول
-    if (_isAuthenticated(context)) {
+    // إذا كان الراوت يتطلب تسجيل دخول
+    if (authRequiredRoutes.any((authRoute) => route.startsWith(authRoute))) {
+      if (_isAuthenticated(context)) {
+        return true;
+      }
+      
+      // منع الزوار من الوصول
+      if (_isGuest(context)) {
+        _showLoginRequiredDialog(context);
+        return false;
+      }
+      
+      // غير مسجل أصلاً
+      _showLoginRequiredDialog(context);
+      return false;
+    }
+
+    // افتراضياً، يحتاج تسجيل دخول
+    if (_hasAccess(context)) {
       return true;
     }
 
-    // منع الدخول وعرض popup
     _showLoginRequiredDialog(context);
     return false;
   }
@@ -60,6 +96,27 @@ class AuthGuard {
   /// للتحقق من الحالة فقط دون عرض popup
   static bool isAuthenticated(BuildContext context) {
     return _isAuthenticated(context);
+  }
+
+  /// للتحقق من حالة الزائر
+  static bool isGuest(BuildContext context) {
+    return _isGuest(context);
+  }
+
+  /// للتحقق من إمكانية الوصول (مسجل أو زائر)
+  static bool hasAccess(BuildContext context) {
+    return _hasAccess(context);
+  }
+
+  /// للتحقق من نوع المستخدم
+  static String getUserType(BuildContext context) {
+    if (_isAuthenticated(context)) {
+      return 'authenticated';
+    } else if (_isGuest(context)) {
+      return 'guest';
+    } else {
+      return 'anonymous';
+    }
   }
 
   /// للحصول على المستخدم الحالي

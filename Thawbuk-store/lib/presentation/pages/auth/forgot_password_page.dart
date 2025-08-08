@@ -37,7 +37,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('استعادة كلمة المرور'),
+        title:const Text('استعادة كلمة المرور'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -53,7 +53,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               context: context,
               barrierDismissible: false,
               builder: (context) => AlertDialog(
-                title: Text('تم الإرسال'),
+                title: const Text('تم الإرسال'),
                 content: Text(
                   'تم إرسال رابط استعادة كلمة المرور إلى ${state.email}\n\nيرجى التحقق من بريدك الإلكتروني واتباع التعليمات.',
                 ),
@@ -63,7 +63,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       context.pop(); // إغلاق الحوار
                       context.go('/auth/login'); // العودة لتسجيل الدخول
                     },
-                    child: Text('حسناً'),
+                    child:const Text('حسناً'),
                   ),
                 ],
               ),
@@ -128,7 +128,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       // رابط العودة لتسجيل الدخول
                       TextButton(
                         onPressed: () => context.go('/auth/login'),
-                        child: Text(
+                        child:const Text(
                           'العودة لتسجيل الدخول',
                           style: TextStyle(
                             color: AppColors.primary,

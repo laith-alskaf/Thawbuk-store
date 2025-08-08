@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import '../../../core/errors/failures.dart';
 import '../entities/product_entity.dart';
+import '../entities/admin_dashboard_stats_entity.dart';
 import '../usecases/product/get_filtered_products_usecase.dart';
 
 abstract class ProductRepository {
@@ -38,4 +39,5 @@ abstract class ProductRepository {
   });
   Future<Either<Failure, void>> deleteProduct(String productId);
   Future<Either<Failure, List<ProductEntity>>> getMyProducts();
+  Future<Either<Failure, AdminDashboardStatsEntity>> getAdminDashboardStats();
 }

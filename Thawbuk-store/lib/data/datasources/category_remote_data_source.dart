@@ -26,7 +26,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
             .toList();
       }
       
-      throw ServerException('Invalid response format for categories');
+      throw const ServerException('Invalid response format for categories');
     } catch (e) {
       throw ServerException('Failed to get categories: ${e.toString()}');
     }
@@ -41,7 +41,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
         return CategoryModel.fromJson(response['body']['data'] as Map<String, dynamic>);
       }
       
-      throw ServerException('Invalid response format for category');
+      throw const ServerException('Invalid response format for category');
     } catch (e) {
       throw ServerException('Failed to get category: ${e.toString()}');
     }
@@ -71,7 +71,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
         return CategoryModel.fromJson(response['body']['data'] as Map<String, dynamic>);
       }
       
-      throw ServerException('Invalid response format for category');
+      throw const ServerException('Invalid response format for category');
     } catch (e) {
       throw ServerException('Failed to update category: ${e.toString()}');
     }
