@@ -17,7 +17,7 @@ export class MongoUserRepository implements UserRepository {
   }
 
   findByEmail = async (email: string): Promise<IUser | null> => {
-    return await UserModel.findOne({ email }).exec();
+    return await UserModel.findOne({ email: email }).exec();
 
   }
 
@@ -28,7 +28,7 @@ export class MongoUserRepository implements UserRepository {
   update = async (userId: string, userData: Partial<IUser>): Promise<IUser | null> => {
     // Remove sensitive fields that should not be updated by users
     const { role, _id, createdAt, updatedAt, otpCode, isVerified, ...safeUserData } = userData as any;
-    
+
     return await UserModel.findByIdAndUpdate(userId, { $set: safeUserData }, { new: true }).exec();
   }
 
