@@ -85,7 +85,7 @@ export default class Server {
     }
 
     private setupErrorHandlers() {
-        this.app.use(notFoundHandler);
+        // this.app.use(notFoundHandler);
         this.app.use(errorHandler);
     }
 
