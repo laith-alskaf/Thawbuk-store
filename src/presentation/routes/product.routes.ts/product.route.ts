@@ -27,6 +27,15 @@ const productRouters = (productController: ProductController): Router => {
         productController.getProductsByUserId.bind(productController)
     );
 
+      // DELETE /user/product/:productId - حذف منتج
+    // يحتاج أن يكون صاحب المنتج أو أدمن
+    router.delete("/:productId", 
+        validateProductId,
+        requireOwnershipOrAdmin(),
+        checkResourceOwnership(ProductModel, idKey), 
+        productController.deleteProduct.bind(productController)
+    );
+
     // POST /user/product - إنشاء منتج جديد
     // يحتاج صلاحية إنشاء منتج (Admin فقط حالياً)
     router.post("/", 
@@ -36,15 +45,7 @@ const productRouters = (productController: ProductController): Router => {
         productController.createProduct.bind(productController)
     );
 
-    // DELETE /user/product/:productId - حذف منتج
-    // يحتاج أن يكون صاحب المنتج أو أدمن
-    router.delete("/:productId", 
-        validateProductId,
-        requireOwnershipOrAdmin(),
-        checkResourceOwnership(ProductModel, idKey), 
-        productController.deleteProduct.bind(productController)
-    );
-
+  
     // PUT /user/product/:productId - تعديل منتج
     // يحتاج أن يكون صاحب المنتج أو أدمن
     router.put("/:productId", 
