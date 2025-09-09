@@ -102,7 +102,14 @@ const enhancedUserProductRoutes = (enhancedProductController: EnhancedProductCon
     });
 
     // Apply authentication middleware to all routes
-
+   // DELETE /user/product/:productId - حذف منتج
+    // يحتاج أن يكون صاحب المنتج أو أدمن
+    router.delete("/:productId", 
+        validateProductId,
+        requireOwnershipOrAdmin(),
+        checkResourceOwnership(ProductModel, idKey), 
+        enhancedProductController.deleteProduct.bind(enhancedProductController)
+    );
     // GET /user/product - الحصول على منتجات المستخدم الحالي
     // يمكن للمستخدمين العاديين رؤية منتجاتهم، والأدمن رؤية جميع المنتجات
     router.get("/", 
@@ -131,14 +138,7 @@ const enhancedUserProductRoutes = (enhancedProductController: EnhancedProductCon
         enhancedProductController.updateProduct.bind(enhancedProductController)
     );
 
-    // DELETE /user/product/:productId - حذف منتج
-    // يحتاج أن يكون صاحب المنتج أو أدمن
-    router.delete("/:productId", 
-        validateProductId,
-        requireOwnershipOrAdmin(),
-        checkResourceOwnership(ProductModel, idKey), 
-        enhancedProductController.deleteProduct.bind(enhancedProductController)
-    );
+ 
 
     return router;
 };
