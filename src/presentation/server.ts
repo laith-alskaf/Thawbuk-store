@@ -67,7 +67,7 @@ export default class Server {
         this.app.use('/api/v2/admin/product', enhancedAdminProductRoutes(this.container.enhancedProductController));
         
         // Legacy Product routes (keeping for backward compatibility)
-        this.app.use('/api/user/product', productRouters(this.container.productController));
+        // this.app.use('/api/user/product', productRouters(this.container.productController));
         // this.app.use('/api/product', publicProductRoutes(this.container.productController));
         
         // Category routes

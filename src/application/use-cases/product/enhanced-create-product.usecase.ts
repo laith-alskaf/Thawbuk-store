@@ -27,7 +27,7 @@ export class EnhancedCreateProductUseCase {
 
             // إنشاء معرف فريد للمنتج
             const uuid = this.uuidGeneratorService.generate();
-            
+
             const product = {
                 ...productDTO,
                 _id: uuid,
@@ -47,7 +47,7 @@ export class EnhancedCreateProductUseCase {
 
             // إنشاء المنتج في قاعدة البيانات
             const newProduct: IProduct = await this.productRepository.create(product);
-            
+
             // إرسال إشعار بالمنتج الجديد
             await this.sendNewProductNotification(newProduct);
 
@@ -56,11 +56,11 @@ export class EnhancedCreateProductUseCase {
 
         } catch (error: any) {
             console.error('Error in EnhancedCreateProductUseCase:', error);
-            
+
             if (error instanceof BadRequestError || error instanceof ValidationError) {
                 throw error;
             }
-            
+
             throw new BadRequestError(
                 error.message || Messages.PRODUCT.CREATE_FAILED_EN || 'فشل في إنشاء المنتج'
             );
@@ -101,12 +101,12 @@ export class EnhancedCreateProductUseCase {
 
     private async checkProductNameUniqueness(name: string, createdBy: string): Promise<void> {
         try {
-            const existingProducts = await this.productRepository.allProduct(1, 1, { 
+            const existingProducts = await this.productRepository.filter({
                 name: name.trim(),
-                createdBy: createdBy 
+                createdBy: createdBy
             });
 
-            if (existingProducts && existingProducts.products.length > 0) {
+            if (existingProducts && existingProducts.length > 0) {
                 throw new BadRequestError('يوجد منتج بنفس الاسم لديك بالفعل');
             }
         } catch (error: any) {
@@ -130,7 +130,7 @@ export class EnhancedCreateProductUseCase {
 
             if (!urlsImages || urlsImages.length === 0) {
                 throw new BadRequestError(
-                    Messages.PRODUCT.VALIDATION.PRODUCT_VALIDATION.IMAGE_URI_INVALID_EN || 
+                    Messages.PRODUCT.VALIDATION.PRODUCT_VALIDATION.IMAGE_URI_INVALID_EN ||
                     'يجب إرفاق صورة واحدة على الأقل للمنتج'
                 );
             }
