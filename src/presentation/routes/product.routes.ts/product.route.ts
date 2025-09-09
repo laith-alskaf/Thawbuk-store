@@ -20,14 +20,7 @@ const productRouters = (productController: ProductController): Router => {
     const storage = multer.memoryStorage();
     const upload = multer({ storage: storage });
 
-    // GET /user/product - الحصول على منتجات المستخدم الحالي
-    // يمكن للمستخدمين العاديين رؤية منتجاتهم، والأدمن رؤية جميع المنتجات
-    router.get("/", 
-        ProductPermissions.manageOwn,
-        productController.getProductsByUserId.bind(productController)
-    );
-
-      // DELETE /user/product/:productId - حذف منتج
+       // DELETE /user/product/:productId - حذف منتج
     // يحتاج أن يكون صاحب المنتج أو أدمن
     router.delete("/:productId", 
         validateProductId,
@@ -35,6 +28,15 @@ const productRouters = (productController: ProductController): Router => {
         checkResourceOwnership(ProductModel, idKey), 
         productController.deleteProduct.bind(productController)
     );
+
+    // GET /user/product - الحصول على منتجات المستخدم الحالي
+    // يمكن للمستخدمين العاديين رؤية منتجاتهم، والأدمن رؤية جميع المنتجات
+    router.get("/", 
+        ProductPermissions.manageOwn,
+        productController.getProductsByUserId.bind(productController)
+    );
+
+   
 
     // POST /user/product - إنشاء منتج جديد
     // يحتاج صلاحية إنشاء منتج (Admin فقط حالياً)
