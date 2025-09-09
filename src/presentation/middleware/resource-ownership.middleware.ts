@@ -22,10 +22,10 @@ export const checkResourceOwnership = <T extends IOwnership>(
             const resourceId = req.body[idKey] || req.params[idKey];
             var resource;
             if (idKey == 'productId') {
-                resource = await ProductModel.findById(resourceId);
+                resource = await ProductModel.findById({ _id: resourceId });
             }
             if (idKey == 'categoryId') {
-                resource = await CategoryModel.findById(resourceId);
+                resource = await CategoryModel.findById({ _id: resourceId });
             }
 
 
