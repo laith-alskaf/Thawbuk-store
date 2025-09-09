@@ -101,12 +101,12 @@ export class EnhancedCreateProductUseCase {
 
     private async checkProductNameUniqueness(name: string, createdBy: string): Promise<void> {
         try {
-            const existingProducts = await this.productRepository.filter({
+            const existingProducts = await this.productRepository.allProduct(1, 1, {
                 name: name.trim(),
                 createdBy: createdBy
             });
 
-            if (existingProducts && existingProducts.length > 0) {
+            if (existingProducts && existingProducts.total > 0) {
                 throw new BadRequestError('يوجد منتج بنفس الاسم لديك بالفعل');
             }
         } catch (error: any) {
