@@ -107,7 +107,7 @@ const enhancedUserProductRoutes = (enhancedProductController: EnhancedProductCon
     router.delete("/:productId", 
         validateProductId,
         requireOwnershipOrAdmin(),
-        // checkResourceOwnership(ProductModel, idKey), 
+        checkResourceOwnership(ProductModel, idKey), 
         enhancedProductController.deleteProduct.bind(enhancedProductController)
     );
     // GET /user/product - الحصول على منتجات المستخدم الحالي
