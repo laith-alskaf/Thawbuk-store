@@ -22,6 +22,7 @@ import citiesRoutes from "./routes/cities.routes";
 import bodyParser from "body-parser";
 import { createRateLimit, RateLimitConfigs } from "./middleware/rate-limit.middleware";
 import { EnhancedErrorHandler, notFoundHandler, healthCheck } from "./middleware/enhanced-error-handler.middleware";
+import productRouters from "./routes/product.routes.ts/product.route";
 
 export default class Server {
     private app: Express;
@@ -66,7 +67,7 @@ export default class Server {
         this.app.use('/api/v2/admin/product', enhancedAdminProductRoutes(this.container.enhancedProductController));
         
         // Legacy Product routes (keeping for backward compatibility)
-        // this.app.use('/api/user/product', productRouters(this.container.productController));
+        this.app.use('/api/user/product', productRouters(this.container.productController));
         // this.app.use('/api/product', publicProductRoutes(this.container.productController));
         
         // Category routes

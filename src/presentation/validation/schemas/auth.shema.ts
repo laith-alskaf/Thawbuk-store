@@ -26,6 +26,7 @@ export const signupSchema = Joi.object({
         'string.max': Messages.USER.VALIDATION.USERNAME_MAX,
         'any.required': Messages.USER.VALIDATION.USERNAME_REQUIRED,
     }).when('role', { is: 'customer', then: Joi.required() }),
+
     companyDetails: Joi.object({
         companyName: Joi.string().required().messages({
             'any.required': Messages.USER.VALIDATION.COMPANY_NAME_REQUIRED,
@@ -40,7 +41,7 @@ export const signupSchema = Joi.object({
     address: Joi.object({
         city: Joi.string().messages({
             'any.required': Messages.USER.VALIDATION.CITY_REQUIRED,
-        }).when('role', { is: 'customer', then: Joi.required() }),
+        }).when('role', { is: 'customer', then: Joi.required(), otherwise: Joi.optional() }),
     }),
     age: Joi.number().min(18).max(120).messages({
         'number.min': Messages.USER.VALIDATION.AGE_MIN,
