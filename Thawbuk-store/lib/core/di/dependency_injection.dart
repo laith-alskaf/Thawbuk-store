@@ -6,6 +6,14 @@ import '../network/api_client.dart';
 import '../network/network_info.dart';
 import '../services/fcm_service.dart';
 
+// Cache System
+import '../cache/cache_service.dart';
+import '../cache/smart_cache_manager.dart';
+import '../cache/cache_initialization_service.dart';
+
+// Entities
+import '../../domain/entities/user_entity.dart';
+
 // Data Sources
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/datasources/auth_local_data_source.dart';
@@ -13,6 +21,8 @@ import '../../data/datasources/product_remote_data_source.dart';
 import '../../data/datasources/category_remote_data_source.dart';
 import '../../data/datasources/cart_remote_data_source.dart';
 import '../../data/datasources/cart_local_data_source.dart';
+import '../../data/datasources/wishlist_remote_data_source.dart';
+import '../../data/datasources/wishlist_local_data_source.dart';
 import '../../data/datasources/order_remote_data_source.dart';
 import '../../data/datasources/user_remote_data_source.dart';
 import '../../data/datasources/user_local_data_source.dart';
@@ -20,17 +30,21 @@ import '../../data/datasources/store_remote_data_source.dart';
 
 // Repositories
 import '../../data/repositories/auth_repository_impl.dart';
-import '../../data/repositories/product_repository_impl.dart';
 import '../../data/repositories/category_repository_impl.dart';
-import '../../data/repositories/cart_repository_impl.dart';
+import '../../data/repositories/wishlist_repository_impl.dart';
 import '../../data/repositories/order_repository_impl.dart';
 import '../../data/repositories/user_repository_impl.dart';
 import '../../data/repositories/store_repository_impl.dart';
+
+// Enhanced Repositories with Smart Caching
+import '../../data/repositories/enhanced_product_repository_impl.dart';
+import '../../data/repositories/enhanced_cart_repository_impl.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../domain/repositories/cart_repository.dart';
+import '../../domain/repositories/wishlist_repository.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../domain/repositories/store_repository.dart';
@@ -56,6 +70,9 @@ import '../../domain/usecases/cart/get_cart_usecase.dart';
 import '../../domain/usecases/cart/update_cart_usecase.dart';
 import '../../domain/usecases/cart/remove_from_cart_usecase.dart';
 import '../../domain/usecases/cart/clear_cart_usecase.dart';
+import '../../domain/usecases/wishlist/get_wishlist_usecase.dart';
+import '../../domain/usecases/wishlist/toggle_wishlist_usecase.dart';
+import '../../domain/usecases/wishlist/clear_wishlist_usecase.dart';
 import '../../domain/usecases/order/get_orders_usecase.dart';
 import '../../domain/usecases/order/create_order_usecase.dart';
 import '../../domain/usecases/category/get_categories_usecase.dart';
@@ -67,6 +84,7 @@ import '../../presentation/bloc/auth/auth_bloc.dart';
 import '../../presentation/bloc/product/product_bloc.dart';
 import '../../presentation/bloc/admin/admin_bloc.dart';
 import '../../presentation/bloc/cart/cart_bloc.dart';
+import '../../presentation/bloc/wishlist/wishlist_bloc.dart';
 import '../../presentation/bloc/order/order_bloc.dart';
 import '../../presentation/bloc/category/category_bloc.dart';
 import '../../presentation/bloc/theme/theme_cubit.dart';
@@ -83,8 +101,16 @@ Future<void> configureDependencies() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerLazySingleton(() => sharedPreferences);
 
+  // Initialize Cache System First
+  await _initializeCacheSystem();
+
   // Core
   getIt.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl());
+  
+  // Cache System Services
+  getIt.registerLazySingleton(() => CacheService.instance);
+  getIt.registerLazySingleton(() => SmartCacheManager.instance);
+  getIt.registerLazySingleton(() => CacheInitializationService.instance);
   
   // Services
   getIt.registerLazySingleton(() => FCMService());
@@ -112,6 +138,12 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<CartLocalDataSource>(
     () => CartLocalDataSourceImpl(getIt()),
   );
+  getIt.registerLazySingleton<WishlistRemoteDataSource>(
+    () => WishlistRemoteDataSourceImpl(getIt()),
+  );
+  getIt.registerLazySingleton<WishlistLocalDataSource>(
+    () => WishlistLocalDataSourceImpl(),
+  );
   getIt.registerLazySingleton<OrderRemoteDataSource>(
     () => OrderRemoteDataSourceImpl(getIt()),
   );
@@ -134,10 +166,12 @@ Future<void> configureDependencies() async {
       apiClient: getIt(),
     ),
   );
+  // Use Enhanced Product Repository with Smart Caching
   getIt.registerLazySingleton<ProductRepository>(
-    () => ProductRepositoryImpl(
+    () => EnhancedProductRepositoryImpl(
       remoteDataSource: getIt(),
       networkInfo: getIt(),
+      cacheManager: getIt(),
     ),
   );
   getIt.registerLazySingleton<CategoryRepository>(
@@ -146,8 +180,16 @@ Future<void> configureDependencies() async {
       networkInfo: getIt(),
     ),
   );
+  // Use Enhanced Cart Repository with Smart Caching
   getIt.registerLazySingleton<CartRepository>(
-    () => CartRepositoryImpl(
+    () => EnhancedCartRepositoryImpl(
+      remoteDataSource: getIt(),
+      networkInfo: getIt(),
+      cacheManager: getIt(),
+    ),
+  );
+  getIt.registerLazySingleton<WishlistRepository>(
+    () => WishlistRepositoryImpl(
       remoteDataSource: getIt(),
       localDataSource: getIt(),
       networkInfo: getIt(),
@@ -195,6 +237,9 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(() => UpdateCartUseCase(getIt()));
   getIt.registerLazySingleton(() => RemoveFromCartUseCase(getIt()));
   getIt.registerLazySingleton(() => ClearCartUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetWishlistUseCase(getIt()));
+  getIt.registerLazySingleton(() => ToggleWishlistUseCase(getIt()));
+  getIt.registerLazySingleton(() => ClearWishlistUseCase(getIt()));
   getIt.registerLazySingleton(() => GetOrdersUseCase(getIt()));
   getIt.registerLazySingleton(() => CreateOrderUseCase(getIt()));
   getIt.registerLazySingleton(() => GetCategoriesUseCase(getIt()));
@@ -241,6 +286,12 @@ Future<void> configureDependencies() async {
     clearCartUseCase: getIt(),
   ));
   
+  getIt.registerFactory(() => WishlistBloc(
+    getWishlistUseCase: getIt(),
+    toggleWishlistUseCase: getIt(),
+    clearWishlistUseCase: getIt(),
+  ));
+  
   getIt.registerFactory(() => OrderBloc(
     getOrdersUseCase: getIt(),
     createOrderUseCase: getIt(),
@@ -270,6 +321,28 @@ Future<void> configureDependencies() async {
   await _loadSavedToken();
 }
 
+/// تهيئة نظام التخزين المؤقت
+Future<void> _initializeCacheSystem() async {
+  try {
+    print('🚀 Initializing cache system...');
+    
+    // تهيئة خدمة التخزين المؤقت الأساسية
+    await CacheService.instance.init();
+    
+    // تهيئة المدير الذكي
+    await SmartCacheManager.instance.init();
+    
+    // تهيئة خدمة التهيئة الشاملة
+    await CacheInitializationService.instance.initialize();
+    
+    print('✅ Cache system initialized successfully');
+  } catch (e) {
+    print('❌ Failed to initialize cache system: $e');
+    // لا نريد إيقاف التطبيق بسبب خطأ في التخزين المؤقت
+  }
+}
+
+/// تحميل التوكن المحفوظ
 Future<void> _loadSavedToken() async {
   try {
     final authLocalDataSource = getIt<AuthLocalDataSource>();
@@ -282,5 +355,42 @@ Future<void> _loadSavedToken() async {
   } catch (e) {
     // تجاهل الأخطاء في تحميل التوكن
     print('Error loading saved token: $e');
+  }
+}
+
+/// تهيئة نظام التخزين المؤقت للمستخدم المسجل
+Future<void> initializeCacheForUser(UserEntity user) async {
+  try {
+    final cacheInitService = getIt<CacheInitializationService>();
+    await cacheInitService.initializeForUser(user);
+    print('✅ Cache initialized for user: ${user.email}');
+  } catch (e) {
+    print('❌ Error initializing cache for user: $e');
+  }
+}
+
+/// تهيئة نظام التخزين المؤقت للزائر
+Future<void> initializeCacheForGuest() async {
+  try {
+    final cacheInitService = getIt<CacheInitializationService>();
+    await cacheInitService.initializeForGuest();
+    print('✅ Cache initialized for guest');
+  } catch (e) {
+    print('❌ Error initializing cache for guest: $e');
+  }
+}
+
+/// تنظيف نظام التخزين المؤقت عند تسجيل الخروج
+Future<void> clearCacheOnLogout() async {
+  try {
+    final smartCacheManager = getIt<SmartCacheManager>();
+    await smartCacheManager.setCurrentUser(null);
+    
+    final cacheInitService = getIt<CacheInitializationService>();
+    await cacheInitService.initializeForGuest();
+    
+    print('✅ Cache cleared for logout');
+  } catch (e) {
+    print('❌ Error clearing cache on logout: $e');
   }
 }

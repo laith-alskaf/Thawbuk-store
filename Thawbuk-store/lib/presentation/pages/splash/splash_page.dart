@@ -20,13 +20,13 @@ class SplashPage extends StatelessWidget {
             context.go('/admin/dashboard');
           } else {
             // توجيه العملاء إلى الصفحة الرئيسية
-            context.go('/home');
+            context.go('/app/home');
           }
         } else if (state is AuthUnauthenticated) {
           // توجيه المستخدمين غير المسجلين إلى صفحة تسجيل الدخول
-          context.go('/login');
+          context.go('/auth/login');
         } else if (state is AuthRegistrationSuccess) {
-          context.pushReplacement('/verify-email/${state.email}');
+          context.pushReplacement('/auth/verify-email/${state.email}');
         }
       },
       child: Scaffold(

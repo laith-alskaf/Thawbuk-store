@@ -1,33 +1,61 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:thawbuk_store/firebase_options.dart';
-import 'core/di/dependency_injection.dart';
-import 'presentation/app.dart';
+import 'package:flutter/services.dart';
+import 'dart:developer';
+import 'presentation/app_with_smart_initialization.dart';
 
 void main() async {
+  // التأكد من تهيئة Flutter
   WidgetsFlutterBinding.ensureInitialized();
   
-  // تهيئة Hive للتخزين المحلي
-  await Hive.initFlutter();
-  // تهيئة Dependency Injection
-  await configureDependencies();
-    try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e) {
-    (e);
-  }
-  
-  runApp(const ThawbukApp());
+  // تكوين الشاشة
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // إعداد نمط شريط الحالة
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+
+  log('🚀 Starting Thawbuk Store App...');
+
+  // تشغيل التطبيق مع التهيئة الذكية
+  runApp(const ThawbukStoreApp());
 }
 
-class ThawbukApp extends StatelessWidget {
-  const ThawbukApp({super.key});
+/// التطبيق الرئيسي لثوبك
+class ThawbukStoreApp extends StatelessWidget {
+  const ThawbukStoreApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const App();
+    return MaterialApp(
+      title: 'ثوبك - Thawbuk Store',
+      debugShowCheckedModeBanner: false,
+      
+      // إعدادات اللغة والمنطقة
+      locale: const Locale('ar', 'SA'),
+      supportedLocales: const [
+        Locale('ar', 'SA'), // العربية
+        Locale('en', 'US'), // الإنجليزية
+      ],
+      
+      // إعدادات النصوص
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: child ?? const SizedBox(),
+        );
+      },
+      
+      // التطبيق مع التهيئة الذكية
+      home: const AppWithSmartInitialization(),
+    );
   }
 }

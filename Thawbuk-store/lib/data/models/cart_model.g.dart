@@ -7,7 +7,7 @@ part of 'cart_model.dart';
 // **************************************************************************
 
 CartModel _$CartModelFromJson(Map<String, dynamic> json) => CartModel(
-      id: json['id'] as String,
+      id: json['_id'] as String,
       userId: json['userId'] as String,
       items: (json['items'] as List<dynamic>)
           .map((e) => CartItemModel.fromJson(e as Map<String, dynamic>))
@@ -18,17 +18,17 @@ CartModel _$CartModelFromJson(Map<String, dynamic> json) => CartModel(
     );
 
 Map<String, dynamic> _$CartModelToJson(CartModel instance) => <String, dynamic>{
-      'id': instance.id,
+      '_id': instance.id,
       'userId': instance.userId,
+      'items': instance.items.map((e) => e.toJson()).toList(),
       'totalAmount': instance.totalAmount,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
-      'items': instance.items.map((e) => e.toJson()).toList(),
     };
 
 CartItemModel _$CartItemModelFromJson(Map<String, dynamic> json) =>
     CartItemModel(
-      id: json['id'] as String,
+      id: json['_id'] as String,
       productId: json['productId'] as String,
       product: ProductModel.fromJson(json['product'] as Map<String, dynamic>),
       quantity: (json['quantity'] as num).toInt(),
@@ -40,12 +40,12 @@ CartItemModel _$CartItemModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$CartItemModelToJson(CartItemModel instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      '_id': instance.id,
       'productId': instance.productId,
+      'product': instance.product.toJson(),
       'quantity': instance.quantity,
       'selectedSize': instance.selectedSize,
       'selectedColor': instance.selectedColor,
       'unitPrice': instance.unitPrice,
       'totalPrice': instance.totalPrice,
-      'product': instance.product.toJson(),
     };

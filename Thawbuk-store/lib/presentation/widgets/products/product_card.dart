@@ -11,6 +11,7 @@ class ProductCard extends StatefulWidget {
   final VoidCallback onTap;
   final VoidCallback onAddToCart;
   final VoidCallback onToggleWishlist;
+  final bool isWishlisted;
 
   const ProductCard({
     Key? key,
@@ -19,6 +20,7 @@ class ProductCard extends StatefulWidget {
     required this.onTap,
     required this.onAddToCart,
     required this.onToggleWishlist,
+    this.isWishlisted = false,
   }) : super(key: key);
 
   @override
@@ -38,6 +40,7 @@ class _ProductCardState extends State<ProductCard>
   @override
   void initState() {
     super.initState();
+    _isWishlisted = widget.isWishlisted;
     _controller = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -58,6 +61,16 @@ class _ProductCardState extends State<ProductCard>
       parent: _controller,
       curve: Curves.easeInOut,
     ));
+  }
+
+  @override
+  void didUpdateWidget(ProductCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isWishlisted != widget.isWishlisted) {
+      setState(() {
+        _isWishlisted = widget.isWishlisted;
+      });
+    }
   }
 
   @override

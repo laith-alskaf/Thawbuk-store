@@ -1,39 +1,68 @@
 import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/order_entity.dart';
-import '../../domain/entities/user_entity.dart';
 import 'cart_model.dart';
+import 'user_model.dart';
 
 part 'order_model.g.dart';
 
-@JsonSerializable(explicitToJson: true)
-class OrderModel extends OrderEntity {
-  @JsonKey(name: 'items')
-  @override
-  final List<CartItemModel> items;
-  
-  @JsonKey(name: 'shippingAddress')
-  @override
-  final AddressModel shippingAddress;
+/// Converter لتحويل enum OrderStatus إلى/من String
+class OrderStatusConverter implements JsonConverter<OrderStatus, String> {
+  const OrderStatusConverter();
 
-  const OrderModel({
-    required super.id,
-    required super.userId,
-    required this.items,
-    required super.totalAmount,
-    required super.status,
-    required this.shippingAddress,
-    super.notes,
-    required super.createdAt,
-    super.updatedAt,
-    super.deliveredAt,
-  }) : super(items: items, shippingAddress: shippingAddress);
-
-  factory OrderModel.fromJson(Map<String, dynamic> json) {
-    return _$OrderModelFromJson(json);
+  @override
+  OrderStatus fromJson(String json) {
+    return OrderStatus.values.firstWhere(
+      (e) => e.name == json,
+      orElse: () => OrderStatus.pending, // القيمة الافتراضية
+    );
   }
 
+  @override
+  String toJson(OrderStatus object) => object.name;
+}
+
+@JsonSerializable(explicitToJson: true)
+class OrderModel {
+  @JsonKey(name: '_id')
+  final String id;
+
+  final String userId;
+
+  @JsonKey(name: 'items')
+  final List<CartItemModel> items;
+
+  final double totalAmount;
+
+  @OrderStatusConverter()
+  final OrderStatus status;
+
+  final AddressModel shippingAddress;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deliveredAt;
+
+  const OrderModel({
+    required this.id,
+    required this.userId,
+    required this.items,
+    required this.totalAmount,
+    required this.status,
+    required this.shippingAddress,
+    this.notes,
+    required this.createdAt,
+    this.updatedAt,
+    this.deliveredAt,
+  });
+
+  /// من JSON إلى Model
+  factory OrderModel.fromJson(Map<String, dynamic> json) =>
+      _$OrderModelFromJson(json);
+
+  /// من Model إلى JSON
   Map<String, dynamic> toJson() => _$OrderModelToJson(this);
 
+  /// تحويل إلى Entity
   OrderEntity toEntity() {
     return OrderEntity(
       id: id,
@@ -48,71 +77,20 @@ class OrderModel extends OrderEntity {
       deliveredAt: deliveredAt,
     );
   }
-}
 
-@JsonSerializable(explicitToJson: true)
-class AddressModel extends AddressEntity {
-  @JsonKey(name: 'fullName')
-  @override
-  final String fullName;
-  
-  @JsonKey(name: 'phone')
-  @override
-  final String phone;
-  
-  @JsonKey(name: 'street')
-  @override
-  final String street;
-  
-  @JsonKey(name: 'city')
-  @override
-  final String city;
-  
-  @JsonKey(name: 'state')
-  @override
-  final String state;
-  
-  @JsonKey(name: 'country')
-  @override
-  final String country;
-  
-  @JsonKey(name: 'postalCode')
-  @override
-  final String? postalCode;
-
-  const AddressModel({
-    required this.fullName,
-    required this.phone,
-    required this.street,
-    required this.city,
-    required this.state,
-    required this.country,
-    this.postalCode,
-  }) : super(
-    fullName: fullName,
-    phone: phone,
-    street: street,
-    city: city,
-    state: state,
-    country: country,
-    postalCode: postalCode,
-  );
-
-  factory AddressModel.fromJson(Map<String, dynamic> json) {
-    return _$AddressModelFromJson(json);
-  }
-
-  Map<String, dynamic> toJson() => _$AddressModelToJson(this);
-
-  AddressEntity toEntity() {
-    return AddressEntity(
-      fullName: fullName,
-      phone: phone,
-      street: street,
-      city: city,
-      state: state,
-      country: country,
-      postalCode: postalCode,
+  /// تحويل من Entity إلى Model
+  factory OrderModel.fromEntity(OrderEntity entity) {
+    return OrderModel(
+      id: entity.id,
+      userId: entity.userId,
+      items: entity.items.map((e) => CartItemModel.fromEntity(e)).toList(),
+      totalAmount: entity.totalAmount,
+      status: entity.status,
+      shippingAddress: AddressModel.fromEntity(entity.shippingAddress),
+      notes: entity.notes,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      deliveredAt: entity.deliveredAt,
     );
   }
 }

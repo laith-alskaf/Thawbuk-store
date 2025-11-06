@@ -46,4 +46,17 @@ class CategoryModel extends CategoryEntity {
       createdAt: createdAt,
     );
   }
+
+  factory CategoryModel.fromEntity(CategoryEntity entity) {
+    return CategoryModel(
+      id: entity.id,
+      name: entity.name,
+      nameAr: entity.nameAr,
+      description: entity.description,
+      descriptionAr: entity.descriptionAr,
+      image: entity.image,
+      productsCount: entity.productsCount,
+      createdAt: entity.createdAt,
+    );
+  }
 }

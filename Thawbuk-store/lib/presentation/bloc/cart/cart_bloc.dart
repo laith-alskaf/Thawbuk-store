@@ -183,8 +183,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     AddToCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    emit(CartLoading());
-
+    // لا نعرض loading عند إضافة منتج للسلة للحفاظ على عرض السلة الحالية
     final result = await addToCartUseCase(AddToCartParams(
       productId: event.productId,
       quantity: event.quantity,
@@ -208,8 +207,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     UpdateCartItemEvent event,
     Emitter<CartState> emit,
   ) async {
-    emit(CartLoading());
-
+    // لا نعرض loading عند تحديث منتج للحفاظ على عرض السلة الحالية
     final result = await updateCartUseCase(UpdateCartParams(
       productId: event.productId,
       quantity: event.quantity,
@@ -231,8 +229,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     RemoveFromCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    emit(CartLoading());
-
+    // لا نعرض loading عند حذف منتج للحفاظ على عرض السلة الحالية
     final result = await removeFromCartUseCase(RemoveFromCartParams(
       productId: event.productId,
     ));

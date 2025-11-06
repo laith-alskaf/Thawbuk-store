@@ -202,12 +202,12 @@ class HttpClient {
       try {
         return jsonDecode(response.body) as Map<String, dynamic>;
       } catch (e) {
-        throw ServerException('Invalid JSON response: ${e.toString()}');
+        throw const ServerException('خطأ في صيغة البيانات المستقبلة من الخادم');
       }
     } else if (statusCode == 401) {
       // إزالة التوكن المنتهي الصلاحية
       sharedPreferences.remove(AppConstants.tokenKey);
-      throw const UnauthorizedException('Token expired or invalid');
+      throw const UnauthorizedException('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى');
     } else if (statusCode >= 400 && statusCode < 500) {
       try {
         final errorBody = response.body.isNotEmpty
@@ -252,7 +252,7 @@ class HttpClient {
       }
     }
 
-    throw ServerException('Unexpected status code: $statusCode');
+    throw ServerException('حدث خطأ غير متوقع في الخادم');
   }
 
   /// طلب POST مع ملفات (multipart/form-data)

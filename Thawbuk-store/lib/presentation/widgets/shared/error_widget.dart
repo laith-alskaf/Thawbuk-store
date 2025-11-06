@@ -191,30 +191,3 @@ class EmptyStateWidget extends StatelessWidget {
   }
 }
 
-class EmptyWidget extends StatelessWidget {
-  final String title;
-  final String message;
-  final IconData? icon;
-  final VoidCallback? onAction;
-  final String? actionText;
-
-  const EmptyWidget({
-    super.key,
-    required this.title,
-    required this.message,
-    this.icon,
-    this.onAction,
-    this.actionText,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return EmptyStateWidget(
-      title: title,
-      message: message,
-      icon: icon,
-      onAction: onAction,
-      actionText: actionText,
-    );
-  }
-}

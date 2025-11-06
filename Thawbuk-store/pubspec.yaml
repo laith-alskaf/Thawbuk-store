@@ -30,6 +30,9 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   
+  # Connectivity
+  connectivity_plus: ^5.0.2
+  
   # UI
   cupertino_icons: ^1.0.6
   google_fonts: ^6.1.0
@@ -68,11 +71,13 @@ dev_dependencies:
 
   flutter_lints: ^3.0.0
   
+  # Hive Code Generation
+  hive_generator: ^2.0.1
+  
   # Code Generation
   build_runner: ^2.4.7
   json_serializable: ^6.8.0
   injectable_generator: ^2.4.1
-  hive_generator: ^2.0.1
 
 flutter:
   uses-material-design: true

@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
               context.go('/admin/dashboard');
             } else {
               // توجيه العملاء إلى الصفحة الرئيسية
-              context.go('/home');
+              context.go('/app/home');
             }
           } else if (state is AuthError) {
             // التحقق من نوع الخطأ

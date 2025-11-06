@@ -18,17 +18,17 @@ class NavigationHelper {
 
   /// التنقل للصفحة الرئيسية مع حذف التاريخ
   static void goToHome(BuildContext context) {
-    pushAndClearStack(context, '/home');
+    pushAndClearStack(context, '/app/home');
   }
 
   /// التنقل لتسجيل الدخول مع حذف التاريخ
   static void goToLogin(BuildContext context) {
-    pushAndClearStack(context, '/login');
+    pushAndClearStack(context, '/auth/login');
   }
 
   /// التنقل للتسجيل مع حذف التاريخ
   static void goToRegister(BuildContext context) {
-    pushAndClearStack(context, '/register');
+    pushAndClearStack(context, '/auth/register');
   }
 
   /// تسجيل الخروج مع التنظيف والتوجيه
@@ -40,7 +40,7 @@ class NavigationHelper {
     context.read<auth_bloc.AuthBloc>().add(auth_bloc.LogoutEvent());
     
     // التوجه لصفحة تسجيل الدخول مع حذف التاريخ
-    pushAndClearStack(context, '/login');
+    pushAndClearStack(context, '/auth/login');
   }
 
   /// التنقل للصفحات المحمية مع التحقق من التسجيل
@@ -119,7 +119,7 @@ class NavigationHelper {
     } else if (authState is auth_bloc.AuthUnauthenticated) {
       goToLogin(context);
     } else if (authState is auth_bloc.AuthRegistrationSuccess) {
-      context.pushReplacement('/verify-email/${authState.email}');
+      context.pushReplacement('/auth/verify-email/${authState.email}');
     }
   }
 

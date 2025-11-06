@@ -185,19 +185,20 @@ class ApiClient {
   }
 
   // DELETE request
-  Future<Map<String, dynamic>> delete(String endpoint) async {
+  Future<Map<String, dynamic>> delete(String endpoint, {Map<String, dynamic>? data}) async {
     await _checkConnection();
 
     try {
       final url = '${AppConstants.baseUrl}$endpoint';
 
       // Log request
-      _logRequest('DELETE', url, _headers);
+      _logRequest('DELETE', url, _headers, data: data);
 
       final response = await http
           .delete(
             Uri.parse(url),
             headers: _headers,
+            body: data != null ? jsonEncode(data) : null,
           )
           .timeout(const Duration(seconds: 30));
 

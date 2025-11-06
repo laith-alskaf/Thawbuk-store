@@ -85,4 +85,30 @@ class ProductModel extends ProductEntity {
       isActive: isActive,
     );
   }
+
+  factory ProductModel.fromEntity(ProductEntity entity) {
+    return ProductModel(
+      id: entity.id,
+      name: entity.name,
+      nameAr: entity.nameAr,
+      description: entity.description,
+      descriptionAr: entity.descriptionAr,
+      price: entity.price,
+      categoryId: entity.categoryId,
+      createdBy: entity.createdBy,
+      images: entity.images,
+      sizes: entity.sizes,
+      colors: entity.colors,
+      stock: entity.stock,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      rating: entity.rating,
+      reviewsCount: entity.reviewsCount,
+      brand: entity.brand,
+      ageRange: entity.ageRange,
+      favoritesCount: entity.favoritesCount,
+      viewsCount: entity.viewsCount,
+      isActive: entity.isActive,
+    );
+  }
 }

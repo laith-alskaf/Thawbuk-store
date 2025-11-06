@@ -6,6 +6,7 @@ import 'bloc/auth/auth_bloc.dart';
 import 'bloc/product/product_bloc.dart';
 import 'bloc/admin/admin_bloc.dart';
 import 'bloc/cart/cart_bloc.dart';
+import 'bloc/wishlist/wishlist_bloc.dart';
 import 'bloc/category/category_bloc.dart';
 import 'bloc/order/order_bloc.dart';
 import 'bloc/theme/theme_cubit.dart';
@@ -29,6 +30,9 @@ class App extends StatelessWidget {
         ),
         BlocProvider<CartBloc>(
           create: (_) => getIt<CartBloc>(),
+        ),
+        BlocProvider<WishlistBloc>(
+          create: (_) => getIt<WishlistBloc>(),
         ),
         BlocProvider<OrderBloc>(
           create: (_) => getIt<OrderBloc>(),

@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'product_entity.dart';
 
-class CartEntity extends Equatable {
+class 
+CartEntity extends Equatable {
   final String id;
   final String userId;
   final List<CartItemEntity> items;
@@ -20,6 +21,18 @@ class CartEntity extends Equatable {
 
   int get itemsCount => items.fold(0, (sum, item) => sum + item.quantity);
   bool get isEmpty => items.isEmpty;
+
+  // Factory constructor for empty cart
+  factory CartEntity.empty() {
+    return CartEntity(
+      id: '',
+      userId: '',
+      items: const [],
+      totalAmount: 0.0,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
 
   @override
   List<Object?> get props => [

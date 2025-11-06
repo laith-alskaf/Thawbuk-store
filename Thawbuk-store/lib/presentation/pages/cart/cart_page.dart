@@ -9,6 +9,7 @@ import '../../../domain/entities/cart_entity.dart';
 import '../../widgets/shared/custom_button.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../widgets/shared/error_widget.dart';
+import '../../widgets/shared/empty_widget.dart';
 import '../../widgets/shared/unified_app_bar.dart';
 import '../../widgets/shared/guest_access_widget.dart';
 
@@ -101,8 +102,33 @@ class _CartPageState extends State<CartPage> {
                   }
                 },
               );
-            } else if (state is CartLoaded) {
-              return _buildCartContent(state.cart);
+            } else if (state is CartLoaded || 
+                       state is CartItemAdded || 
+                       state is CartItemUpdated || 
+                       state is CartItemRemoved) {
+              CartEntity cart;
+              if (state is CartLoaded) {
+                cart = state.cart;
+              } else if (state is CartItemAdded) {
+                cart = state.cart;
+              } else if (state is CartItemUpdated) {
+                cart = state.cart;
+              } else if (state is CartItemRemoved) {
+                cart = state.cart;
+              } else {
+                cart = CartEntity.empty();
+              }
+              
+              // إذا كانت السلة فارغة، اعرض رسالة فارغة
+              if (cart.isEmpty) {
+                return const EmptyWidget(
+                  title: 'سلة التسوق فارغة',
+                  message: 'لم تقم بإضافة أي منتجات بعد',
+                  icon: Icons.shopping_cart_outlined,
+                );
+              }
+              
+              return _buildCartContent(cart);
             } else if (state is CartCleared) {
               return const EmptyWidget(
                 title: 'سلة التسوق فارغة',
@@ -121,14 +147,34 @@ class _CartPageState extends State<CartPage> {
       );
     },
   ),
-    bottomNavigationBar: BlocBuilder<CartBloc, CartState>(
-        builder: (context, state) {
-          if (state is CartLoaded && state.cart.items.isNotEmpty) {
-            return _buildCheckoutBar(state.cart);
-          }
+    bottomNavigationBar: BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        // إخفاء شريط الدفع للزوار
+        if (authState is AuthGuest) {
           return const SizedBox.shrink();
-        },
-      ),
+        }
+        
+        return BlocBuilder<CartBloc, CartState>(
+          builder: (context, state) {
+            CartEntity? cart;
+            if (state is CartLoaded) {
+              cart = state.cart;
+            } else if (state is CartItemAdded) {
+              cart = state.cart;
+            } else if (state is CartItemUpdated) {
+              cart = state.cart;
+            } else if (state is CartItemRemoved) {
+              cart = state.cart;
+            }
+            
+            if (cart != null && cart.items.isNotEmpty) {
+              return _buildCheckoutBar(cart);
+            }
+            return const SizedBox.shrink();
+          },
+        );
+      },
+    ),
     );
   }
 
@@ -147,7 +193,7 @@ class _CartPageState extends State<CartPage> {
             padding: const EdgeInsets.all(16),
             child: CustomButton(
               text: 'تصفح المنتجات',
-              onPressed: () => context.push('/products'),
+              onPressed: () => context.push('/app/products'),
               icon: Icons.store,
             ),
           ),

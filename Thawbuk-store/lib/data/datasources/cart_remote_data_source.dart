@@ -20,13 +20,22 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     try {
       final response = await httpClient.get('/user/cart');
       
-      if (response['data'] != null) {
-        return CartModel.fromJson(response['data'] as Map<String, dynamic>);
+      if (response['success'] == true) {
+        final body = response['body'] as Map<String, dynamic>;
+        final cart = body['cart'];
+        
+        if (cart != null) {
+          return CartModel.fromJson(cart as Map<String, dynamic>);
+        } else {
+          // إنشاء سلة فارغة
+          return CartModel.empty();
+        }
       } else {
-        return CartModel.fromJson(response);
+        throw ServerException(response['message'] ?? 'فشل في تحميل السلة');
       }
     } catch (e) {
-      throw ServerException('Failed to get cart: ${e.toString()}');
+      if (e is ServerException) rethrow;
+      throw ServerException('حدث خطأ أثناء تحميل السلة');
     }
   }
 
@@ -35,13 +44,21 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     try {
       final response = await httpClient.post('/user/cart/add', body: cartData);
       
-      if (response['data'] != null) {
-        return CartModel.fromJson(response['data'] as Map<String, dynamic>);
+      if (response['success'] == true) {
+        final body = response['body'] as Map<String, dynamic>;
+        final cart = body['cart'];
+        
+        if (cart != null) {
+          return CartModel.fromJson(cart as Map<String, dynamic>);
+        } else {
+          return CartModel.empty();
+        }
       } else {
-        return CartModel.fromJson(response);
+        throw ServerException(response['message'] ?? 'فشل في إضافة المنتج للسلة');
       }
     } catch (e) {
-      throw ServerException('Failed to add to cart: ${e.toString()}');
+      if (e is ServerException) rethrow;
+      throw ServerException('حدث خطأ أثناء إضافة المنتج للسلة');
     }
   }
 
@@ -50,13 +67,21 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     try {
       final response = await httpClient.put('/user/cart/update', body: updateData);
       
-      if (response['data'] != null) {
-        return CartModel.fromJson(response['data'] as Map<String, dynamic>);
+      if (response['success'] == true) {
+        final body = response['body'] as Map<String, dynamic>;
+        final cart = body['cart'];
+        
+        if (cart != null) {
+          return CartModel.fromJson(cart as Map<String, dynamic>);
+        } else {
+          return CartModel.empty();
+        }
       } else {
-        return CartModel.fromJson(response);
+        throw ServerException(response['message'] ?? 'فشل في تحديث السلة');
       }
     } catch (e) {
-      throw ServerException('Failed to update cart item: ${e.toString()}');
+      if (e is ServerException) rethrow;
+      throw ServerException('حدث خطأ أثناء تحديث السلة');
     }
   }
 
@@ -65,19 +90,21 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     try {
       final response = await httpClient.delete('/user/cart/remove/$productId');
       
-      // للتعامل مع الحالة التي قد تعيد فيها API cart محدثة أو مجرد message
-      if (response.isEmpty) {
-        // إذا لم تعد API أي بيانات، نحتاج للحصول على السلة الحالية
-        return await getCart();
-      }
-      
-      if (response['data'] != null) {
-        return CartModel.fromJson(response['data'] as Map<String, dynamic>);
+      if (response['success'] == true) {
+        final body = response['body'] as Map<String, dynamic>;
+        final cart = body['cart'];
+        
+        if (cart != null) {
+          return CartModel.fromJson(cart as Map<String, dynamic>);
+        } else {
+          return CartModel.empty();
+        }
       } else {
-        return CartModel.fromJson(response);
+        throw ServerException(response['message'] ?? 'فشل في حذف المنتج من السلة');
       }
     } catch (e) {
-      throw ServerException('Failed to remove from cart: ${e.toString()}');
+      if (e is ServerException) rethrow;
+      throw ServerException('حدث خطأ أثناء حذف المنتج من السلة');
     }
   }
 

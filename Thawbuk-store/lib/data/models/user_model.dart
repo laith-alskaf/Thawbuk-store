@@ -71,6 +71,28 @@ class UserModel extends UserEntity {
       otpCodeExpires: otpCodeExpires,
     );
   }
+
+  factory UserModel.fromEntity(UserEntity entity) {
+    return UserModel(
+      id: entity.id,
+      email: entity.email,
+      name: entity.name,
+      phone: entity.phone,
+      role: entity.role,
+      createdAt: entity.createdAt,
+      lastLoginAt: entity.lastLoginAt,
+      profileImage: entity.profileImage,
+      company: entity.company != null ? CompanyModel.fromEntity(entity.company!) : null,
+      age: entity.age,
+      gender: entity.gender,
+      children: entity.children?.map((c) => ChildModel.fromEntity(c)).toList(),
+      address: entity.address != null ? AddressModel.fromEntity(entity.address!) : null,
+      fcmToken: entity.fcmToken,
+      isEmailVerified: entity.isEmailVerified,
+      otpCode: entity.otpCode,
+      otpCodeExpires: entity.otpCodeExpires,
+    );
+  }
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -96,6 +118,15 @@ class CompanyModel extends CompanyEntity {
       description: description,
     );
   }
+
+  factory CompanyModel.fromEntity(CompanyEntity entity) {
+    return CompanyModel(
+      name: entity.name,
+      address: entity.address,
+      logo: entity.logo,
+      description: entity.description,
+    );
+  }
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -117,6 +148,14 @@ class ChildModel extends ChildEntity {
       name: name,
       age: age,
       gender: gender,
+    );
+  }
+
+  factory ChildModel.fromEntity(ChildEntity entity) {
+    return ChildModel(
+      name: entity.name,
+      age: entity.age,
+      gender: entity.gender,
     );
   }
 }
@@ -148,6 +187,18 @@ class AddressModel extends AddressEntity {
       state: state,
       country: country,
       postalCode: postalCode,
+    );
+  }
+
+  factory AddressModel.fromEntity(AddressEntity entity) {
+    return AddressModel(
+      fullName: entity.fullName,
+      phone: entity.phone,
+      street: entity.street,
+      city: entity.city,
+      state: entity.state,
+      country: entity.country,
+      postalCode: entity.postalCode,
     );
   }
 }

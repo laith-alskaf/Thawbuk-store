@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/product/product_bloc.dart';
 import '../../bloc/cart/cart_bloc.dart';
+import '../../bloc/wishlist/wishlist_bloc.dart';
 import '../../bloc/category/category_bloc.dart';
 import '../../bloc/category/category_event.dart';
 import '../../bloc/category/category_state.dart';
@@ -29,10 +30,11 @@ class _HomePageState extends State<HomePage> {
     context.read<ProductBloc>().add(GetProductsEvent());
     context.read<CategoryBloc>().add(GetCategoriesEvent());
     
-    // تحميل السلة فقط للمستخدمين المسجلين
+    // تحميل السلة والمفضلة فقط للمستخدمين المسجلين
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthAuthenticated) {
       context.read<CartBloc>().add(GetCartEvent());
+      context.read<WishlistBloc>().add(GetWishlistEvent());
     }
   }
 
@@ -260,24 +262,39 @@ class _HomePageState extends State<HomePage> {
       itemCount: products.length > 4 ? 4 : products.length, // Show only 4 on home
       itemBuilder: (context, index) {
         final product = products[index];
-        return ProductCard(
-          product: product,
-          onTap: () => context.push('/app/product/${product.id}'),
-          onAddToCart: () {
-            // التحقق من تسجيل الدخول قبل الإضافة للسلة
-            if (NavigationHelper.addToCart(context)) {
-              context.read<CartBloc>().add(
-                    AddToCartEvent(
-                      productId: product.id,
-                      quantity: 1,
-                    ),
-                  );
-              NavigationHelper.showSuccessMessage(context, 'تم إضافة المنتج للسلة');
+        return BlocBuilder<WishlistBloc, WishlistState>(
+          builder: (context, wishlistState) {
+            bool isWishlisted = false;
+            if (wishlistState is WishlistLoaded) {
+              isWishlisted = wishlistState.wishlist.products
+                  .any((p) => p.id == product.id);
             }
-          },
-          onToggleWishlist: () {
-            // التحقق من تسجيل الدخول قبل الإضافة للمفضلة
-            NavigationHelper.addToFavorites(context);
+            
+            return ProductCard(
+              product: product,
+              isWishlisted: isWishlisted,
+              onTap: () => context.push('/app/product/${product.id}'),
+              onAddToCart: () {
+                // التحقق من تسجيل الدخول قبل الإضافة للسلة
+                if (NavigationHelper.addToCart(context)) {
+                  context.read<CartBloc>().add(
+                        AddToCartEvent(
+                          productId: product.id,
+                          quantity: 1,
+                        ),
+                      );
+                  NavigationHelper.showSuccessMessage(context, 'تم إضافة المنتج للسلة');
+                }
+              },
+              onToggleWishlist: () {
+                // التحقق من تسجيل الدخول قبل الإضافة للمفضلة
+                if (NavigationHelper.addToFavorites(context)) {
+                  context.read<WishlistBloc>().add(
+                    ToggleWishlistEvent(product.id),
+                  );
+                }
+              },
+            );
           },
         );
       },

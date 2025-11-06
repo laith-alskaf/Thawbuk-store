@@ -5,19 +5,37 @@ import 'product_model.dart';
 part 'cart_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class CartModel extends CartEntity {
+class CartModel {
+  @JsonKey(name: '_id')
+  final String id;
+  final String userId;
   @JsonKey(name: 'items')
-  @override
   final List<CartItemModel> items;
+  final double totalAmount;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   const CartModel({
-    required super.id,
-    required super.userId,
+    required this.id,
+    required this.userId,
     required this.items,
-    required super.totalAmount,
-    required super.createdAt,
-    required super.updatedAt,
-  }) : super(items: items);
+    required this.totalAmount,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  // Empty cart constructor
+  factory CartModel.empty() {
+    final now = DateTime.now();
+    return CartModel(
+      id: 'empty-cart',
+      userId: 'temp-user',
+      items: const [],
+      totalAmount: 0.0,
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
 
   factory CartModel.fromJson(Map<String, dynamic> json) {
     return _$CartModelFromJson(json);
@@ -35,24 +53,42 @@ class CartModel extends CartEntity {
       updatedAt: updatedAt,
     );
   }
+
+  factory CartModel.fromEntity(CartEntity entity) {
+    return CartModel(
+      id: entity.id,
+      userId: entity.userId,
+      items: entity.items.map((item) => CartItemModel.fromEntity(item)).toList(),
+      totalAmount: entity.totalAmount,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+  }
 }
 
 @JsonSerializable(explicitToJson: true)
-class CartItemModel extends CartItemEntity {
+class CartItemModel {
+  @JsonKey(name: '_id')
+  final String id;
+  final String productId;
   @JsonKey(name: 'product')
-  @override
   final ProductModel product;
+  final int quantity;
+  final String? selectedSize;
+  final String? selectedColor;
+  final double unitPrice;
+  final double totalPrice;
 
   const CartItemModel({
-    required super.id,
-    required super.productId,
+    required this.id,
+    required this.productId,
     required this.product,
-    required super.quantity,
-    super.selectedSize,
-    super.selectedColor,
-    required super.unitPrice,
-    required super.totalPrice,
-  }) : super(product: product);
+    required this.quantity,
+    this.selectedSize,
+    this.selectedColor,
+    required this.unitPrice,
+    required this.totalPrice,
+  });
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
     return _$CartItemModelFromJson(json);
@@ -70,6 +106,19 @@ class CartItemModel extends CartItemEntity {
       selectedColor: selectedColor,
       unitPrice: unitPrice,
       totalPrice: totalPrice,
+    );
+  }
+
+  factory CartItemModel.fromEntity(CartItemEntity entity) {
+    return CartItemModel(
+      id: entity.id,
+      productId: entity.productId,
+      product: ProductModel.fromEntity(entity.product),
+      quantity: entity.quantity,
+      selectedSize: entity.selectedSize,
+      selectedColor: entity.selectedColor,
+      unitPrice: entity.unitPrice,
+      totalPrice: entity.totalPrice,
     );
   }
 }

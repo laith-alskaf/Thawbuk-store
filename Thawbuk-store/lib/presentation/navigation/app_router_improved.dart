@@ -275,9 +275,16 @@ class AppRouterImproved {
     final isOnSplash = state.uri.path == '/splash';
     final isOnAdminRoute = state.uri.path.startsWith('/admin');
     final isOnMainAppRoute = state.uri.path.startsWith('/app');
+    final isOnPublicRoute = state.uri.path.startsWith('/product') || 
+                           state.uri.path.startsWith('/store') ||
+                           state.uri.path.startsWith('/orders') ||
+                           state.uri.path.startsWith('/settings');
 
     // Allow splash page always
     if (isOnSplash) return null;
+
+    // Allow public routes for all users (logged in, guest, or not authenticated)
+    if (isOnPublicRoute) return null;
 
     // Redirect to login if no access (not logged in and not guest) and not on auth route
     if (!hasAccess && !isOnAuthRoute) {

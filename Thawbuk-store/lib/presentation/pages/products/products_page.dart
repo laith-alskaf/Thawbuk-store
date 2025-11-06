@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../bloc/product/product_bloc.dart';
 import '../../bloc/cart/cart_bloc.dart';
+import '../../bloc/wishlist/wishlist_bloc.dart';
+import '../../bloc/auth/auth_bloc.dart';
 import '../../widgets/shared/loading_widget.dart';
 import '../../widgets/shared/error_widget.dart';
 import '../../widgets/products/product_card.dart';
@@ -58,6 +60,12 @@ class _ProductsPageState extends State<ProductsPage> {
     } else {
       context.read<ProductBloc>().add(GetProductsEvent());
     }
+    
+    // تحميل المفضلة للمستخدمين المسجلين
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      context.read<WishlistBloc>().add(GetWishlistEvent());
+    }
   }
 
   void _onScroll() {
@@ -94,25 +102,34 @@ class _ProductsPageState extends State<ProductsPage> {
             ),
           ],
         ),
-      body: Column(
-        children: [
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: CustomSearchField(
-              controller: _searchController,
-              hint: 'البحث عن المنتجات...',
-              onChanged: _onSearch,
-              onClear: () {
-                _searchController.clear();
-                context.read<ProductBloc>().add(GetProductsEvent());
-              },
+      body: BlocListener<WishlistBloc, WishlistState>(
+        listener: (context, state) {
+          if (state is WishlistItemToggled) {
+            final message = state.isAdded 
+                ? 'تم إضافة المنتج للمفضلة'
+                : 'تم حذف المنتج من المفضلة';
+            NavigationHelper.showSuccessMessage(context, message);
+          }
+        },
+        child: Column(
+          children: [
+            // Search bar
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: CustomSearchField(
+                controller: _searchController,
+                hint: 'البحث عن المنتجات...',
+                onChanged: _onSearch,
+                onClear: () {
+                  _searchController.clear();
+                  context.read<ProductBloc>().add(GetProductsEvent());
+                },
+              ),
             ),
-          ),
-          
-          // Products list
-          Expanded(
-            child: BlocBuilder<ProductBloc, ProductState>(
+            
+            // Products list
+            Expanded(
+              child: BlocBuilder<ProductBloc, ProductState>(
               builder: (context, state) {
                 if (state is ProductLoading && state.products.isEmpty) {
                   return const LoadingWidget(message: 'جاري تحميل المنتجات...');
@@ -154,30 +171,42 @@ class _ProductsPageState extends State<ProductsPage> {
                       }
                       
                       final product = state.products[index];
-                      return ProductCard(
-                        product: product,
-                        onTap: () {
-                          // Navigate to product details
-                          context.push('/app/product/${product.id}');
-                        },
-                        onAddToCart: () {
-                          // التحقق من تسجيل الدخول قبل الإضافة للسلة
-                          if (NavigationHelper.addToCart(context)) {
-                            context.read<CartBloc>().add(
-                                  AddToCartEvent(
-                                    productId: product.id,
-                                    quantity: 1,
-                                  ),
+                      return BlocBuilder<WishlistBloc, WishlistState>(
+                        builder: (context, wishlistState) {
+                          bool isWishlisted = false;
+                          if (wishlistState is WishlistLoaded) {
+                            isWishlisted = wishlistState.wishlist.products
+                                .any((p) => p.id == product.id);
+                          }
+                          
+                          return ProductCard(
+                            product: product,
+                            isWishlisted: isWishlisted,
+                            onTap: () {
+                              // Navigate to product details
+                              context.push('/product/${product.id}');
+                            },
+                            onAddToCart: () {
+                              // التحقق من تسجيل الدخول قبل الإضافة للسلة
+                              if (NavigationHelper.addToCart(context)) {
+                                context.read<CartBloc>().add(
+                                      AddToCartEvent(
+                                        productId: product.id,
+                                        quantity: 1,
+                                      ),
+                                    );
+                                NavigationHelper.showSuccessMessage(context, 'تم إضافة المنتج للسلة');
+                              }
+                            },
+                            onToggleWishlist: () {
+                              // التحقق من تسجيل الدخول قبل الإضافة للمفضلة
+                              if (NavigationHelper.addToFavorites(context)) {
+                                context.read<WishlistBloc>().add(
+                                  ToggleWishlistEvent(product.id),
                                 );
-                            NavigationHelper.showSuccessMessage(context, 'تم إضافة المنتج للسلة');
-                          }
-                        },
-                        onToggleWishlist: () {
-                          // التحقق من تسجيل الدخول قبل الإضافة للمفضلة
-                          if (NavigationHelper.addToFavorites(context)) {
-                            // Add to favorites logic here
-                            NavigationHelper.showSuccessMessage(context, 'تم إضافة المنتج للمفضلة');
-                          }
+                              }
+                            },
+                          );
                         },
                       );
                     },
@@ -187,7 +216,8 @@ class _ProductsPageState extends State<ProductsPage> {
             ),
           ),
         ],
-      )));
+      ),
+    )));
   }
 
   void _showFilterDialog() {

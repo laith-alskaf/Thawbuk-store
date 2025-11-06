@@ -104,4 +104,20 @@ class FCMService {
       debugPrint('Error deleting FCM token: $e');
     }
   }
+
+  /// تحديث التوكن للمستخدم
+  Future<void> updateToken(String token) async {
+    try {
+      _fcmToken = token;
+      debugPrint('FCM Token updated: $token');
+      // يمكن إضافة منطق إرسال التوكن للخادم هنا
+    } catch (e) {
+      debugPrint('Error updating FCM token: $e');
+    }
+  }
+
+  /// مسح التوكن (alias for deleteToken)
+  Future<void> clearToken() async {
+    await deleteToken();
+  }
 }
